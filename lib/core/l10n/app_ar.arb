@@ -1,0 +1,97 @@
+{
+  "@@locale": "ar",
+  "@@last_modified": "2026-07-06",
+
+  "appName": "نظام إدارة العيادة",
+  "languageCode": "ar",
+  "loading": "جاري التحميل...",
+  "retry": "إعادة المحاولة",
+  "cancel": "إلغاء",
+  "confirm": "تأكيد",
+  "save": "حفظ",
+  "ok": "حسنًا",
+  "success": "نجاح",
+  "error": "خطأ",
+  "errorOccurred": "حدث خطأ",
+  "networkError": "لا يوجد اتصال بالإنترنت. يرجى التحقق من شبكتك.",
+  "serverError": "خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقًا.",
+
+  "loginTitle": "مرحبًا بعودتك",
+  "loginSubtitle": "سجّل الدخول للوصول إلى ملفك في العيادة",
+  "emailLabel": "البريد الإلكتروني",
+  "emailHint": "مثال: name@example.com",
+  "passwordLabel": "كلمة المرور",
+  "passwordHint": "أدخل كلمة المرور",
+  "loginButton": "تسجيل الدخول",
+  "noAccountPrompt": "ليس لديك حساب؟ سجّل الآن",
+
+  "registerTitle": "إنشاء حساب",
+  "registerSubtitle": "انضم إلينا لإدارة مواعيدك",
+  "fullNameLabel": "الاسم الكامل",
+  "fullNameHint": "مثال: محمد أحمد",
+  "phoneLabel": "رقم الهاتف",
+  "phoneHint": "مثال: 0501234567",
+  "confirmPasswordLabel": "تأكيد كلمة المرور",
+  "confirmPasswordHint": "أعد إدخال كلمة المرور",
+  "registerButton": "إنشاء الحساب",
+  "alreadyHaveAccount": "لديك حساب بالفعل؟ تسجيل الدخول",
+
+  "otpTitle": "تحقق من بريدك الإلكتروني",
+  "otpSubtitle": "أرسلنا رمزًا من 6 أرقام إلى",
+  "otpCodeLabel": "أدخل رمز التحقق",
+  "verifyButton": "تحقق وتسجيل الدخول",
+  "resendCode": "إعادة إرسال الرمز",
+  "resendIn": "إعادة الإرسال خلال {seconds} ثانية",
+  "otpSentMessage": "تم إرسال رمز التحقق إلى بريدك الإلكتروني.",
+  "otpResentMessage": "تمت إعادة إرسال رمز التحقق.",
+
+  "splashTagline": "صحتك، أولويتنا.",
+
+  "patientDashboard": "لوحة تحكم المريض",
+  "doctorDashboard": "لوحة تحكم الطبيب",
+  "logout": "تسجيل الخروج",
+  "logoutConfirmTitle": "تسجيل الخروج",
+  "logoutConfirmMessage": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+
+  "profileTitle": "ملفي الشخصي",
+  "editProfile": "تعديل الملف الشخصي",
+  "profileUpdated": "تم تحديث الملف الشخصي بنجاح.",
+
+  "walletTitle": "محفظتي",
+  "walletBalance": "رصيد المحفظة",
+  "transactionHistory": "سجل المعاملات",
+
+  "appointmentsTitle": "المواعيد",
+  "bookAppointment": "حجز موعد",
+  "myAppointments": "مواعيدي",
+
+  "medicalRecordsTitle": "السجلات الطبية",
+  "invoicesTitle": "الفواتير",
+  "doctorsTitle": "الأطباء",
+
+  "settingsTitle": "الإعدادات",
+  "darkMode": "الوضع الداكن",
+  "language": "اللغة",
+  "languageEnglish": "English",
+  "languageArabic": "العربية",
+
+  "requiredField": "{field} مطلوب",
+  "invalidEmail": "أدخل عنوان بريد إلكتروني صحيح",
+  "passwordTooShort": "يجب أن تحتوي كلمة المرور على 6 أحرف على الأقل",
+  "passwordsDoNotMatch": "كلمتا المرور غير متطابقتين",
+
+  "noDataFound": "لا توجد بيانات",
+  "pullToRefresh": "اسحب للتحديث",
+
+  "status_pending": "في الانتظار",
+  "status_confirmed": "مؤكد",
+  "status_rejected": "مرفوض",
+  "status_cancelled": "ملغى",
+  "status_completed": "مكتمل",
+
+  "transactionType_deposit": "إيداع",
+  "transactionType_booking_deduct": "خصم الحجز",
+  "transactionType_refund_full": "استرداد كامل",
+  "transactionType_refund_partial": "استرداد جزئي",
+  "transactionType_penalty": "غرامة"
+}

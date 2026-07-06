@@ -1,0 +1,246 @@
+{
+  "@@locale": "en",
+  "@@last_modified": "2026-07-06",
+
+  "appName": "Clinic Management",
+  "@appName": { "description": "The application name" },
+
+  "languageCode": "en",
+  "@languageCode": { "description": "BCP47 language code" },
+
+  "loading": "Loading...",
+  "@loading": { "description": "Generic loading text" },
+
+  "retry": "Retry",
+  "@retry": {},
+
+  "cancel": "Cancel",
+  "@cancel": {},
+
+  "confirm": "Confirm",
+  "@confirm": {},
+
+  "save": "Save",
+  "@save": {},
+
+  "ok": "OK",
+  "@ok": {},
+
+  "success": "Success",
+  "@success": {},
+
+  "error": "Error",
+  "@error": {},
+
+  "errorOccurred": "An error occurred",
+  "@errorOccurred": {},
+
+  "networkError": "No internet connection. Please check your network.",
+  "@networkError": {},
+
+  "serverError": "Server error. Please try again later.",
+  "@serverError": {},
+
+  "loginTitle": "Welcome Back",
+  "@loginTitle": { "description": "Login screen headline" },
+
+  "loginSubtitle": "Sign in to access your clinic profile",
+  "@loginSubtitle": {},
+
+  "emailLabel": "Email Address",
+  "@emailLabel": {},
+
+  "emailHint": "e.g. name@example.com",
+  "@emailHint": {},
+
+  "passwordLabel": "Password",
+  "@passwordLabel": {},
+
+  "passwordHint": "Enter your password",
+  "@passwordHint": {},
+
+  "loginButton": "Login",
+  "@loginButton": {},
+
+  "noAccountPrompt": "Don't have an account? Register",
+  "@noAccountPrompt": {},
+
+  "registerTitle": "Create Account",
+  "@registerTitle": {},
+
+  "registerSubtitle": "Join us to manage your appointments",
+  "@registerSubtitle": {},
+
+  "fullNameLabel": "Full Name",
+  "@fullNameLabel": {},
+
+  "fullNameHint": "e.g. John Doe",
+  "@fullNameHint": {},
+
+  "phoneLabel": "Phone Number",
+  "@phoneLabel": {},
+
+  "phoneHint": "e.g. 0501234567",
+  "@phoneHint": {},
+
+  "confirmPasswordLabel": "Confirm Password",
+  "@confirmPasswordLabel": {},
+
+  "confirmPasswordHint": "Re-enter your password",
+  "@confirmPasswordHint": {},
+
+  "registerButton": "Register",
+  "@registerButton": {},
+
+  "alreadyHaveAccount": "Already have an account? Login",
+  "@alreadyHaveAccount": {},
+
+  "otpTitle": "Verify Your Email",
+  "@otpTitle": {},
+
+  "otpSubtitle": "We sent a 6-digit code to",
+  "@otpSubtitle": {},
+
+  "otpCodeLabel": "Enter OTP Code",
+  "@otpCodeLabel": {},
+
+  "verifyButton": "Verify & Login",
+  "@verifyButton": {},
+
+  "resendCode": "Resend Code",
+  "@resendCode": {},
+
+  "resendIn": "Resend in {seconds}s",
+  "@resendIn": {
+    "placeholders": {
+      "seconds": { "type": "int" }
+    }
+  },
+
+  "otpSentMessage": "OTP sent to your email successfully.",
+  "@otpSentMessage": {},
+
+  "otpResentMessage": "OTP resent to your email.",
+  "@otpResentMessage": {},
+
+  "splashTagline": "Your health, our priority.",
+  "@splashTagline": {},
+
+  "patientDashboard": "Patient Dashboard",
+  "@patientDashboard": {},
+
+  "doctorDashboard": "Doctor Dashboard",
+  "@doctorDashboard": {},
+
+  "logout": "Logout",
+  "@logout": {},
+
+  "logoutConfirmTitle": "Logout",
+  "@logoutConfirmTitle": {},
+
+  "logoutConfirmMessage": "Are you sure you want to logout?",
+  "@logoutConfirmMessage": {},
+
+  "profileTitle": "My Profile",
+  "@profileTitle": {},
+
+  "editProfile": "Edit Profile",
+  "@editProfile": {},
+
+  "profileUpdated": "Profile updated successfully.",
+  "@profileUpdated": {},
+
+  "walletTitle": "My Wallet",
+  "@walletTitle": {},
+
+  "walletBalance": "Wallet Balance",
+  "@walletBalance": {},
+
+  "transactionHistory": "Transaction History",
+  "@transactionHistory": {},
+
+  "appointmentsTitle": "Appointments",
+  "@appointmentsTitle": {},
+
+  "bookAppointment": "Book Appointment",
+  "@bookAppointment": {},
+
+  "myAppointments": "My Appointments",
+  "@myAppointments": {},
+
+  "medicalRecordsTitle": "Medical Records",
+  "@medicalRecordsTitle": {},
+
+  "invoicesTitle": "Invoices",
+  "@invoicesTitle": {},
+
+  "doctorsTitle": "Doctors",
+  "@doctorsTitle": {},
+
+  "settingsTitle": "Settings",
+  "@settingsTitle": {},
+
+  "darkMode": "Dark Mode",
+  "@darkMode": {},
+
+  "language": "Language",
+  "@language": {},
+
+  "languageEnglish": "English",
+  "@languageEnglish": {},
+
+  "languageArabic": "العربية",
+  "@languageArabic": {},
+
+  "requiredField": "{field} is required",
+  "@requiredField": {
+    "placeholders": {
+      "field": { "type": "String" }
+    }
+  },
+
+  "invalidEmail": "Enter a valid email address",
+  "@invalidEmail": {},
+
+  "passwordTooShort": "Password must be at least 6 characters",
+  "@passwordTooShort": {},
+
+  "passwordsDoNotMatch": "Passwords do not match",
+  "@passwordsDoNotMatch": {},
+
+  "noDataFound": "No data found",
+  "@noDataFound": {},
+
+  "pullToRefresh": "Pull to refresh",
+  "@pullToRefresh": {},
+
+  "status_pending": "Pending",
+  "@status_pending": {},
+
+  "status_confirmed": "Confirmed",
+  "@status_confirmed": {},
+
+  "status_rejected": "Rejected",
+  "@status_rejected": {},
+
+  "status_cancelled": "Cancelled",
+  "@status_cancelled": {},
+
+  "status_completed": "Completed",
+  "@status_completed": {},
+
+  "transactionType_deposit": "Deposit",
+  "@transactionType_deposit": {},
+
+  "transactionType_booking_deduct": "Booking Deduction",
+  "@transactionType_booking_deduct": {},
+
+  "transactionType_refund_full": "Full Refund",
+  "@transactionType_refund_full": {},
+
+  "transactionType_refund_partial": "Partial Refund",
+  "@transactionType_refund_partial": {},
+
+  "transactionType_penalty": "Penalty",
+  "@transactionType_penalty": {}
+}
