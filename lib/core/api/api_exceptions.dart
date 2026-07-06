@@ -13,17 +13,17 @@ class ValidationException extends ApiException {
   final Map<String, dynamic> errors;
 
   ValidationException({
-    required String message,
+    required super.message,
     required this.errors,
-    int? statusCode,
-  }) : super(message: message, statusCode: statusCode, data: errors);
+    super.statusCode,
+  }) : super(data: errors);
 }
 
 class UnauthorizedException extends ApiException {
-  UnauthorizedException({required String message, int? statusCode})
-      : super(message: message, statusCode: statusCode);
+  UnauthorizedException({required super.message, super.statusCode});
 }
 
 class NetworkException extends ApiException {
-  NetworkException({required String message}) : super(message: message);
+  NetworkException({required super.message});
 }
+

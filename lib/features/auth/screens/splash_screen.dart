@@ -2,14 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../../../core/api/api_client.dart';
-import '../../../core/services/storage_service.dart';
+import 'package:clinic_app/core/l10n/app_localizations.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
-import '../data/auth_api_service.dart';
-import '../repository/auth_repository.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -27,7 +23,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<dynamic>();
     final primary = Theme.of(context).colorScheme.primary;
     final background = Theme.of(context).scaffoldBackgroundColor;
     final l10n = AppLocalizations.of(context);
@@ -77,27 +72,24 @@ class _SplashScreenState extends State<SplashScreen> {
                   color: Colors.white,
                   size: 54,
                 ),
-              ).animate().scale(
-                    duration: 600.ms,
-                    curve: Curves.easeOutBack,
-                  ),
+              ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack),
 
               const SizedBox(height: 28),
 
               Text(
-                l10n?.appName ?? 'Clinic Management',
+                l10n.appName,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  fontWeight: FontWeight.bold,
+                ),
               ).animate().fadeIn(delay: 300.ms),
 
               const SizedBox(height: 8),
 
               Text(
-                l10n?.splashTagline ?? 'Your health, our priority.',
+                l10n.splashTagline,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).textTheme.bodySmall?.color,
-                    ),
+                  color: Theme.of(context).textTheme.bodySmall?.color,
+                ),
               ).animate().fadeIn(delay: 500.ms),
 
               const SizedBox(height: 64),

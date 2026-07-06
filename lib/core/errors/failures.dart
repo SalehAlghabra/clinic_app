@@ -10,26 +10,26 @@ abstract class Failure extends Equatable {
 }
 
 class ServerFailure extends Failure {
-  const ServerFailure([String message = 'Server error occurred']) : super(message);
+  const ServerFailure([super.message = 'Server error occurred']);
 }
 
 class NetworkFailure extends Failure {
-  const NetworkFailure([String message = 'No internet connection']) : super(message);
+  const NetworkFailure([super.message = 'No internet connection']);
 }
 
 class AuthFailure extends Failure {
-  const AuthFailure([String message = 'Authentication failed']) : super(message);
+  const AuthFailure([super.message = 'Authentication failed']);
 }
 
 class ValidationFailure extends Failure {
   final Map<String, dynamic> errors;
 
-  const ValidationFailure(String message, this.errors) : super(message);
+  const ValidationFailure(super.message, this.errors);
 
   @override
   List<Object?> get props => [message, errors];
 }
 
 class CacheFailure extends Failure {
-  const CacheFailure([String message = 'Cache error']) : super(message);
+  const CacheFailure([super.message = 'Cache error']);
 }

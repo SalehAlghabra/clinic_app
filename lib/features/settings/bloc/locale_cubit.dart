@@ -7,7 +7,6 @@ class LocaleCubit extends Cubit<LocaleState> {
   final StorageService _storageService;
 
   static const String _localeKey = 'app_locale';
-  static const Locale _defaultLocale = Locale('en');
 
   LocaleCubit(this._storageService) : super(const LocaleState(Locale('en'))) {
     _loadLocale();

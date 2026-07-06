@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:clinic_app/core/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'core/api/api_client.dart';
 import 'core/router/app_router.dart';
@@ -25,12 +25,8 @@ void main() {
   runApp(
     MultiBlocProvider(
       providers: [
-        BlocProvider<ThemeCubit>(
-          create: (_) => ThemeCubit(storageService),
-        ),
-        BlocProvider<LocaleCubit>(
-          create: (_) => LocaleCubit(storageService),
-        ),
+        BlocProvider<ThemeCubit>(create: (_) => ThemeCubit(storageService)),
+        BlocProvider<LocaleCubit>(create: (_) => LocaleCubit(storageService)),
       ],
       child: MyApp(router: router),
     ),

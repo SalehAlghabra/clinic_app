@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import '../../../core/theme/app_colors.dart';
+import 'package:clinic_app/core/l10n/app_localizations.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/utils/validators.dart';
 import '../../../shared/extensions/context_extensions.dart';
@@ -34,10 +33,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _submit() {
     if (_formKey.currentState?.validate() ?? false) {
-      context.read<AuthBloc>().add(AuthLoginRequested(
-            email: _emailController.text.trim(),
-            password: _passwordController.text,
-          ));
+      context.read<AuthBloc>().add(
+        AuthLoginRequested(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        ),
+      );
     }
   }
 
@@ -63,21 +64,25 @@ class _LoginScreenState extends State<LoginScreen> {
               content: Text(state.message),
               backgroundColor: colors.error,
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         } else if (state is AuthValidationError) {
           final firstError = state.errors.values.isNotEmpty
               ? (state.errors.values.first is List
-                  ? state.errors.values.first[0]
-                  : state.errors.values.first)
+                    ? state.errors.values.first[0]
+                    : state.errors.values.first)
               : state.message;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(firstError.toString()),
               backgroundColor: colors.error,
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         }
@@ -123,13 +128,16 @@ class _LoginScreenState extends State<LoginScreen> {
                         size: 42,
                       ),
                     ),
-                  ).animate().scale(duration: 500.ms, curve: Curves.easeOutBack),
+                  ).animate().scale(
+                    duration: 500.ms,
+                    curve: Curves.easeOutBack,
+                  ),
 
                   const SizedBox(height: AppDimensions.paddingL),
 
                   // Title
                   Text(
-                    l10n?.loginTitle ?? 'Welcome Back',
+                    l10n.loginTitle,
                     textAlign: TextAlign.center,
                     style: context.textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
@@ -140,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 8),
 
                   Text(
-                    l10n?.loginSubtitle ?? 'Sign in to access your clinic profile',
+                    l10n.loginSubtitle,
                     textAlign: TextAlign.center,
                     style: context.textTheme.bodyMedium?.copyWith(
                       color: colors.textSecondary,
@@ -151,27 +159,41 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // Email field
                   AppTextField(
-                    labelText: l10n?.emailLabel ?? 'Email Address',
-                    hintText: l10n?.emailHint ?? 'e.g. name@example.com',
+                    labelText: l10n.emailLabel,
+                    hintText: l10n.emailHint,
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
-                    prefixIcon: Icon(Icons.email_outlined, color: colors.textSecondary),
+                    prefixIcon: Icon(
+                      Icons.email_outlined,
+                      color: colors.textSecondary,
+                    ),
                     validator: Validators.email,
                   ).animate().slideY(
-                        begin: 0.2, delay: 400.ms, duration: 400.ms, curve: Curves.easeOut),
+                    begin: 0.2,
+                    delay: 400.ms,
+                    duration: 400.ms,
+                    curve: Curves.easeOut,
+                  ),
 
                   const SizedBox(height: AppDimensions.paddingM),
 
                   // Password field
                   AppTextField(
-                    labelText: l10n?.passwordLabel ?? 'Password',
-                    hintText: l10n?.passwordHint ?? 'Enter your password',
+                    labelText: l10n.passwordLabel,
+                    hintText: l10n.passwordHint,
                     controller: _passwordController,
                     isPassword: true,
-                    prefixIcon: Icon(Icons.lock_outline_rounded, color: colors.textSecondary),
+                    prefixIcon: Icon(
+                      Icons.lock_outline_rounded,
+                      color: colors.textSecondary,
+                    ),
                     validator: Validators.password,
                   ).animate().slideY(
-                        begin: 0.2, delay: 500.ms, duration: 400.ms, curve: Curves.easeOut),
+                    begin: 0.2,
+                    delay: 500.ms,
+                    duration: 400.ms,
+                    curve: Curves.easeOut,
+                  ),
 
                   const SizedBox(height: AppDimensions.paddingXL),
 
@@ -179,7 +201,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {
                       return AppButton(
-                        text: l10n?.loginButton ?? 'Login',
+                        text: l10n.loginButton,
                         isLoading: state is AuthLoading,
                         onPressed: _submit,
                       );
@@ -192,7 +214,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextButton(
                     onPressed: () => context.push('/register'),
                     child: Text(
-                      l10n?.noAccountPrompt ?? "Don't have an account? Register",
+                      l10n.noAccountPrompt,
                       style: context.textTheme.bodyMedium?.copyWith(
                         color: colors.primary,
                         fontWeight: FontWeight.w500,

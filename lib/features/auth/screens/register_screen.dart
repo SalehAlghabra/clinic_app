@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:clinic_app/core/l10n/app_localizations.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/utils/validators.dart';
 import '../../../shared/extensions/context_extensions.dart';
@@ -39,15 +39,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void _submit() {
     if (_formKey.currentState?.validate() ?? false) {
-      context.read<AuthBloc>().add(AuthRegisterRequested(
-            name: _nameController.text.trim(),
-            email: _emailController.text.trim(),
-            password: _passwordController.text,
-            passwordConfirmation: _confirmPasswordController.text,
-            phone: _phoneController.text.trim().isEmpty
-                ? null
-                : _phoneController.text.trim(),
-          ));
+      context.read<AuthBloc>().add(
+        AuthRegisterRequested(
+          name: _nameController.text.trim(),
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+          passwordConfirmation: _confirmPasswordController.text,
+          phone: _phoneController.text.trim().isEmpty
+              ? null
+              : _phoneController.text.trim(),
+        ),
+      );
     }
   }
 
@@ -58,8 +60,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state is AuthAuthenticated) {
-          // Register always creates a patient — go straight to patient dashboard
+        if (state is AuthOtpSent) {
+          context.push('/otp-verification', extra: state.email);
+        } else if (state is AuthAuthenticated) {
           context.go('/patient/dashboard');
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -67,21 +70,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
               content: Text(state.message),
               backgroundColor: colors.error,
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         } else if (state is AuthValidationError) {
           final firstError = state.errors.values.isNotEmpty
               ? (state.errors.values.first is List
-                  ? state.errors.values.first[0]
-                  : state.errors.values.first)
+                    ? state.errors.values.first[0]
+                    : state.errors.values.first)
               : state.message;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(firstError.toString()),
               backgroundColor: colors.error,
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         }
@@ -109,7 +116,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 children: [
                   // Header
                   Text(
-                    l10n?.registerTitle ?? 'Create Account',
+                    l10n.registerTitle,
                     style: context.textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: colors.text,
@@ -119,7 +126,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 8),
 
                   Text(
-                    l10n?.registerSubtitle ?? 'Join us to manage your appointments',
+                    l10n.registerSubtitle,
                     style: context.textTheme.bodyMedium?.copyWith(
                       color: colors.textSecondary,
                     ),
@@ -129,69 +136,103 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   // Full Name
                   AppTextField(
-                    labelText: l10n?.fullNameLabel ?? 'Full Name',
-                    hintText: l10n?.fullNameHint ?? 'e.g. John Doe',
+                    labelText: l10n.fullNameLabel,
+                    hintText: l10n.fullNameHint,
                     controller: _nameController,
-                    prefixIcon: Icon(Icons.person_outline_rounded,
-                        color: colors.textSecondary),
+                    prefixIcon: Icon(
+                      Icons.person_outline_rounded,
+                      color: colors.textSecondary,
+                    ),
                     validator: (v) => Validators.required(v, 'Name'),
-                  ).animate().slideY(begin: 0.15, delay: 200.ms, duration: 350.ms),
+                  ).animate().slideY(
+                    begin: 0.15,
+                    delay: 200.ms,
+                    duration: 350.ms,
+                  ),
 
                   const SizedBox(height: AppDimensions.paddingM),
 
                   // Email
                   AppTextField(
-                    labelText: l10n?.emailLabel ?? 'Email Address',
-                    hintText: l10n?.emailHint ?? 'e.g. name@example.com',
+                    labelText: l10n.emailLabel,
+                    hintText: l10n.emailHint,
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
-                    prefixIcon: Icon(Icons.email_outlined, color: colors.textSecondary),
+                    prefixIcon: Icon(
+                      Icons.email_outlined,
+                      color: colors.textSecondary,
+                    ),
                     validator: Validators.email,
-                  ).animate().slideY(begin: 0.15, delay: 280.ms, duration: 350.ms),
+                  ).animate().slideY(
+                    begin: 0.15,
+                    delay: 280.ms,
+                    duration: 350.ms,
+                  ),
 
                   const SizedBox(height: AppDimensions.paddingM),
 
                   // Phone (optional)
                   AppTextField(
-                    labelText: '${l10n?.phoneLabel ?? 'Phone Number'} (optional)',
-                    hintText: l10n?.phoneHint ?? 'e.g. 0501234567',
+                    labelText: '${l10n.phoneLabel} (optional)',
+                    hintText: l10n.phoneHint,
                     controller: _phoneController,
                     keyboardType: TextInputType.phone,
-                    prefixIcon: Icon(Icons.phone_outlined, color: colors.textSecondary),
+                    prefixIcon: Icon(
+                      Icons.phone_outlined,
+                      color: colors.textSecondary,
+                    ),
                     validator: Validators.phone,
-                  ).animate().slideY(begin: 0.15, delay: 360.ms, duration: 350.ms),
+                  ).animate().slideY(
+                    begin: 0.15,
+                    delay: 360.ms,
+                    duration: 350.ms,
+                  ),
 
                   const SizedBox(height: AppDimensions.paddingM),
 
                   // Password
                   AppTextField(
-                    labelText: l10n?.passwordLabel ?? 'Password',
-                    hintText: l10n?.passwordHint ?? 'At least 6 characters',
+                    labelText: l10n.passwordLabel,
+                    hintText: l10n.passwordHint,
                     controller: _passwordController,
                     isPassword: true,
-                    prefixIcon: Icon(Icons.lock_outline_rounded,
-                        color: colors.textSecondary),
+                    prefixIcon: Icon(
+                      Icons.lock_outline_rounded,
+                      color: colors.textSecondary,
+                    ),
                     validator: Validators.password,
-                  ).animate().slideY(begin: 0.15, delay: 440.ms, duration: 350.ms),
+                  ).animate().slideY(
+                    begin: 0.15,
+                    delay: 440.ms,
+                    duration: 350.ms,
+                  ),
 
                   const SizedBox(height: AppDimensions.paddingM),
 
                   // Confirm Password
                   AppTextField(
-                    labelText: l10n?.confirmPasswordLabel ?? 'Confirm Password',
-                    hintText: l10n?.confirmPasswordHint ?? 'Re-enter your password',
+                    labelText: l10n.confirmPasswordLabel,
+                    hintText: l10n.confirmPasswordHint,
                     controller: _confirmPasswordController,
                     isPassword: true,
-                    prefixIcon: Icon(Icons.lock_person_outlined,
-                        color: colors.textSecondary),
+                    prefixIcon: Icon(
+                      Icons.lock_person_outlined,
+                      color: colors.textSecondary,
+                    ),
                     validator: (v) {
-                      if (v == null || v.isEmpty) return 'Please confirm your password';
+                      if (v == null || v.isEmpty) {
+                        return 'Please confirm your password';
+                      }
                       if (v != _passwordController.text) {
-                        return l10n?.passwordsDoNotMatch ?? 'Passwords do not match';
+                        return l10n.passwordsDoNotMatch;
                       }
                       return null;
                     },
-                  ).animate().slideY(begin: 0.15, delay: 520.ms, duration: 350.ms),
+                  ).animate().slideY(
+                    begin: 0.15,
+                    delay: 520.ms,
+                    duration: 350.ms,
+                  ),
 
                   const SizedBox(height: AppDimensions.paddingXL),
 
@@ -199,7 +240,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {
                       return AppButton(
-                        text: l10n?.registerButton ?? 'Register',
+                        text: l10n.registerButton,
                         isLoading: state is AuthLoading,
                         onPressed: _submit,
                       );
@@ -211,7 +252,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   TextButton(
                     onPressed: () => context.pop(),
                     child: Text(
-                      l10n?.alreadyHaveAccount ?? 'Already have an account? Login',
+                      l10n.alreadyHaveAccount,
                       style: context.textTheme.bodyMedium?.copyWith(
                         color: colors.primary,
                         fontWeight: FontWeight.w500,

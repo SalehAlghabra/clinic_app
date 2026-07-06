@@ -4,7 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:clinic_app/core/l10n/app_localizations.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../shared/extensions/context_extensions.dart';
 import '../../../shared/widgets/app_button.dart';
@@ -59,10 +59,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   void _verify() {
     final otp = _otpController.text.trim();
     if (otp.length == 6) {
-      context.read<AuthBloc>().add(AuthOtpVerifyRequested(
-            email: widget.email,
-            otp: otp,
-          ));
+      context.read<AuthBloc>().add(
+        AuthOtpVerifyRequested(email: widget.email, otp: otp),
+      );
     }
   }
 
@@ -88,10 +87,12 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         } else if (state is AuthOtpResent) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(l10n?.otpResentMessage ?? state.message),
+              content: Text(l10n.otpResentMessage),
               backgroundColor: colors.success,
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         } else if (state is AuthError) {
@@ -100,7 +101,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
               content: Text(state.message),
               backgroundColor: colors.error,
               behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         }
@@ -117,7 +120,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
         ),
         body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppDimensions.paddingL),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppDimensions.paddingL,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -132,15 +137,18 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       color: colors.primary.withOpacity(0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(Icons.mark_email_read_outlined,
-                        size: 42, color: colors.primary),
+                    child: Icon(
+                      Icons.mark_email_read_outlined,
+                      size: 42,
+                      color: colors.primary,
+                    ),
                   ),
                 ).animate().scale(duration: 500.ms, curve: Curves.easeOutBack),
 
                 const SizedBox(height: AppDimensions.paddingL),
 
                 Text(
-                  l10n?.otpTitle ?? 'Verify Your Email',
+                  l10n.otpTitle,
                   textAlign: TextAlign.center,
                   style: context.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
@@ -157,7 +165,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       color: colors.textSecondary,
                     ),
                     children: [
-                      TextSpan(text: '${l10n?.otpSubtitle ?? 'We sent a code to'} '),
+                      TextSpan(
+                        text: '${l10n.otpSubtitle} ',
+                      ),
                       TextSpan(
                         text: widget.email,
                         style: TextStyle(
@@ -205,7 +215,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 BlocBuilder<AuthBloc, AuthState>(
                   builder: (context, state) {
                     return AppButton(
-                      text: l10n?.verifyButton ?? 'Verify & Login',
+                      text: l10n.verifyButton,
                       isLoading: state is AuthLoading,
                       onPressed: _verify,
                     );
@@ -220,7 +230,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                       ? TextButton(
                           onPressed: _resend,
                           child: Text(
-                            l10n?.resendCode ?? 'Resend Code',
+                            l10n.resendCode,
                             style: context.textTheme.bodyMedium?.copyWith(
                               color: colors.primary,
                               fontWeight: FontWeight.w600,
@@ -228,8 +238,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                           ),
                         )
                       : Text(
-                          l10n?.resendIn(_secondsRemaining) ??
-                              'Resend in ${_secondsRemaining}s',
+                          l10n.resendIn(_secondsRemaining),
                           style: context.textTheme.bodyMedium?.copyWith(
                             color: colors.textSecondary,
                           ),

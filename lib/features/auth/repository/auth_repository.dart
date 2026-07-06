@@ -20,6 +20,18 @@ class AuthResult<T> {
   bool get isSuccess => failure == null;
 }
 
+class AuthLoginResponse {
+  final UserModel? user;
+  final String? email;
+  final bool isVerified;
+
+  const AuthLoginResponse({
+    this.user,
+    this.email,
+    required this.isVerified,
+  });
+}
+
 class AuthRepository {
   final AuthApiService _apiService;
   final StorageService _storageService;
@@ -31,8 +43,8 @@ class AuthRepository {
         _storageService = storageService;
 
   /// Register a new patient account.
-  /// Returns the created [UserModel] and saves the token + role locally.
-  Future<AuthResult<UserModel>> register({
+  /// Returns the registered email since verification via OTP is required first.
+  Future<AuthResult<String>> register({
     required String name,
     required String email,
     required String password,
@@ -48,13 +60,8 @@ class AuthRepository {
         phone: phone,
       );
 
-      final user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
-      final token = data['token'] as String;
-
-      await _storageService.saveToken(token);
-      await _storageService.saveRole(user.role);
-
-      return AuthResult.success(user);
+      // Backend returns: { message, email, verified }
+      return AuthResult.success(data['email'] as String);
     } on ValidationException catch (e) {
       return AuthResult.failure(ValidationFailure(e.message, e.errors));
     } on ApiException catch (e) {
@@ -64,16 +71,34 @@ class AuthRepository {
     }
   }
 
-  /// Step 1 of login: send credentials, backend sends OTP email.
-  /// Returns the email on success (to pass to OTP screen).
-  Future<AuthResult<String>> login({
+  /// Login: checks password.
+  /// If email is verified, stores user + token and returns AuthLoginResponse with isVerified = true.
+  /// If email is not verified, returns AuthLoginResponse with isVerified = false.
+  Future<AuthResult<AuthLoginResponse>> login({
     required String email,
     required String password,
   }) async {
     try {
       final data = await _apiService.login(email: email, password: password);
-      // Backend returns: { message, email }
-      return AuthResult.success(data['email'] as String);
+      final isVerified = data['verified'] as bool? ?? false;
+
+      if (isVerified) {
+        final user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
+        final token = data['token'] as String;
+
+        await _storageService.saveToken(token);
+        await _storageService.saveRole(user.role);
+
+        return AuthResult.success(AuthLoginResponse(
+          user: user,
+          isVerified: true,
+        ));
+      } else {
+        return AuthResult.success(AuthLoginResponse(
+          email: data['email'] as String,
+          isVerified: false,
+        ));
+      }
     } on ValidationException catch (e) {
       return AuthResult.failure(ValidationFailure(e.message, e.errors));
     } on ApiException catch (e) {

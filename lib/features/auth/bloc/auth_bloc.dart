@@ -34,7 +34,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  /// Step 1: POST /auth/login — sends OTP to email
+  /// Step 1: POST /auth/login — direct login if verified, otherwise sends OTP and triggers verify-redirect
   Future<void> _onLoginRequested(
     AuthLoginRequested event,
     Emitter<AuthState> emit,
@@ -47,10 +47,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
 
     if (result.isSuccess) {
-      emit(AuthOtpSent(
-        email: result.data!,
-        message: 'OTP sent to your email. Please verify to complete login.',
-      ));
+      final loginResponse = result.data!;
+      if (loginResponse.isVerified) {
+        emit(AuthAuthenticated(loginResponse.user!));
+      } else {
+        emit(AuthOtpSent(
+          email: loginResponse.email!,
+          message: 'Email not verified. OTP sent to your email. Please verify to complete login.',
+        ));
+      }
     } else {
       _emitFailure(emit, result.failure!);
     }
@@ -94,7 +99,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  /// POST /auth/register — patients only, returns token immediately
+  /// POST /auth/register — patients only, requires OTP verification afterward
   Future<void> _onRegisterRequested(
     AuthRegisterRequested event,
     Emitter<AuthState> emit,
@@ -110,7 +115,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
 
     if (result.isSuccess) {
-      emit(AuthAuthenticated(result.data!));
+      emit(AuthOtpSent(
+        email: result.data!,
+        message: 'Registration successful. OTP sent to your email.',
+      ));
     } else {
       _emitFailure(emit, result.failure!);
     }
