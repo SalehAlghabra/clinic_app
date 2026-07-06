@@ -11,6 +11,7 @@ class AppTextField extends StatefulWidget {
   final Widget? prefixIcon;
   final Widget? suffixIcon;
   final bool enabled;
+  final ValueChanged<String>? onChanged;
 
   const AppTextField({
     super.key,
@@ -23,6 +24,7 @@ class AppTextField extends StatefulWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.enabled = true,
+    this.onChanged,
   });
 
   @override
@@ -53,6 +55,7 @@ class _AppTextFieldState extends State<AppTextField> {
           obscureText: widget.isPassword ? _obscureText : false,
           keyboardType: widget.keyboardType,
           enabled: widget.enabled,
+          onChanged: widget.onChanged,
           style: context.textTheme.bodyMedium?.copyWith(color: colors.text),
           decoration: InputDecoration(
             hintText: widget.hintText,

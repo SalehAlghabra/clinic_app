@@ -10,7 +10,14 @@ import '../../features/auth/screens/otp_verification_screen.dart';
 import '../../features/auth/screens/register_screen.dart';
 import '../../features/auth/screens/splash_screen.dart';
 import '../../features/doctor/screens/doctor_dashboard_screen.dart';
+import '../../features/patient/bloc/doctor_detail_bloc.dart';
+import '../../features/patient/bloc/doctor_list_bloc.dart';
+import '../../features/patient/data/patient_api_service.dart';
+import '../../features/patient/repository/patient_repository.dart';
+import '../../features/patient/screens/doctor_detail_screen.dart';
+import '../../features/patient/screens/doctor_list_screen.dart';
 import '../../features/patient/screens/patient_dashboard_screen.dart';
+import '../../features/patient/screens/patient_main_screen.dart';
 import '../api/api_client.dart';
 import '../services/storage_service.dart';
 
@@ -22,6 +29,10 @@ class AppRouter {
     final authRepository = AuthRepository(
       apiService: AuthApiService(apiClient),
       storageService: storageService,
+    );
+
+    final patientRepository = PatientRepository(
+      PatientApiService(apiClient),
     );
 
     return GoRouter(
@@ -60,10 +71,48 @@ class AppRouter {
           },
         ),
 
-        // Patient routes
+        // Patient Main Navigation Shell
+        ShellRoute(
+          builder: (context, state, child) {
+            return PatientMainScreen(child: child);
+          },
+          routes: [
+            GoRoute(
+              path: '/patient/dashboard',
+              builder: (context, state) => const PatientDashboardScreen(),
+            ),
+            GoRoute(
+              path: '/patient/doctors',
+              builder: (context, state) => BlocProvider(
+                create: (_) => DoctorListBloc(repository: patientRepository),
+                child: const DoctorListScreen(),
+              ),
+            ),
+            GoRoute(
+              path: '/patient/appointments',
+              builder: (context, state) => const Scaffold(
+                body: Center(child: Text('My Appointments (Coming soon in Phase 4)')),
+              ),
+            ),
+            GoRoute(
+              path: '/patient/wallet',
+              builder: (context, state) => const Scaffold(
+                body: Center(child: Text('My Wallet (Coming soon in Phase 7)')),
+              ),
+            ),
+          ],
+        ),
+
+        // Doctor details (Not in Shell so it pushes over the bottom navigation bar)
         GoRoute(
-          path: '/patient/dashboard',
-          builder: (context, state) => const PatientDashboardScreen(),
+          path: '/patient/doctors/:id',
+          builder: (context, state) {
+            final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+            return BlocProvider(
+              create: (_) => DoctorDetailBloc(repository: patientRepository),
+              child: DoctorDetailScreen(doctorId: id),
+            );
+          },
         ),
 
         // Doctor routes
