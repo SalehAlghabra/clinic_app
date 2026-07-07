@@ -93,5 +93,22 @@
   "transactionType_booking_deduct": "خصم الحجز",
   "transactionType_refund_full": "استرداد كامل",
   "transactionType_refund_partial": "استرداد جزئي",
-  "transactionType_penalty": "غرامة"
+  "transactionType_penalty": "غرامة",
+  "selectDate": "اختر التاريخ",
+  "selectTimeSlot": "اختر وقت الحجز",
+  "bookingSummary": "ملخص الحجز",
+  "paymentDetails": "تفاصيل الدفع",
+  "depositRequired": "مبلغ التأمين المطلوب",
+  "balanceAfter": "الرصيد بعد الخصم",
+  "remainingAtVisit": "المتبقي عند الزيارة",
+  "insufficientBalance": "رصيد غير كافٍ. يرجى شحن محفظتك.",
+  "confirmBooking": "تأكيد الحجز",
+  "notesLabel": "ملاحظات (اختياري)",
+  "cancellationReason": "سبب الإلغاء (اختياري)",
+  "upcomingAppointments": "المقبلة",
+  "pastAppointments": "المنتهية والملغاة",
+  "cancelAppointmentConfirm": "هل أنت متأكد من إلغاء هذا الموعد؟",
+  "noAppointments": "لا توجد مواعيد حالية",
+  "appointmentBookedSuccess": "تم حجز الموعد بنجاح!",
+  "appointmentCancelledSuccess": "تم إلغاء الموعد بنجاح!"
 }

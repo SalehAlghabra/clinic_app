@@ -246,4 +246,58 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get transactionType_penalty => 'Penalty';
+
+  @override
+  String get selectDate => 'Select Date';
+
+  @override
+  String get selectTimeSlot => 'Select Time Slot';
+
+  @override
+  String get bookingSummary => 'Booking Summary';
+
+  @override
+  String get paymentDetails => 'Payment Details';
+
+  @override
+  String get depositRequired => 'Deposit Required';
+
+  @override
+  String get balanceAfter => 'Balance After';
+
+  @override
+  String get remainingAtVisit => 'Remaining at Visit';
+
+  @override
+  String get insufficientBalance =>
+      'Insufficient Balance. Please top up your wallet.';
+
+  @override
+  String get confirmBooking => 'Confirm Booking';
+
+  @override
+  String get notesLabel => 'Notes (Optional)';
+
+  @override
+  String get cancellationReason => 'Cancellation Reason (Optional)';
+
+  @override
+  String get upcomingAppointments => 'Upcoming';
+
+  @override
+  String get pastAppointments => 'Past & Cancelled';
+
+  @override
+  String get cancelAppointmentConfirm =>
+      'Are you sure you want to cancel this appointment?';
+
+  @override
+  String get noAppointments => 'No appointments found';
+
+  @override
+  String get appointmentBookedSuccess => 'Appointment booked successfully!';
+
+  @override
+  String get appointmentCancelledSuccess =>
+      'Appointment cancelled successfully!';
 }

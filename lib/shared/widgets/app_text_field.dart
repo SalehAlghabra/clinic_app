@@ -60,7 +60,7 @@ class _AppTextFieldState extends State<AppTextField> {
           decoration: InputDecoration(
             hintText: widget.hintText,
             hintStyle: context.textTheme.bodyMedium?.copyWith(
-              color: colors.textSecondary.withOpacity(0.6),
+              color: colors.textSecondary.withValues(alpha: 0.6),
             ),
             prefixIcon: widget.prefixIcon,
             suffixIcon: widget.isPassword

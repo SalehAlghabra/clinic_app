@@ -4,6 +4,8 @@ import '../data/patient_api_service.dart';
 import '../models/doctor_model.dart';
 import '../models/schedule_model.dart';
 import '../models/service_model.dart';
+import '../models/appointment_model.dart';
+import '../models/appointment_preview_model.dart';
 
 class PatientResult<T> {
   final T? data;
@@ -70,6 +72,90 @@ class PatientRepository {
       final list = await _apiService.getDoctorServices(doctorId);
       final services = list.map((e) => ServiceModel.fromJson(e as Map<String, dynamic>)).toList();
       return PatientResult.success(services);
+    } on ApiException catch (e) {
+      return PatientResult.failure(ServerFailure(e.message));
+    } catch (_) {
+      return PatientResult.failure(const NetworkFailure());
+    }
+  }
+
+  /// Fetch available slots for a doctor on a specific date
+  Future<PatientResult<List<String>>> getAvailableSlots(int doctorId, String date) async {
+    try {
+      final res = await _apiService.getAvailableSlots(doctorId, date);
+      final slots = (res['available_slots'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [];
+      return PatientResult.success(slots);
+    } on ApiException catch (e) {
+      return PatientResult.failure(ServerFailure(e.message));
+    } catch (_) {
+      return PatientResult.failure(const NetworkFailure());
+    }
+  }
+
+  /// Preview an appointment booking with wallet calculations
+  Future<PatientResult<AppointmentPreviewModel>> previewAppointment({
+    required int doctorId,
+    required int serviceId,
+    required String date,
+    required String time,
+  }) async {
+    try {
+      final res = await _apiService.previewAppointment(
+        doctorId: doctorId,
+        serviceId: serviceId,
+        date: date,
+        time: time,
+      );
+      return PatientResult.success(AppointmentPreviewModel.fromJson(res));
+    } on ApiException catch (e) {
+      return PatientResult.failure(ServerFailure(e.message));
+    } catch (_) {
+      return PatientResult.failure(const NetworkFailure());
+    }
+  }
+
+  /// Book a new appointment
+  Future<PatientResult<Map<String, dynamic>>> bookAppointment({
+    required int doctorId,
+    required int serviceId,
+    required String date,
+    required String time,
+    String? notes,
+  }) async {
+    try {
+      final res = await _apiService.bookAppointment(
+        doctorId: doctorId,
+        serviceId: serviceId,
+        date: date,
+        time: time,
+        notes: notes,
+      );
+      return PatientResult.success(res);
+    } on ApiException catch (e) {
+      return PatientResult.failure(ServerFailure(e.message));
+    } catch (_) {
+      return PatientResult.failure(const NetworkFailure());
+    }
+  }
+
+  /// Fetch patient appointments
+  Future<PatientResult<List<AppointmentModel>>> getPatientAppointments() async {
+    try {
+      final list = await _apiService.getPatientAppointments();
+      final appointments = list.map((e) => AppointmentModel.fromJson(e as Map<String, dynamic>)).toList();
+      return PatientResult.success(appointments);
+    } on ApiException catch (e) {
+      return PatientResult.failure(ServerFailure(e.message));
+    } catch (_) {
+      return PatientResult.failure(const NetworkFailure());
+    }
+  }
+
+  /// Cancel an appointment
+  Future<PatientResult<Map<String, dynamic>>> cancelAppointment(int id, {String? reason}) async {
+    try {
+      final res = await _apiService.cancelAppointment(id, reason: reason);
+      return PatientResult.success(res);
     } on ApiException catch (e) {
       return PatientResult.failure(ServerFailure(e.message));
     } catch (_) {

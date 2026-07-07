@@ -242,5 +242,56 @@
   "@transactionType_refund_partial": {},
 
   "transactionType_penalty": "Penalty",
-  "@transactionType_penalty": {}
+  "@transactionType_penalty": {},
+
+  "selectDate": "Select Date",
+  "@selectDate": {},
+
+  "selectTimeSlot": "Select Time Slot",
+  "@selectTimeSlot": {},
+
+  "bookingSummary": "Booking Summary",
+  "@bookingSummary": {},
+
+  "paymentDetails": "Payment Details",
+  "@paymentDetails": {},
+
+  "depositRequired": "Deposit Required",
+  "@depositRequired": {},
+
+  "balanceAfter": "Balance After",
+  "@balanceAfter": {},
+
+  "remainingAtVisit": "Remaining at Visit",
+  "@remainingAtVisit": {},
+
+  "insufficientBalance": "Insufficient Balance. Please top up your wallet.",
+  "@insufficientBalance": {},
+
+  "confirmBooking": "Confirm Booking",
+  "@confirmBooking": {},
+
+  "notesLabel": "Notes (Optional)",
+  "@notesLabel": {},
+
+  "cancellationReason": "Cancellation Reason (Optional)",
+  "@cancellationReason": {},
+
+  "upcomingAppointments": "Upcoming",
+  "@upcomingAppointments": {},
+
+  "pastAppointments": "Past & Cancelled",
+  "@pastAppointments": {},
+
+  "cancelAppointmentConfirm": "Are you sure you want to cancel this appointment?",
+  "@cancelAppointmentConfirm": {},
+
+  "noAppointments": "No appointments found",
+  "@noAppointments": {},
+
+  "appointmentBookedSuccess": "Appointment booked successfully!",
+  "@appointmentBookedSuccess": {},
+
+  "appointmentCancelledSuccess": "Appointment cancelled successfully!",
+  "@appointmentCancelledSuccess": {}
 }

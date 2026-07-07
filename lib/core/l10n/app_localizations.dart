@@ -565,6 +565,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Penalty'**
   String get transactionType_penalty;
+
+  /// No description provided for @selectDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Date'**
+  String get selectDate;
+
+  /// No description provided for @selectTimeSlot.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Time Slot'**
+  String get selectTimeSlot;
+
+  /// No description provided for @bookingSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking Summary'**
+  String get bookingSummary;
+
+  /// No description provided for @paymentDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Details'**
+  String get paymentDetails;
+
+  /// No description provided for @depositRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit Required'**
+  String get depositRequired;
+
+  /// No description provided for @balanceAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance After'**
+  String get balanceAfter;
+
+  /// No description provided for @remainingAtVisit.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining at Visit'**
+  String get remainingAtVisit;
+
+  /// No description provided for @insufficientBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient Balance. Please top up your wallet.'**
+  String get insufficientBalance;
+
+  /// No description provided for @confirmBooking.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Booking'**
+  String get confirmBooking;
+
+  /// No description provided for @notesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes (Optional)'**
+  String get notesLabel;
+
+  /// No description provided for @cancellationReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancellation Reason (Optional)'**
+  String get cancellationReason;
+
+  /// No description provided for @upcomingAppointments.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get upcomingAppointments;
+
+  /// No description provided for @pastAppointments.
+  ///
+  /// In en, this message translates to:
+  /// **'Past & Cancelled'**
+  String get pastAppointments;
+
+  /// No description provided for @cancelAppointmentConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to cancel this appointment?'**
+  String get cancelAppointmentConfirm;
+
+  /// No description provided for @noAppointments.
+  ///
+  /// In en, this message translates to:
+  /// **'No appointments found'**
+  String get noAppointments;
+
+  /// No description provided for @appointmentBookedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Appointment booked successfully!'**
+  String get appointmentBookedSuccess;
+
+  /// No description provided for @appointmentCancelledSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Appointment cancelled successfully!'**
+  String get appointmentCancelledSuccess;
 }
 
 class _AppLocalizationsDelegate

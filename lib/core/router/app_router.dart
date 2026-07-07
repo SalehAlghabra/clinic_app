@@ -12,11 +12,13 @@ import '../../features/auth/screens/splash_screen.dart';
 import '../../features/doctor/screens/doctor_dashboard_screen.dart';
 import '../../features/patient/bloc/doctor_detail_bloc.dart';
 import '../../features/patient/bloc/doctor_list_bloc.dart';
+import '../../features/patient/bloc/appointment_bloc.dart';
 import '../../features/patient/data/patient_api_service.dart';
 import '../../features/patient/repository/patient_repository.dart';
 import '../../features/patient/screens/doctor_detail_screen.dart';
 import '../../features/patient/screens/doctor_list_screen.dart';
 import '../../features/patient/screens/patient_dashboard_screen.dart';
+import '../../features/patient/screens/patient_appointments_screen.dart';
 import '../../features/patient/screens/patient_main_screen.dart';
 import '../api/api_client.dart';
 import '../services/storage_service.dart';
@@ -90,8 +92,9 @@ class AppRouter {
             ),
             GoRoute(
               path: '/patient/appointments',
-              builder: (context, state) => const Scaffold(
-                body: Center(child: Text('My Appointments (Coming soon in Phase 4)')),
+              builder: (context, state) => BlocProvider(
+                create: (_) => AppointmentBloc(patientRepository),
+                child: const PatientAppointmentsScreen(),
               ),
             ),
             GoRoute(

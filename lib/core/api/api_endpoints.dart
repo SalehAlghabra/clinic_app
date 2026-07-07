@@ -14,6 +14,7 @@ class ApiEndpoints {
   static String doctorDetail(int id) => '/api/doctors/$id';
   static String doctorSchedules(int doctorId) => '/api/doctors/$doctorId/schedules';
   static String doctorServices(int doctorId) => '/api/doctors/$doctorId/services';
+  static String availableSlots(int doctorId) => '/api/doctors/$doctorId/available-slots';
 
   // Settings
   static const String settings = '/api/settings';

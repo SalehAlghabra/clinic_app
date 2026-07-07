@@ -12,6 +12,8 @@ class DoctorDetailBloc extends Bloc<DoctorDetailEvent, DoctorDetailState> {
     on<FetchDoctorDetailRequested>(_onFetchDoctorDetailRequested);
   }
 
+  PatientRepository get repository => _repository;
+
   Future<void> _onFetchDoctorDetailRequested(
     FetchDoctorDetailRequested event,
     Emitter<DoctorDetailState> emit,

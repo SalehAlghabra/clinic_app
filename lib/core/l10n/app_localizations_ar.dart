@@ -246,4 +246,55 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get transactionType_penalty => 'غرامة';
+
+  @override
+  String get selectDate => 'اختر التاريخ';
+
+  @override
+  String get selectTimeSlot => 'اختر وقت الحجز';
+
+  @override
+  String get bookingSummary => 'ملخص الحجز';
+
+  @override
+  String get paymentDetails => 'تفاصيل الدفع';
+
+  @override
+  String get depositRequired => 'مبلغ التأمين المطلوب';
+
+  @override
+  String get balanceAfter => 'الرصيد بعد الخصم';
+
+  @override
+  String get remainingAtVisit => 'المتبقي عند الزيارة';
+
+  @override
+  String get insufficientBalance => 'رصيد غير كافٍ. يرجى شحن محفظتك.';
+
+  @override
+  String get confirmBooking => 'تأكيد الحجز';
+
+  @override
+  String get notesLabel => 'ملاحظات (اختياري)';
+
+  @override
+  String get cancellationReason => 'سبب الإلغاء (اختياري)';
+
+  @override
+  String get upcomingAppointments => 'المقبلة';
+
+  @override
+  String get pastAppointments => 'المنتهية والملغاة';
+
+  @override
+  String get cancelAppointmentConfirm => 'هل أنت متأكد من إلغاء هذا الموعد؟';
+
+  @override
+  String get noAppointments => 'لا توجد مواعيد حالية';
+
+  @override
+  String get appointmentBookedSuccess => 'تم حجز الموعد بنجاح!';
+
+  @override
+  String get appointmentCancelledSuccess => 'تم إلغاء الموعد بنجاح!';
 }
