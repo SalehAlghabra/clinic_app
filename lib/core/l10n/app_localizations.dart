@@ -667,6 +667,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Appointment cancelled successfully!'**
   String get appointmentCancelledSuccess;
+
+  /// No description provided for @patientName.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient Name'**
+  String get patientName;
+
+  /// No description provided for @patientPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient Phone'**
+  String get patientPhone;
+
+  /// No description provided for @confirmVisit.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Visit'**
+  String get confirmVisit;
+
+  /// No description provided for @rejectVisit.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject Visit'**
+  String get rejectVisit;
+
+  /// No description provided for @completeVisit.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Visit'**
+  String get completeVisit;
+
+  /// No description provided for @cancelDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel Day Appointments'**
+  String get cancelDay;
+
+  /// No description provided for @cancelDayConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to cancel all appointments for this day?'**
+  String get cancelDayConfirm;
+
+  /// No description provided for @noAppointmentsForDay.
+  ///
+  /// In en, this message translates to:
+  /// **'No appointments found for this day.'**
+  String get noAppointmentsForDay;
+
+  /// No description provided for @cancellationReasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancellation Reason'**
+  String get cancellationReasonLabel;
+
+  /// No description provided for @appointmentsPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Review'**
+  String get appointmentsPending;
+
+  /// No description provided for @appointmentsConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed Slots'**
+  String get appointmentsConfirmed;
+
+  /// No description provided for @appointmentsHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History & Archive'**
+  String get appointmentsHistory;
 }
 
 class _AppLocalizationsDelegate

@@ -300,4 +300,41 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get appointmentCancelledSuccess =>
       'Appointment cancelled successfully!';
+
+  @override
+  String get patientName => 'Patient Name';
+
+  @override
+  String get patientPhone => 'Patient Phone';
+
+  @override
+  String get confirmVisit => 'Confirm Visit';
+
+  @override
+  String get rejectVisit => 'Reject Visit';
+
+  @override
+  String get completeVisit => 'Complete Visit';
+
+  @override
+  String get cancelDay => 'Cancel Day Appointments';
+
+  @override
+  String get cancelDayConfirm =>
+      'Are you sure you want to cancel all appointments for this day?';
+
+  @override
+  String get noAppointmentsForDay => 'No appointments found for this day.';
+
+  @override
+  String get cancellationReasonLabel => 'Cancellation Reason';
+
+  @override
+  String get appointmentsPending => 'Pending Review';
+
+  @override
+  String get appointmentsConfirmed => 'Confirmed Slots';
+
+  @override
+  String get appointmentsHistory => 'History & Archive';
 }

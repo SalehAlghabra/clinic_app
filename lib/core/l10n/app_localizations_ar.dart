@@ -297,4 +297,40 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get appointmentCancelledSuccess => 'تم إلغاء الموعد بنجاح!';
+
+  @override
+  String get patientName => 'اسم المريض';
+
+  @override
+  String get patientPhone => 'هاتف المريض';
+
+  @override
+  String get confirmVisit => 'تأكيد الموعد';
+
+  @override
+  String get rejectVisit => 'رفض الموعد';
+
+  @override
+  String get completeVisit => 'إكمال الزيارة';
+
+  @override
+  String get cancelDay => 'إلغاء مواعيد اليوم';
+
+  @override
+  String get cancelDayConfirm => 'هل أنت متأكد من إلغاء كافة مواعيد هذا اليوم؟';
+
+  @override
+  String get noAppointmentsForDay => 'لا توجد مواعيد في هذا اليوم.';
+
+  @override
+  String get cancellationReasonLabel => 'سبب الإلغاء';
+
+  @override
+  String get appointmentsPending => 'قيد المراجعة';
+
+  @override
+  String get appointmentsConfirmed => 'المواعيد المؤكدة';
+
+  @override
+  String get appointmentsHistory => 'السجل والأرشيف';
 }

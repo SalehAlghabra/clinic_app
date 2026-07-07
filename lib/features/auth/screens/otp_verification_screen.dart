@@ -134,7 +134,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     width: 80,
                     height: 80,
                     decoration: BoxDecoration(
-                      color: colors.primary.withOpacity(0.1),
+                      color: colors.primary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -194,7 +194,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                     fieldHeight: 56,
                     fieldWidth: 46,
                     activeFillColor: colors.surface,
-                    selectedFillColor: colors.primary.withOpacity(0.08),
+                    selectedFillColor: colors.primary.withValues(alpha: 0.08),
                     inactiveFillColor: colors.surface,
                     activeColor: colors.primary,
                     selectedColor: colors.primary,

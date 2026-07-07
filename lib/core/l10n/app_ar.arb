@@ -110,5 +110,19 @@
   "cancelAppointmentConfirm": "هل أنت متأكد من إلغاء هذا الموعد؟",
   "noAppointments": "لا توجد مواعيد حالية",
   "appointmentBookedSuccess": "تم حجز الموعد بنجاح!",
-  "appointmentCancelledSuccess": "تم إلغاء الموعد بنجاح!"
+  "appointmentCancelledSuccess": "تم إلغاء الموعد بنجاح!",
+  "doctorDashboard": "لوحة تحكم الطبيب",
+  "patientName": "اسم المريض",
+  "patientPhone": "هاتف المريض",
+  "confirmVisit": "تأكيد الموعد",
+  "rejectVisit": "رفض الموعد",
+  "completeVisit": "إكمال الزيارة",
+  "cancelDay": "إلغاء مواعيد اليوم",
+  "cancelDayConfirm": "هل أنت متأكد من إلغاء كافة مواعيد هذا اليوم؟",
+  "noAppointmentsForDay": "لا توجد مواعيد في هذا اليوم.",
+  "cancellationReasonLabel": "سبب الإلغاء",
+  "appointmentsPending": "قيد المراجعة",
+  "appointmentsConfirmed": "المواعيد المؤكدة",
+  "appointmentsHistory": "السجل والأرشيف"
 }
+

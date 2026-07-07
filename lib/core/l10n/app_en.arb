@@ -293,5 +293,33 @@
   "@appointmentBookedSuccess": {},
 
   "appointmentCancelledSuccess": "Appointment cancelled successfully!",
-  "@appointmentCancelledSuccess": {}
+  "@appointmentCancelledSuccess": {},
+
+  "doctorDashboard": "Doctor Dashboard",
+  "@doctorDashboard": {},
+  "patientName": "Patient Name",
+  "@patientName": {},
+  "patientPhone": "Patient Phone",
+  "@patientPhone": {},
+  "confirmVisit": "Confirm Visit",
+  "@confirmVisit": {},
+  "rejectVisit": "Reject Visit",
+  "@rejectVisit": {},
+  "completeVisit": "Complete Visit",
+  "@completeVisit": {},
+  "cancelDay": "Cancel Day Appointments",
+  "@cancelDay": {},
+  "cancelDayConfirm": "Are you sure you want to cancel all appointments for this day?",
+  "@cancelDayConfirm": {},
+  "noAppointmentsForDay": "No appointments found for this day.",
+  "@noAppointmentsForDay": {},
+  "cancellationReasonLabel": "Cancellation Reason",
+  "@cancellationReasonLabel": {},
+  "appointmentsPending": "Pending Review",
+  "@appointmentsPending": {},
+  "appointmentsConfirmed": "Confirmed Slots",
+  "@appointmentsConfirmed": {},
+  "appointmentsHistory": "History & Archive",
+  "@appointmentsHistory": {}
 }
+

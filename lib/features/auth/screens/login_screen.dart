@@ -116,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(22),
                         boxShadow: [
                           BoxShadow(
-                            color: colors.primary.withOpacity(0.3),
+                            color: colors.primary.withValues(alpha: 0.3),
                             blurRadius: 20,
                             offset: const Offset(0, 8),
                           ),

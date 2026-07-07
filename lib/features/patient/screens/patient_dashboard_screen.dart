@@ -109,7 +109,7 @@ class PatientDashboardScreen extends StatelessWidget {
                         Text(
                           l10n.walletBalance,
                           style: context.textTheme.titleSmall?.copyWith(
-                            color: Colors.white.withOpacity(0.85),
+                            color: Colors.white.withValues(alpha: 0.85),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -132,7 +132,7 @@ class PatientDashboardScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
+                        color: Colors.white.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -224,7 +224,7 @@ class PatientDashboardScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.12),
+              color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: color, size: 28),

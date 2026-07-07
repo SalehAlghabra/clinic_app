@@ -20,6 +20,12 @@ import '../../features/patient/screens/doctor_list_screen.dart';
 import '../../features/patient/screens/patient_dashboard_screen.dart';
 import '../../features/patient/screens/patient_appointments_screen.dart';
 import '../../features/patient/screens/patient_main_screen.dart';
+import '../../features/doctor/data/doctor_api_service.dart';
+import '../../features/doctor/repository/doctor_repository.dart';
+import '../../features/doctor/bloc/doctor_appointments_bloc.dart';
+import '../../features/doctor/screens/doctor_main_screen.dart';
+import '../../features/doctor/screens/doctor_appointments_screen.dart';
+import '../../features/doctor/screens/doctor_settings_screen.dart';
 import '../api/api_client.dart';
 import '../services/storage_service.dart';
 
@@ -35,6 +41,10 @@ class AppRouter {
 
     final patientRepository = PatientRepository(
       PatientApiService(apiClient),
+    );
+
+    final doctorRepository = DoctorRepository(
+      DoctorApiService(apiClient),
     );
 
     return GoRouter(
@@ -118,10 +128,28 @@ class AppRouter {
           },
         ),
 
-        // Doctor routes
-        GoRoute(
-          path: '/doctor/dashboard',
-          builder: (context, state) => const DoctorDashboardScreen(),
+        // Doctor Main Navigation Shell
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => DoctorAppointmentsBloc(repository: doctorRepository),
+              child: DoctorMainScreen(child: child),
+            );
+          },
+          routes: [
+            GoRoute(
+              path: '/doctor/dashboard',
+              builder: (context, state) => const DoctorDashboardScreen(),
+            ),
+            GoRoute(
+              path: '/doctor/appointments',
+              builder: (context, state) => const DoctorAppointmentsScreen(),
+            ),
+            GoRoute(
+              path: '/doctor/settings',
+              builder: (context, state) => const DoctorSettingsScreen(),
+            ),
+          ],
         ),
       ],
 

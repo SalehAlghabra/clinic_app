@@ -54,14 +54,14 @@ class _SplashScreenState extends State<SplashScreen> {
                 height: 100,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [primary, primary.withOpacity(0.7)],
+                    colors: [primary, primary.withValues(alpha: 0.7)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
-                      color: primary.withOpacity(0.35),
+                      color: primary.withValues(alpha: 0.35),
                       blurRadius: 24,
                       offset: const Offset(0, 8),
                     ),

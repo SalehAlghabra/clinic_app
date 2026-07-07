@@ -170,7 +170,7 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
               width: 60,
               height: 60,
               decoration: BoxDecoration(
-                color: colors.primary.withOpacity(0.12),
+                color: colors.primary.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -197,7 +197,7 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: colors.secondary.withOpacity(0.15),
+                      color: colors.secondary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
