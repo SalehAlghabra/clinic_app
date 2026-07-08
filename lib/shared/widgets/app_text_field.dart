@@ -13,6 +13,7 @@ class AppTextField extends StatefulWidget {
   final bool enabled;
   final ValueChanged<String>? onChanged;
   final int maxLines;
+  final TextDirection? textDirection;
 
   const AppTextField({
     super.key,
@@ -27,6 +28,7 @@ class AppTextField extends StatefulWidget {
     this.enabled = true,
     this.onChanged,
     this.maxLines = 1,
+    this.textDirection,
   });
 
   @override
@@ -59,6 +61,7 @@ class _AppTextFieldState extends State<AppTextField> {
           enabled: widget.enabled,
           onChanged: widget.onChanged,
           maxLines: widget.maxLines,
+          textDirection: widget.textDirection,
           style: context.textTheme.bodyMedium?.copyWith(color: colors.text),
           decoration: InputDecoration(
             hintText: widget.hintText,

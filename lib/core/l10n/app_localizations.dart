@@ -835,6 +835,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Activity Logs'**
   String get walletTransactions;
+
+  /// No description provided for @validatorRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get validatorRequired;
+
+  /// No description provided for @validatorEmailRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Email is required'**
+  String get validatorEmailRequired;
+
+  /// No description provided for @validatorEmailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address'**
+  String get validatorEmailInvalid;
+
+  /// No description provided for @validatorPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Password is required'**
+  String get validatorPasswordRequired;
+
+  /// No description provided for @validatorPasswordMinLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters'**
+  String get validatorPasswordMinLength;
+
+  /// No description provided for @validatorPhoneInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid phone number'**
+  String get validatorPhoneInvalid;
+
+  /// No description provided for @validatorOtpRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'OTP is required'**
+  String get validatorOtpRequired;
+
+  /// No description provided for @validatorOtpLength.
+  ///
+  /// In en, this message translates to:
+  /// **'OTP must be 6 digits'**
+  String get validatorOtpLength;
+
+  /// No description provided for @validatorPasswordsDoNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get validatorPasswordsDoNotMatch;
+
+  /// No description provided for @validatorConfirmPasswordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please confirm your password'**
+  String get validatorConfirmPasswordRequired;
+
+  /// No description provided for @validatorNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Name is required'**
+  String get validatorNameRequired;
+
+  /// No description provided for @validatorDiagnosisRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnosis is required to create a medical record'**
+  String get validatorDiagnosisRequired;
+
+  /// No description provided for @validatorMedicationNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Medication name is required'**
+  String get validatorMedicationNameRequired;
+
+  /// No description provided for @validatorDosageRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Dosage description is required'**
+  String get validatorDosageRequired;
+
+  /// No description provided for @validatorDurationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration is required'**
+  String get validatorDurationRequired;
+
+  /// No description provided for @phoneLabelOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number (optional)'**
+  String get phoneLabelOptional;
 }
 
 class _AppLocalizationsDelegate

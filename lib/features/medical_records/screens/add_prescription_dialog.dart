@@ -93,7 +93,7 @@ class _AddPrescriptionDialogState extends State<AddPrescriptionDialog> {
                   hintText: 'e.g. Amoxicillin 500mg',
                   validator: (val) {
                     if (val == null || val.trim().isEmpty) {
-                      return 'Medication name is required.';
+                      return l10n.validatorMedicationNameRequired;
                     }
                     return null;
                   },
@@ -107,7 +107,7 @@ class _AddPrescriptionDialogState extends State<AddPrescriptionDialog> {
                   hintText: 'e.g. One tablet twice daily',
                   validator: (val) {
                     if (val == null || val.trim().isEmpty) {
-                      return 'Dosage description is required.';
+                      return l10n.validatorDosageRequired;
                     }
                     return null;
                   },
@@ -121,7 +121,7 @@ class _AddPrescriptionDialogState extends State<AddPrescriptionDialog> {
                   hintText: 'e.g. 7 Days',
                   validator: (val) {
                     if (val == null || val.trim().isEmpty) {
-                      return 'Duration is required.';
+                      return l10n.validatorDurationRequired;
                     }
                     return null;
                   },

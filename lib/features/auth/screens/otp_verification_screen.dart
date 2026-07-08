@@ -182,31 +182,34 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 const SizedBox(height: AppDimensions.paddingXL),
 
                 // OTP input
-                PinCodeTextField(
-                  appContext: context,
-                  length: 6,
-                  controller: _otpController,
-                  keyboardType: TextInputType.number,
-                  animationType: AnimationType.scale,
-                  pinTheme: PinTheme(
-                    shape: PinCodeFieldShape.box,
-                    borderRadius: BorderRadius.circular(AppDimensions.radiusM),
-                    fieldHeight: 56,
-                    fieldWidth: 46,
-                    activeFillColor: colors.surface,
-                    selectedFillColor: colors.primary.withValues(alpha: 0.08),
-                    inactiveFillColor: colors.surface,
-                    activeColor: colors.primary,
-                    selectedColor: colors.primary,
-                    inactiveColor: colors.border,
+                Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: PinCodeTextField(
+                    appContext: context,
+                    length: 6,
+                    controller: _otpController,
+                    keyboardType: TextInputType.number,
+                    animationType: AnimationType.scale,
+                    pinTheme: PinTheme(
+                      shape: PinCodeFieldShape.box,
+                      borderRadius: BorderRadius.circular(AppDimensions.radiusM),
+                      fieldHeight: 56,
+                      fieldWidth: 46,
+                      activeFillColor: colors.surface,
+                      selectedFillColor: colors.primary.withValues(alpha: 0.08),
+                      inactiveFillColor: colors.surface,
+                      activeColor: colors.primary,
+                      selectedColor: colors.primary,
+                      inactiveColor: colors.border,
+                    ),
+                    enableActiveFill: true,
+                    textStyle: context.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colors.text,
+                    ),
+                    onChanged: (_) {},
+                    onCompleted: (_) => _verify(),
                   ),
-                  enableActiveFill: true,
-                  textStyle: context.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colors.text,
-                  ),
-                  onChanged: (_) {},
-                  onCompleted: (_) => _verify(),
                 ).animate().slideY(begin: 0.2, delay: 400.ms, duration: 400.ms),
 
                 const SizedBox(height: AppDimensions.paddingXL),

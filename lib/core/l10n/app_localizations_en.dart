@@ -385,4 +385,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get walletTransactions => 'Activity Logs';
+
+  @override
+  String get validatorRequired => 'This field is required';
+
+  @override
+  String get validatorEmailRequired => 'Email is required';
+
+  @override
+  String get validatorEmailInvalid => 'Enter a valid email address';
+
+  @override
+  String get validatorPasswordRequired => 'Password is required';
+
+  @override
+  String get validatorPasswordMinLength =>
+      'Password must be at least 6 characters';
+
+  @override
+  String get validatorPhoneInvalid => 'Enter a valid phone number';
+
+  @override
+  String get validatorOtpRequired => 'OTP is required';
+
+  @override
+  String get validatorOtpLength => 'OTP must be 6 digits';
+
+  @override
+  String get validatorPasswordsDoNotMatch => 'Passwords do not match';
+
+  @override
+  String get validatorConfirmPasswordRequired => 'Please confirm your password';
+
+  @override
+  String get validatorNameRequired => 'Name is required';
+
+  @override
+  String get validatorDiagnosisRequired =>
+      'Diagnosis is required to create a medical record';
+
+  @override
+  String get validatorMedicationNameRequired => 'Medication name is required';
+
+  @override
+  String get validatorDosageRequired => 'Dosage description is required';
+
+  @override
+  String get validatorDurationRequired => 'Duration is required';
+
+  @override
+  String get phoneLabelOptional => 'Phone Number (optional)';
 }

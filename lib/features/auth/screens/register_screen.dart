@@ -143,7 +143,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Icons.person_outline_rounded,
                       color: colors.textSecondary,
                     ),
-                    validator: (v) => Validators.required(v, 'Name'),
+                    validator: (v) => Validators.required(v, l10n.validatorNameRequired),
                   ).animate().slideY(
                     begin: 0.15,
                     delay: 200.ms,
@@ -158,11 +158,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     hintText: l10n.emailHint,
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
+                    textDirection: TextDirection.ltr,
                     prefixIcon: Icon(
                       Icons.email_outlined,
                       color: colors.textSecondary,
                     ),
-                    validator: Validators.email,
+                    validator: (v) => Validators.email(
+                      v,
+                      l10n.validatorEmailRequired,
+                      l10n.validatorEmailInvalid,
+                    ),
                   ).animate().slideY(
                     begin: 0.15,
                     delay: 280.ms,
@@ -173,15 +178,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                   // Phone (optional)
                   AppTextField(
-                    labelText: '${l10n.phoneLabel} (optional)',
+                    labelText: l10n.phoneLabelOptional,
                     hintText: l10n.phoneHint,
                     controller: _phoneController,
                     keyboardType: TextInputType.phone,
+                    textDirection: TextDirection.ltr,
                     prefixIcon: Icon(
                       Icons.phone_outlined,
                       color: colors.textSecondary,
                     ),
-                    validator: Validators.phone,
+                    validator: (v) => Validators.phone(
+                      v,
+                      l10n.validatorPhoneInvalid,
+                    ),
                   ).animate().slideY(
                     begin: 0.15,
                     delay: 360.ms,
@@ -196,11 +205,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     hintText: l10n.passwordHint,
                     controller: _passwordController,
                     isPassword: true,
+                    textDirection: TextDirection.ltr,
                     prefixIcon: Icon(
                       Icons.lock_outline_rounded,
                       color: colors.textSecondary,
                     ),
-                    validator: Validators.password,
+                    validator: (v) => Validators.password(
+                      v,
+                      l10n.validatorPasswordRequired,
+                      l10n.validatorPasswordMinLength,
+                    ),
                   ).animate().slideY(
                     begin: 0.15,
                     delay: 440.ms,
@@ -215,16 +229,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     hintText: l10n.confirmPasswordHint,
                     controller: _confirmPasswordController,
                     isPassword: true,
+                    textDirection: TextDirection.ltr,
                     prefixIcon: Icon(
                       Icons.lock_person_outlined,
                       color: colors.textSecondary,
                     ),
                     validator: (v) {
                       if (v == null || v.isEmpty) {
-                        return 'Please confirm your password';
+                        return l10n.validatorConfirmPasswordRequired;
                       }
                       if (v != _passwordController.text) {
-                        return l10n.passwordsDoNotMatch;
+                        return l10n.validatorPasswordsDoNotMatch;
                       }
                       return null;
                     },

@@ -147,6 +147,22 @@
   "transactionType_booking_deduct": "خصم تأمين موعد",
   "transactionType_refund_full": "استرجاع كامل المبلغ",
   "transactionType_refund_partial": "استرجاع جزئي للمبلغ",
-  "transactionType_penalty": "غرامة إلغاء موعد"
+  "transactionType_penalty": "غرامة إلغاء موعد",
+  "validatorRequired": "هذا الحقل مطلوب",
+  "validatorEmailRequired": "البريد الإلكتروني مطلوب",
+  "validatorEmailInvalid": "أدخل بريداً إلكترونياً صحيحاً",
+  "validatorPasswordRequired": "كلمة المرور مطلوبة",
+  "validatorPasswordMinLength": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+  "validatorPhoneInvalid": "أدخل رقم هاتف صحيح",
+  "validatorOtpRequired": "رمز التحقق مطلوب",
+  "validatorOtpLength": "يجب أن يكون رمز التحقق من 6 أرقام",
+  "validatorPasswordsDoNotMatch": "كلمتا المرور غير متطابقتين",
+  "validatorConfirmPasswordRequired": "يرجى تأكيد كلمة المرور",
+  "validatorNameRequired": "الاسم مطلوب",
+  "validatorDiagnosisRequired": "التشخيص مطلوب لإنشاء سجل طبي",
+  "validatorMedicationNameRequired": "اسم الدواء مطلوب",
+  "validatorDosageRequired": "طريقة الاستعمال مطلوبة",
+  "validatorDurationRequired": "المدة مطلوبة",
+  "phoneLabelOptional": "رقم الهاتف (اختياري)"
 }
 

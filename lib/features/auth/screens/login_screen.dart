@@ -11,6 +11,8 @@ import '../../../shared/widgets/app_text_field.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import '../../settings/bloc/theme_cubit.dart';
+import '../../settings/bloc/locale_cubit.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -89,6 +91,33 @@ class _LoginScreenState extends State<LoginScreen> {
       },
       child: Scaffold(
         backgroundColor: colors.background,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          actions: [
+            IconButton(
+              icon: Icon(
+                Theme.of(context).brightness == Brightness.dark
+                    ? Icons.light_mode_outlined
+                    : Icons.dark_mode_outlined,
+                color: colors.text,
+              ),
+              onPressed: () => context.read<ThemeCubit>().toggleTheme(),
+            ),
+            TextButton(
+              onPressed: () => context.read<LocaleCubit>().toggleLocale(),
+              child: Text(
+                context.read<LocaleCubit>().isArabic ? 'English' : 'العربية',
+                style: TextStyle(
+                  color: colors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(width: AppDimensions.paddingS),
+          ],
+        ),
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(
@@ -157,17 +186,22 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: AppDimensions.paddingXL),
 
-                  // Email field
+                   // Email field
                   AppTextField(
                     labelText: l10n.emailLabel,
                     hintText: l10n.emailHint,
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
+                    textDirection: TextDirection.ltr,
                     prefixIcon: Icon(
                       Icons.email_outlined,
                       color: colors.textSecondary,
                     ),
-                    validator: Validators.email,
+                    validator: (v) => Validators.email(
+                      v,
+                      l10n.validatorEmailRequired,
+                      l10n.validatorEmailInvalid,
+                    ),
                   ).animate().slideY(
                     begin: 0.2,
                     delay: 400.ms,
@@ -183,11 +217,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     hintText: l10n.passwordHint,
                     controller: _passwordController,
                     isPassword: true,
+                    textDirection: TextDirection.ltr,
                     prefixIcon: Icon(
                       Icons.lock_outline_rounded,
                       color: colors.textSecondary,
                     ),
-                    validator: Validators.password,
+                    validator: (v) => Validators.password(
+                      v,
+                      l10n.validatorPasswordRequired,
+                      l10n.validatorPasswordMinLength,
+                    ),
                   ).animate().slideY(
                     begin: 0.2,
                     delay: 500.ms,

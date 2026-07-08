@@ -26,6 +26,8 @@ class ApiClient {
         if (token != null) {
           options.headers['Authorization'] = 'Bearer $token';
         }
+        final locale = await _storageService.read('app_locale') ?? 'en';
+        options.headers['Accept-Language'] = locale;
         return handler.next(options);
       },
       onError: (DioException error, handler) {

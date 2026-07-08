@@ -381,4 +381,53 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get walletTransactions => 'سجل النشاطات والمعاملات';
+
+  @override
+  String get validatorRequired => 'هذا الحقل مطلوب';
+
+  @override
+  String get validatorEmailRequired => 'البريد الإلكتروني مطلوب';
+
+  @override
+  String get validatorEmailInvalid => 'أدخل بريداً إلكترونياً صحيحاً';
+
+  @override
+  String get validatorPasswordRequired => 'كلمة المرور مطلوبة';
+
+  @override
+  String get validatorPasswordMinLength =>
+      'يجب أن تكون كلمة المرور 6 أحرف على الأقل';
+
+  @override
+  String get validatorPhoneInvalid => 'أدخل رقم هاتف صحيح';
+
+  @override
+  String get validatorOtpRequired => 'رمز التحقق مطلوب';
+
+  @override
+  String get validatorOtpLength => 'يجب أن يكون رمز التحقق من 6 أرقام';
+
+  @override
+  String get validatorPasswordsDoNotMatch => 'كلمتا المرور غير متطابقتين';
+
+  @override
+  String get validatorConfirmPasswordRequired => 'يرجى تأكيد كلمة المرور';
+
+  @override
+  String get validatorNameRequired => 'الاسم مطلوب';
+
+  @override
+  String get validatorDiagnosisRequired => 'التشخيص مطلوب لإنشاء سجل طبي';
+
+  @override
+  String get validatorMedicationNameRequired => 'اسم الدواء مطلوب';
+
+  @override
+  String get validatorDosageRequired => 'طريقة الاستعمال مطلوبة';
+
+  @override
+  String get validatorDurationRequired => 'المدة مطلوبة';
+
+  @override
+  String get phoneLabelOptional => 'رقم الهاتف (اختياري)';
 }

@@ -1,48 +1,48 @@
 class Validators {
-  static String? required(String? value, [String fieldName = 'This field']) {
+  static String? required(String? value, String errorMessage) {
     if (value == null || value.trim().isEmpty) {
-      return '$fieldName is required';
+      return errorMessage;
     }
     return null;
   }
 
-  static String? email(String? value) {
+  static String? email(String? value, String emptyError, String invalidError) {
     if (value == null || value.trim().isEmpty) {
-      return 'Email is required';
+      return emptyError;
     }
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(value)) {
-      return 'Enter a valid email address';
+      return invalidError;
     }
     return null;
   }
 
-  static String? password(String? value) {
+  static String? password(String? value, String emptyError, String lengthError) {
     if (value == null || value.trim().isEmpty) {
-      return 'Password is required';
+      return emptyError;
     }
     if (value.length < 6) {
-      return 'Password must be at least 6 characters';
+      return lengthError;
     }
     return null;
   }
 
-  static String? phone(String? value) {
+  static String? phone(String? value, String invalidError) {
     if (value == null || value.trim().isEmpty) {
-      return null; // Optional in backend
+      return null; // Optional
     }
     if (value.length < 9) {
-      return 'Enter a valid phone number';
+      return invalidError;
     }
     return null;
   }
 
-  static String? otp(String? value) {
+  static String? otp(String? value, String emptyError, String lengthError) {
     if (value == null || value.trim().isEmpty) {
-      return 'OTP is required';
+      return emptyError;
     }
     if (value.length != 6) {
-      return 'OTP must be 6 digits';
+      return lengthError;
     }
     return null;
   }

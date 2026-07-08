@@ -156,7 +156,7 @@ class _CreateRecordScreenState extends State<CreateRecordScreen> {
                         maxLines: 3,
                         validator: (val) {
                           if (val == null || val.trim().isEmpty) {
-                            return 'Diagnosis is required to create a medical record.';
+                            return l10n.validatorDiagnosisRequired;
                           }
                           return null;
                         },
