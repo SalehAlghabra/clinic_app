@@ -353,6 +353,22 @@
   "prescriptionAddedSuccess": "Prescription added successfully!",
   "@prescriptionAddedSuccess": {},
   "recordCreatedSuccess": "Medical record created successfully!",
-  "@recordCreatedSuccess": {}
+  "@recordCreatedSuccess": {},
+  "walletTitle": "My Wallet",
+  "@walletTitle": {},
+  "walletTransactions": "Activity Logs",
+  "@walletTransactions": {},
+  "invoicesTitle": "Invoices",
+  "@invoicesTitle": {},
+  "transactionType_deposit": "Deposit Topping",
+  "@transactionType_deposit": {},
+  "transactionType_booking_deduct": "Booking Deduction",
+  "@transactionType_booking_deduct": {},
+  "transactionType_refund_full": "Full Refund",
+  "@transactionType_refund_full": {},
+  "transactionType_refund_partial": "Partial Refund",
+  "@transactionType_refund_partial": {},
+  "transactionType_penalty": "Cancellation Penalty",
+  "@transactionType_penalty": {}
 }
 

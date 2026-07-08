@@ -233,19 +233,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String get status_completed => 'مكتمل';
 
   @override
-  String get transactionType_deposit => 'إيداع';
+  String get transactionType_deposit => 'شحن رصيد المحفظة';
 
   @override
-  String get transactionType_booking_deduct => 'خصم الحجز';
+  String get transactionType_booking_deduct => 'خصم تأمين موعد';
 
   @override
-  String get transactionType_refund_full => 'استرداد كامل';
+  String get transactionType_refund_full => 'استرجاع كامل المبلغ';
 
   @override
-  String get transactionType_refund_partial => 'استرداد جزئي';
+  String get transactionType_refund_partial => 'استرجاع جزئي للمبلغ';
 
   @override
-  String get transactionType_penalty => 'غرامة';
+  String get transactionType_penalty => 'غرامة إلغاء موعد';
 
   @override
   String get selectDate => 'اختر التاريخ';
@@ -378,4 +378,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get recordCreatedSuccess => 'تم إنشاء السجل الطبي للزيارة بنجاح!';
+
+  @override
+  String get walletTransactions => 'سجل النشاطات والمعاملات';
 }

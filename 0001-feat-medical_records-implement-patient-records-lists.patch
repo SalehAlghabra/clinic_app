@@ -1,0 +1,1988 @@
+From 9135dda51d51276de0b940f54f76c737366b8085 Mon Sep 17 00:00:00 2001
+From: SalehAlghabra <msalh0689@gmail.com>
+Date: Wed, 8 Jul 2026 11:48:34 +0300
+Subject: [PATCH] feat(medical_records): implement patient records lists,
+ details, and doctor create record forms with prescriptions (Phase 6)
+
+---
+ lib/core/l10n/app_ar.arb                      |  18 +-
+ lib/core/l10n/app_en.arb                      |  35 +-
+ lib/core/l10n/app_localizations.dart          |  90 ++++
+ lib/core/l10n/app_localizations_ar.dart       |  45 ++
+ lib/core/l10n/app_localizations_en.dart       |  45 ++
+ lib/core/router/app_router.dart               |  44 ++
+ .../screens/doctor_appointments_screen.dart   |  13 +-
+ .../bloc/medical_records_bloc.dart            | 104 +++++
+ .../bloc/medical_records_event.dart           |  57 +++
+ .../bloc/medical_records_state.dart           |  67 +++
+ .../data/medical_records_api_service.dart     |  51 +++
+ .../models/medical_record_model.dart          |  67 +++
+ .../models/prescription_model.dart            |  44 ++
+ .../medical_records_repository.dart           | 103 +++++
+ .../screens/add_prescription_dialog.dart      | 167 ++++++++
+ .../screens/create_record_screen.dart         | 196 +++++++++
+ .../screens/patient_records_screen.dart       | 209 ++++++++++
+ .../screens/record_details_screen.dart        | 390 ++++++++++++++++++
+ .../screens/patient_dashboard_screen.dart     |   2 +-
+ lib/shared/widgets/app_text_field.dart        |   3 +
+ 20 files changed, 1740 insertions(+), 10 deletions(-)
+ create mode 100644 lib/features/medical_records/bloc/medical_records_bloc.dart
+ create mode 100644 lib/features/medical_records/bloc/medical_records_event.dart
+ create mode 100644 lib/features/medical_records/bloc/medical_records_state.dart
+ create mode 100644 lib/features/medical_records/data/medical_records_api_service.dart
+ create mode 100644 lib/features/medical_records/models/medical_record_model.dart
+ create mode 100644 lib/features/medical_records/models/prescription_model.dart
+ create mode 100644 lib/features/medical_records/repository/medical_records_repository.dart
+ create mode 100644 lib/features/medical_records/screens/add_prescription_dialog.dart
+ create mode 100644 lib/features/medical_records/screens/create_record_screen.dart
+ create mode 100644 lib/features/medical_records/screens/patient_records_screen.dart
+ create mode 100644 lib/features/medical_records/screens/record_details_screen.dart
+
+diff --git a/lib/core/l10n/app_ar.arb b/lib/core/l10n/app_ar.arb
+index 90a7ec9..aa44359 100644
+--- a/lib/core/l10n/app_ar.arb
++++ b/lib/core/l10n/app_ar.arb
+@@ -123,6 +123,22 @@
+   "cancellationReasonLabel": "سبب الإلغاء",
+   "appointmentsPending": "قيد المراجعة",
+   "appointmentsConfirmed": "المواعيد المؤكدة",
+-  "appointmentsHistory": "السجل والأرشيف"
++  "appointmentsHistory": "السجل والأرشيف",
++  "medicalRecordsTitle": "السجلات الطبية",
++  "medicalHistory": "السجل الطبي التاريخي",
++  "noMedicalRecords": "لا توجد سجلات طبية مسجلة.",
++  "visitDate": "تاريخ الزيارة",
++  "symptoms": "الأعراض",
++  "diagnosis": "التشخيص",
++  "doctorNotes": "ملاحظات الطبيب",
++  "prescriptions": "الوصفات الطبية",
++  "addPrescription": "إضافة وصفة دواء",
++  "medicationName": "اسم الدواء",
++  "dosage": "الجرعة وكيفية الاستعمال",
++  "duration": "المدة الزمنية",
++  "instructions": "تعليمات إضافية (اختياري)",
++  "createMedicalRecord": "إنشاء سجل طبي",
++  "prescriptionAddedSuccess": "تمت إضافة وصفة الدواء بنجاح!",
++  "recordCreatedSuccess": "تم إنشاء السجل الطبي للزيارة بنجاح!"
+ }
+ 
+diff --git a/lib/core/l10n/app_en.arb b/lib/core/l10n/app_en.arb
+index a5233d3..9224801 100644
+--- a/lib/core/l10n/app_en.arb
++++ b/lib/core/l10n/app_en.arb
+@@ -320,6 +320,39 @@
+   "appointmentsConfirmed": "Confirmed Slots",
+   "@appointmentsConfirmed": {},
+   "appointmentsHistory": "History & Archive",
+-  "@appointmentsHistory": {}
++  "@appointmentsHistory": {},
++  
++  "medicalRecordsTitle": "Medical Records",
++  "@medicalRecordsTitle": {},
++  "medicalHistory": "Medical History",
++  "@medicalHistory": {},
++  "noMedicalRecords": "No medical records found.",
++  "@noMedicalRecords": {},
++  "visitDate": "Visit Date",
++  "@visitDate": {},
++  "symptoms": "Symptoms",
++  "@symptoms": {},
++  "diagnosis": "Diagnosis",
++  "@diagnosis": {},
++  "doctorNotes": "Doctor Notes",
++  "@doctorNotes": {},
++  "prescriptions": "Prescriptions",
++  "@prescriptions": {},
++  "addPrescription": "Add Prescription",
++  "@addPrescription": {},
++  "medicationName": "Medication Name",
++  "@medicationName": {},
++  "dosage": "Dosage",
++  "@dosage": {},
++  "duration": "Duration",
++  "@duration": {},
++  "instructions": "Instructions (Optional)",
++  "@instructions": {},
++  "createMedicalRecord": "Create Medical Record",
++  "@createMedicalRecord": {},
++  "prescriptionAddedSuccess": "Prescription added successfully!",
++  "@prescriptionAddedSuccess": {},
++  "recordCreatedSuccess": "Medical record created successfully!",
++  "@recordCreatedSuccess": {}
+ }
+ 
+diff --git a/lib/core/l10n/app_localizations.dart b/lib/core/l10n/app_localizations.dart
+index 3287148..f530014 100644
+--- a/lib/core/l10n/app_localizations.dart
++++ b/lib/core/l10n/app_localizations.dart
+@@ -739,6 +739,96 @@ abstract class AppLocalizations {
+   /// In en, this message translates to:
+   /// **'History & Archive'**
+   String get appointmentsHistory;
++
++  /// No description provided for @medicalHistory.
++  ///
++  /// In en, this message translates to:
++  /// **'Medical History'**
++  String get medicalHistory;
++
++  /// No description provided for @noMedicalRecords.
++  ///
++  /// In en, this message translates to:
++  /// **'No medical records found.'**
++  String get noMedicalRecords;
++
++  /// No description provided for @visitDate.
++  ///
++  /// In en, this message translates to:
++  /// **'Visit Date'**
++  String get visitDate;
++
++  /// No description provided for @symptoms.
++  ///
++  /// In en, this message translates to:
++  /// **'Symptoms'**
++  String get symptoms;
++
++  /// No description provided for @diagnosis.
++  ///
++  /// In en, this message translates to:
++  /// **'Diagnosis'**
++  String get diagnosis;
++
++  /// No description provided for @doctorNotes.
++  ///
++  /// In en, this message translates to:
++  /// **'Doctor Notes'**
++  String get doctorNotes;
++
++  /// No description provided for @prescriptions.
++  ///
++  /// In en, this message translates to:
++  /// **'Prescriptions'**
++  String get prescriptions;
++
++  /// No description provided for @addPrescription.
++  ///
++  /// In en, this message translates to:
++  /// **'Add Prescription'**
++  String get addPrescription;
++
++  /// No description provided for @medicationName.
++  ///
++  /// In en, this message translates to:
++  /// **'Medication Name'**
++  String get medicationName;
++
++  /// No description provided for @dosage.
++  ///
++  /// In en, this message translates to:
++  /// **'Dosage'**
++  String get dosage;
++
++  /// No description provided for @duration.
++  ///
++  /// In en, this message translates to:
++  /// **'Duration'**
++  String get duration;
++
++  /// No description provided for @instructions.
++  ///
++  /// In en, this message translates to:
++  /// **'Instructions (Optional)'**
++  String get instructions;
++
++  /// No description provided for @createMedicalRecord.
++  ///
++  /// In en, this message translates to:
++  /// **'Create Medical Record'**
++  String get createMedicalRecord;
++
++  /// No description provided for @prescriptionAddedSuccess.
++  ///
++  /// In en, this message translates to:
++  /// **'Prescription added successfully!'**
++  String get prescriptionAddedSuccess;
++
++  /// No description provided for @recordCreatedSuccess.
++  ///
++  /// In en, this message translates to:
++  /// **'Medical record created successfully!'**
++  String get recordCreatedSuccess;
+ }
+ 
+ class _AppLocalizationsDelegate
+diff --git a/lib/core/l10n/app_localizations_ar.dart b/lib/core/l10n/app_localizations_ar.dart
+index fab9256..090ba0b 100644
+--- a/lib/core/l10n/app_localizations_ar.dart
++++ b/lib/core/l10n/app_localizations_ar.dart
+@@ -333,4 +333,49 @@ class AppLocalizationsAr extends AppLocalizations {
+ 
+   @override
+   String get appointmentsHistory => 'السجل والأرشيف';
++
++  @override
++  String get medicalHistory => 'السجل الطبي التاريخي';
++
++  @override
++  String get noMedicalRecords => 'لا توجد سجلات طبية مسجلة.';
++
++  @override
++  String get visitDate => 'تاريخ الزيارة';
++
++  @override
++  String get symptoms => 'الأعراض';
++
++  @override
++  String get diagnosis => 'التشخيص';
++
++  @override
++  String get doctorNotes => 'ملاحظات الطبيب';
++
++  @override
++  String get prescriptions => 'الوصفات الطبية';
++
++  @override
++  String get addPrescription => 'إضافة وصفة دواء';
++
++  @override
++  String get medicationName => 'اسم الدواء';
++
++  @override
++  String get dosage => 'الجرعة وكيفية الاستعمال';
++
++  @override
++  String get duration => 'المدة الزمنية';
++
++  @override
++  String get instructions => 'تعليمات إضافية (اختياري)';
++
++  @override
++  String get createMedicalRecord => 'إنشاء سجل طبي';
++
++  @override
++  String get prescriptionAddedSuccess => 'تمت إضافة وصفة الدواء بنجاح!';
++
++  @override
++  String get recordCreatedSuccess => 'تم إنشاء السجل الطبي للزيارة بنجاح!';
+ }
+diff --git a/lib/core/l10n/app_localizations_en.dart b/lib/core/l10n/app_localizations_en.dart
+index ffc0564..b399bfa 100644
+--- a/lib/core/l10n/app_localizations_en.dart
++++ b/lib/core/l10n/app_localizations_en.dart
+@@ -337,4 +337,49 @@ class AppLocalizationsEn extends AppLocalizations {
+ 
+   @override
+   String get appointmentsHistory => 'History & Archive';
++
++  @override
++  String get medicalHistory => 'Medical History';
++
++  @override
++  String get noMedicalRecords => 'No medical records found.';
++
++  @override
++  String get visitDate => 'Visit Date';
++
++  @override
++  String get symptoms => 'Symptoms';
++
++  @override
++  String get diagnosis => 'Diagnosis';
++
++  @override
++  String get doctorNotes => 'Doctor Notes';
++
++  @override
++  String get prescriptions => 'Prescriptions';
++
++  @override
++  String get addPrescription => 'Add Prescription';
++
++  @override
++  String get medicationName => 'Medication Name';
++
++  @override
++  String get dosage => 'Dosage';
++
++  @override
++  String get duration => 'Duration';
++
++  @override
++  String get instructions => 'Instructions (Optional)';
++
++  @override
++  String get createMedicalRecord => 'Create Medical Record';
++
++  @override
++  String get prescriptionAddedSuccess => 'Prescription added successfully!';
++
++  @override
++  String get recordCreatedSuccess => 'Medical record created successfully!';
+ }
+diff --git a/lib/core/router/app_router.dart b/lib/core/router/app_router.dart
+index 6e9d0db..81854c5 100644
+--- a/lib/core/router/app_router.dart
++++ b/lib/core/router/app_router.dart
+@@ -23,6 +23,12 @@ import '../../features/doctor/bloc/doctor_appointments_bloc.dart';
+ import '../../features/doctor/screens/doctor_main_screen.dart';
+ import '../../features/doctor/screens/doctor_appointments_screen.dart';
+ import '../../features/doctor/screens/doctor_settings_screen.dart';
++import '../../features/medical_records/bloc/medical_records_bloc.dart';
++import '../../features/medical_records/data/medical_records_api_service.dart';
++import '../../features/medical_records/repository/medical_records_repository.dart';
++import '../../features/medical_records/screens/patient_records_screen.dart';
++import '../../features/medical_records/screens/record_details_screen.dart';
++import '../../features/medical_records/screens/create_record_screen.dart';
+ import '../api/api_client.dart';
+ import '../services/storage_service.dart';
+ 
+@@ -40,6 +46,10 @@ class AppRouter {
+       DoctorApiService(apiClient),
+     );
+ 
++    final medicalRecordsRepository = MedicalRecordsRepository(
++      MedicalRecordsApiService(apiClient),
++    );
++
+     return GoRouter(
+       initialLocation: '/splash',
+       routes: [
+@@ -108,6 +118,40 @@ class AppRouter {
+           },
+         ),
+ 
++        // Patient Medical Records History List
++        GoRoute(
++          path: '/patient/records',
++          builder: (context, state) => BlocProvider(
++            create: (_) => MedicalRecordsBloc(repository: medicalRecordsRepository),
++            child: const PatientRecordsScreen(),
++          ),
++        ),
++
++        // Medical Record Details (accessible by both Patient and Doctor)
++        GoRoute(
++          path: '/medical-records/:id',
++          builder: (context, state) {
++            final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
++            return BlocProvider(
++              create: (_) => MedicalRecordsBloc(repository: medicalRecordsRepository),
++              child: RecordDetailsScreen(recordId: id),
++            );
++          },
++        ),
++
++        // Doctor Create Medical Record Form
++        GoRoute(
++          path: '/doctor/appointments/:id/create-record',
++          builder: (context, state) {
++            final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
++            final patientName = state.extra as String? ?? 'Patient';
++            return BlocProvider(
++              create: (_) => MedicalRecordsBloc(repository: medicalRecordsRepository),
++              child: CreateRecordScreen(appointmentId: id, patientName: patientName),
++            );
++          },
++        ),
++
+         // Doctor Main Navigation Shell
+         ShellRoute(
+           builder: (context, state, child) {
+diff --git a/lib/features/doctor/screens/doctor_appointments_screen.dart b/lib/features/doctor/screens/doctor_appointments_screen.dart
+index bd927e5..05849d1 100644
+--- a/lib/features/doctor/screens/doctor_appointments_screen.dart
++++ b/lib/features/doctor/screens/doctor_appointments_screen.dart
+@@ -1,6 +1,7 @@
+ import 'package:flutter/material.dart';
+ import 'package:flutter_animate/flutter_animate.dart';
+ import 'package:flutter_bloc/flutter_bloc.dart';
++import 'package:go_router/go_router.dart';
+ import 'package:clinic_app/core/l10n/app_localizations.dart';
+ import '../../../core/theme/app_dimensions.dart';
+ import '../../../core/utils/date_formatters.dart';
+@@ -287,14 +288,12 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
+               AppButton(
+                 text: l10n.completeVisit,
+                 onPressed: () async {
+-                  final ok = await AppDialogs.showConfirmation(
+-                    context: context,
+-                    title: l10n.completeVisit,
+-                    message: 'Are you sure you want to mark this visit as completed?',
++                  await context.push(
++                    '/doctor/appointments/${app.id}/create-record',
++                    extra: app.patientName,
+                   );
+-                  if (ok == true) {
+-                    bloc.add(UpdateAppointmentStatusEvent(id: app.id, status: 'completed'));
+-                  }
++                  // Reload list to reflect completed status
++                  bloc.add(const FetchDoctorAppointmentsEvent());
+                 },
+               ),
+             ],
+diff --git a/lib/features/medical_records/bloc/medical_records_bloc.dart b/lib/features/medical_records/bloc/medical_records_bloc.dart
+new file mode 100644
+index 0000000..32c2f31
+--- /dev/null
++++ b/lib/features/medical_records/bloc/medical_records_bloc.dart
+@@ -0,0 +1,104 @@
++import 'package:flutter_bloc/flutter_bloc.dart';
++import '../repository/medical_records_repository.dart';
++import 'medical_records_event.dart';
++import 'medical_records_state.dart';
++
++class MedicalRecordsBloc extends Bloc<MedicalRecordsEvent, MedicalRecordsState> {
++  final MedicalRecordsRepository _repository;
++
++  MedicalRecordsBloc({required MedicalRecordsRepository repository})
++      : _repository = repository,
++        super(const MedicalRecordsInitial()) {
++    on<FetchPatientMedicalRecordsEvent>(_onFetchPatientMedicalRecords);
++    on<FetchMedicalRecordDetailsEvent>(_onFetchMedicalRecordDetails);
++    on<CreateMedicalRecordEvent>(_onCreateMedicalRecord);
++    on<AddPrescriptionEvent>(_onAddPrescription);
++  }
++
++  Future<void> _onFetchPatientMedicalRecords(
++    FetchPatientMedicalRecordsEvent event,
++    Emitter<MedicalRecordsState> emit,
++  ) async {
++    emit(const MedicalRecordsLoading());
++    final result = await _repository.getPatientMedicalRecords();
++    if (result.isSuccess) {
++      emit(PatientMedicalRecordsLoadSuccess(result.data!));
++    } else {
++      emit(MedicalRecordsFailure(result.failure!.message));
++    }
++  }
++
++  Future<void> _onFetchMedicalRecordDetails(
++    FetchMedicalRecordDetailsEvent event,
++    Emitter<MedicalRecordsState> emit,
++  ) async {
++    emit(const MedicalRecordsLoading());
++    final result = await _repository.getMedicalRecordDetails(event.id);
++    if (result.isSuccess) {
++      emit(MedicalRecordDetailsLoadSuccess(result.data!));
++    } else {
++      emit(MedicalRecordsFailure(result.failure!.message));
++    }
++  }
++
++  Future<void> _onCreateMedicalRecord(
++    CreateMedicalRecordEvent event,
++    Emitter<MedicalRecordsState> emit,
++  ) async {
++    emit(const MedicalRecordsActionInProgress());
++    final result = await _repository.createMedicalRecord(
++      appointmentId: event.appointmentId,
++      symptoms: event.symptoms,
++      diagnosis: event.diagnosis,
++      doctorNotes: event.doctorNotes,
++    );
++    if (result.isSuccess) {
++      emit(CreateMedicalRecordSuccess(result.data!));
++    } else {
++      emit(MedicalRecordsFailure(result.failure!.message));
++    }
++  }
++
++  Future<void> _onAddPrescription(
++    AddPrescriptionEvent event,
++    Emitter<MedicalRecordsState> emit,
++  ) async {
++    final previousState = state;
++    emit(const MedicalRecordsActionInProgress());
++    final result = await _repository.addPrescription(
++      recordId: event.recordId,
++      medicationName: event.medicationName,
++      dosage: event.dosage,
++      duration: event.duration,
++      instructions: event.instructions,
++    );
++    if (result.isSuccess) {
++      emit(AddPrescriptionSuccess(result.data!));
++      
++      // If we previously had loaded medical record details, append this prescription locally so the UI updates
++      if (previousState is MedicalRecordDetailsLoadSuccess) {
++        final currentRecord = previousState.record;
++        final updatedPrescriptions = List<dynamic>.from(currentRecord.prescriptions)
++          ..add(result.data!);
++        
++        final updatedRecord = currentRecord.toJson();
++        updatedRecord['prescriptions'] = updatedPrescriptions;
++        
++        emit(MedicalRecordDetailsLoadSuccess(
++          currentRecord, // wait, let's map it cleanly
++        ));
++        
++        // Reload details to get everything fully synchronized from server
++        final reloadResult = await _repository.getMedicalRecordDetails(event.recordId);
++        if (reloadResult.isSuccess) {
++          emit(MedicalRecordDetailsLoadSuccess(reloadResult.data!));
++        }
++      }
++    } else {
++      emit(MedicalRecordsFailure(result.failure!.message));
++      if (previousState is MedicalRecordDetailsLoadSuccess) {
++        emit(previousState);
++      }
++    }
++  }
++}
+diff --git a/lib/features/medical_records/bloc/medical_records_event.dart b/lib/features/medical_records/bloc/medical_records_event.dart
+new file mode 100644
+index 0000000..813e1c8
+--- /dev/null
++++ b/lib/features/medical_records/bloc/medical_records_event.dart
+@@ -0,0 +1,57 @@
++import 'package:equatable/equatable.dart';
++
++abstract class MedicalRecordsEvent extends Equatable {
++  const MedicalRecordsEvent();
++
++  @override
++  List<Object?> get props => [];
++}
++
++class FetchPatientMedicalRecordsEvent extends MedicalRecordsEvent {
++  const FetchPatientMedicalRecordsEvent();
++}
++
++class FetchMedicalRecordDetailsEvent extends MedicalRecordsEvent {
++  final int id;
++
++  const FetchMedicalRecordDetailsEvent(this.id);
++
++  @override
++  List<Object?> get props => [id];
++}
++
++class CreateMedicalRecordEvent extends MedicalRecordsEvent {
++  final int appointmentId;
++  final String symptoms;
++  final String diagnosis;
++  final String doctorNotes;
++
++  const CreateMedicalRecordEvent({
++    required this.appointmentId,
++    required this.symptoms,
++    required this.diagnosis,
++    required this.doctorNotes,
++  });
++
++  @override
++  List<Object?> get props => [appointmentId, symptoms, diagnosis, doctorNotes];
++}
++
++class AddPrescriptionEvent extends MedicalRecordsEvent {
++  final int recordId;
++  final String medicationName;
++  final String dosage;
++  final String duration;
++  final String? instructions;
++
++  const AddPrescriptionEvent({
++    required this.recordId,
++    required this.medicationName,
++    required this.dosage,
++    required this.duration,
++    this.instructions,
++  });
++
++  @override
++  List<Object?> get props => [recordId, medicationName, dosage, duration, instructions];
++}
+diff --git a/lib/features/medical_records/bloc/medical_records_state.dart b/lib/features/medical_records/bloc/medical_records_state.dart
+new file mode 100644
+index 0000000..dfde60c
+--- /dev/null
++++ b/lib/features/medical_records/bloc/medical_records_state.dart
+@@ -0,0 +1,67 @@
++import 'package:equatable/equatable.dart';
++import '../models/medical_record_model.dart';
++import '../models/prescription_model.dart';
++
++abstract class MedicalRecordsState extends Equatable {
++  const MedicalRecordsState();
++
++  @override
++  List<Object?> get props => [];
++}
++
++class MedicalRecordsInitial extends MedicalRecordsState {
++  const MedicalRecordsInitial();
++}
++
++class MedicalRecordsLoading extends MedicalRecordsState {
++  const MedicalRecordsLoading();
++}
++
++class PatientMedicalRecordsLoadSuccess extends MedicalRecordsState {
++  final List<MedicalRecordModel> records;
++
++  const PatientMedicalRecordsLoadSuccess(this.records);
++
++  @override
++  List<Object?> get props => [records];
++}
++
++class MedicalRecordDetailsLoadSuccess extends MedicalRecordsState {
++  final MedicalRecordModel record;
++
++  const MedicalRecordDetailsLoadSuccess(this.record);
++
++  @override
++  List<Object?> get props => [record];
++}
++
++class CreateMedicalRecordSuccess extends MedicalRecordsState {
++  final MedicalRecordModel record;
++
++  const CreateMedicalRecordSuccess(this.record);
++
++  @override
++  List<Object?> get props => [record];
++}
++
++class AddPrescriptionSuccess extends MedicalRecordsState {
++  final PrescriptionModel prescription;
++
++  const AddPrescriptionSuccess(this.prescription);
++
++  @override
++  List<Object?> get props => [prescription];
++}
++
++class MedicalRecordsActionInProgress extends MedicalRecordsState {
++  const MedicalRecordsActionInProgress();
++}
++
++class MedicalRecordsFailure extends MedicalRecordsState {
++  final String errorMessage;
++
++  const MedicalRecordsFailure(this.errorMessage);
++
++  @override
++  List<Object?> get props => [errorMessage];
++}
+diff --git a/lib/features/medical_records/data/medical_records_api_service.dart b/lib/features/medical_records/data/medical_records_api_service.dart
+new file mode 100644
+index 0000000..7f21ae5
+--- /dev/null
++++ b/lib/features/medical_records/data/medical_records_api_service.dart
+@@ -0,0 +1,51 @@
++import 'package:dio/dio.dart';
++import '../../../core/api/api_client.dart';
++
++class MedicalRecordsApiService {
++  final ApiClient _apiClient;
++
++  MedicalRecordsApiService(this._apiClient);
++
++  Future<Response> getPatientMedicalRecords() async {
++    return await _apiClient.get('/api/medical-records/my');
++  }
++
++  Future<Response> getMedicalRecordDetails(int id) async {
++    return await _apiClient.get('/api/medical-records/$id');
++  }
++
++  Future<Response> createMedicalRecord({
++    required int appointmentId,
++    String? symptoms,
++    String? diagnosis,
++    String? doctorNotes,
++  }) async {
++    return await _apiClient.post(
++      '/api/medical-records',
++      data: {
++        'appointment_id': appointmentId,
++        'symptoms': symptoms,
++        'diagnosis': diagnosis,
++        'doctor_notes': doctorNotes,
++      },
++    );
++  }
++
++  Future<Response> addPrescription({
++    required int recordId,
++    required String medicationName,
++    required String dosage,
++    required String duration,
++    String? instructions,
++  }) async {
++    return await _apiClient.post(
++      '/api/medical-records/$recordId/prescriptions',
++      data: {
++        'medication_name': medicationName,
++        'dosage': dosage,
++        'duration': duration,
++        'instructions': instructions,
++      },
++    );
++  }
++}
+diff --git a/lib/features/medical_records/models/medical_record_model.dart b/lib/features/medical_records/models/medical_record_model.dart
+new file mode 100644
+index 0000000..a1da4c1
+--- /dev/null
++++ b/lib/features/medical_records/models/medical_record_model.dart
+@@ -0,0 +1,67 @@
++import 'package:equatable/equatable.dart';
++import 'prescription_model.dart';
++
++class MedicalRecordModel extends Equatable {
++  final int id;
++  final String visitDate;
++  final String doctorName;
++  final String? patientName;
++  final String? symptoms;
++  final String? diagnosis;
++  final String? doctorNotes;
++  final List<PrescriptionModel> prescriptions;
++
++  const MedicalRecordModel({
++    required this.id,
++    required this.visitDate,
++    required this.doctorName,
++    this.patientName,
++    this.symptoms,
++    this.diagnosis,
++    this.doctorNotes,
++    required this.prescriptions,
++  });
++
++  factory MedicalRecordModel.fromJson(Map<String, dynamic> json) {
++    var rawPrescriptions = json['prescriptions'] as List? ?? [];
++    List<PrescriptionModel> prescriptionList = rawPrescriptions
++        .map((p) => PrescriptionModel.fromJson(p as Map<String, dynamic>))
++        .toList();
++
++    return MedicalRecordModel(
++      id: json['id'] as int? ?? 0,
++      visitDate: json['visit_date'] as String? ?? '',
++      doctorName: json['doctor_name'] as String? ?? '',
++      patientName: json['patient_name'] as String?,
++      symptoms: json['symptoms'] as String?,
++      diagnosis: json['diagnosis'] as String?,
++      doctorNotes: json['doctor_notes'] as String?,
++      prescriptions: prescriptionList,
++    );
++  }
++
++  Map<String, dynamic> toJson() {
++    return {
++      'id': id,
++      'visit_date': visitDate,
++      'doctor_name': doctorName,
++      'patient_name': patientName,
++      'symptoms': symptoms,
++      'diagnosis': diagnosis,
++      'doctor_notes': doctorNotes,
++      'prescriptions': prescriptions.map((p) => p.toJson()).toList(),
++    };
++  }
++
++  @override
++  List<Object?> get props => [
++        id,
++        visitDate,
++        doctorName,
++        patientName,
++        symptoms,
++        diagnosis,
++        doctorNotes,
++        prescriptions,
++      ];
++}
+diff --git a/lib/features/medical_records/models/prescription_model.dart b/lib/features/medical_records/models/prescription_model.dart
+new file mode 100644
+index 0000000..bb593d2
+--- /dev/null
++++ b/lib/features/medical_records/models/prescription_model.dart
+@@ -0,0 +1,44 @@
++import 'package:equatable/equatable.dart';
++
++class PrescriptionModel extends Equatable {
++  final int id;
++  final int medicalRecordId;
++  final String medicationName;
++  final String dosage;
++  final String duration;
++  final String? instructions;
++
++  const PrescriptionModel({
++    required this.id,
++    required this.medicalRecordId,
++    required this.medicationName,
++    required this.dosage,
++    required this.duration,
++    this.instructions,
++  });
++
++  factory PrescriptionModel.fromJson(Map<String, dynamic> json) {
++    return PrescriptionModel(
++      id: json['id'] as int? ?? 0,
++      medicalRecordId: json['medical_record_id'] as int? ?? 0,
++      medicationName: json['medication_name'] as String? ?? '',
++      dosage: json['dosage'] as String? ?? '',
++      duration: json['duration'] as String? ?? '',
++      instructions: json['instructions'] as String?,
++    );
++  }
++
++  Map<String, dynamic> toJson() {
++    return {
++      'id': id,
++      'medical_record_id': medicalRecordId,
++      'medication_name': medicationName,
++      'dosage': dosage,
++      'duration': duration,
++      'instructions': instructions,
++    };
++  }
++
++  @override
++  List<Object?> get props => [id, medicalRecordId, medicationName, dosage, duration, instructions];
++}
+diff --git a/lib/features/medical_records/repository/medical_records_repository.dart b/lib/features/medical_records/repository/medical_records_repository.dart
+new file mode 100644
+index 0000000..b5c47d2
+--- /dev/null
++++ b/lib/features/medical_records/repository/medical_records_repository.dart
+@@ -0,0 +1,103 @@
++import '../../../core/api/api_exceptions.dart';
++import '../../../core/errors/failures.dart';
++import '../data/medical_records_api_service.dart';
++import '../models/medical_record_model.dart';
++import '../models/prescription_model.dart';
++
++class MedicalRecordResult<T> {
++  final T? data;
++  final Failure? failure;
++
++  const MedicalRecordResult.success(T value)
++      : data = value,
++        failure = null;
++
++  const MedicalRecordResult.failure(Failure f)
++      : data = null,
++        failure = f;
++
++  bool get isSuccess => failure == null;
++}
++
++class MedicalRecordsRepository {
++  final MedicalRecordsApiService _apiService;
++
++  MedicalRecordsRepository(this._apiService);
++
++  Future<MedicalRecordResult<List<MedicalRecordModel>>> getPatientMedicalRecords() async {
++    try {
++      final response = await _apiService.getPatientMedicalRecords();
++      final List rawList = response.data as List? ?? [];
++      final list = rawList
++          .map((e) => MedicalRecordModel.fromJson(e as Map<String, dynamic>))
++          .toList();
++      return MedicalRecordResult.success(list);
++    } on ApiException catch (e) {
++      return MedicalRecordResult.failure(ServerFailure(e.message));
++    } catch (_) {
++      return MedicalRecordResult.failure(const NetworkFailure());
++    }
++  }
++
++  Future<MedicalRecordResult<MedicalRecordModel>> getMedicalRecordDetails(int id) async {
++    try {
++      final response = await _apiService.getMedicalRecordDetails(id);
++      final record = MedicalRecordModel.fromJson(response.data as Map<String, dynamic>);
++      return MedicalRecordResult.success(record);
++    } on ApiException catch (e) {
++      return MedicalRecordResult.failure(ServerFailure(e.message));
++    } catch (_) {
++      return MedicalRecordResult.failure(const NetworkFailure());
++    }
++  }
++
++  Future<MedicalRecordResult<MedicalRecordModel>> createMedicalRecord({
++    required int appointmentId,
++    String? symptoms,
++    String? diagnosis,
++    String? doctorNotes,
++  }) async {
++    try {
++      final response = await _apiService.createMedicalRecord(
++        appointmentId: appointmentId,
++        symptoms: symptoms,
++        diagnosis: diagnosis,
++        doctorNotes: doctorNotes,
++      );
++      final rawRecord = response.data['record'] as Map<String, dynamic>? ?? {};
++      // Note: The created record might not contain loaded doctor/patient details immediately,
++      // but we parse whatever fields are returned.
++      final record = MedicalRecordModel.fromJson(rawRecord);
++      return MedicalRecordResult.success(record);
++    } on ApiException catch (e) {
++      return MedicalRecordResult.failure(ServerFailure(e.message));
++    } catch (_) {
++      return MedicalRecordResult.failure(const NetworkFailure());
++    }
++  }
++
++  Future<MedicalRecordResult<PrescriptionModel>> addPrescription({
++    required int recordId,
++    required String medicationName,
++    required String dosage,
++    required String duration,
++    String? instructions,
++  }) async {
++    try {
++      final response = await _apiService.addPrescription(
++        recordId: recordId,
++        medicationName: medicationName,
++        dosage: dosage,
++        duration: duration,
++        instructions: instructions,
++      );
++      final rawPresc = response.data['prescription'] as Map<String, dynamic>? ?? {};
++      final prescription = PrescriptionModel.fromJson(rawPresc);
++      return MedicalRecordResult.success(prescription);
++    } on ApiException catch (e) {
++      return MedicalRecordResult.failure(ServerFailure(e.message));
++    } catch (_) {
++      return MedicalRecordResult.failure(const NetworkFailure());
++    }
++  }
++}
+diff --git a/lib/features/medical_records/screens/add_prescription_dialog.dart b/lib/features/medical_records/screens/add_prescription_dialog.dart
+new file mode 100644
+index 0000000..c2af2ca
+--- /dev/null
++++ b/lib/features/medical_records/screens/add_prescription_dialog.dart
+@@ -0,0 +1,167 @@
++import 'package:flutter/material.dart';
++import 'package:flutter_bloc/flutter_bloc.dart';
++import 'package:clinic_app/core/l10n/app_localizations.dart';
++import '../../../core/theme/app_dimensions.dart';
++import '../../../shared/extensions/context_extensions.dart';
++import '../../../shared/widgets/app_button.dart';
++import '../../../shared/widgets/app_text_field.dart';
++import '../bloc/medical_records_bloc.dart';
++import '../bloc/medical_records_event.dart';
++
++class AddPrescriptionDialog extends StatefulWidget {
++  final int recordId;
++
++  const AddPrescriptionDialog({super.key, required this.recordId});
++
++  @override
++  State<AddPrescriptionDialog> createState() => _AddPrescriptionDialogState();
++}
++
++class _AddPrescriptionDialogState extends State<AddPrescriptionDialog> {
++  final _formKey = GlobalKey<FormState>();
++  final _medNameController = TextEditingController();
++  final _dosageController = TextEditingController();
++  final _durationController = TextEditingController();
++  final _instructionsController = TextEditingController();
++
++  @override
++  void dispose() {
++    _medNameController.dispose();
++    _dosageController.dispose();
++    _durationController.dispose();
++    _instructionsController.dispose();
++    super.dispose();
++  }
++
++  void _submit() {
++    if (_formKey.currentState?.validate() ?? false) {
++      context.read<MedicalRecordsBloc>().add(
++            AddPrescriptionEvent(
++              recordId: widget.recordId,
++              medicationName: _medNameController.text.trim(),
++              dosage: _dosageController.text.trim(),
++              duration: _durationController.text.trim(),
++              instructions: _instructionsController.text.trim(),
++            ),
++          );
++      Navigator.of(context).pop();
++    }
++  }
++
++  @override
++  Widget build(BuildContext context) {
++    final colors = context.appColors;
++    final l10n = AppLocalizations.of(context);
++
++    return Dialog(
++      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
++      backgroundColor: colors.surface,
++      insetPadding: const EdgeInsets.all(24),
++      child: Padding(
++        padding: const EdgeInsets.all(AppDimensions.paddingM),
++        child: Form(
++          key: _formKey,
++          child: SingleChildScrollView(
++            child: Column(
++              mainAxisSize: MainAxisSize.min,
++              crossAxisAlignment: CrossAxisAlignment.start,
++              children: [
++                Row(
++                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
++                  children: [
++                    Text(
++                      l10n.addPrescription,
++                      style: context.textTheme.titleMedium?.copyWith(
++                        fontWeight: FontWeight.bold,
++                        color: colors.text,
++                      ),
++                    ),
++                    IconButton(
++                      icon: const Icon(Icons.close_rounded),
++                      onPressed: () => Navigator.of(context).pop(),
++                      padding: EdgeInsets.zero,
++                      constraints: const BoxConstraints(),
++                    ),
++                  ],
++                ),
++                const Divider(height: 24),
++
++                // Medication Name field
++                AppTextField(
++                  labelText: '${l10n.medicationName} *',
++                  controller: _medNameController,
++                  hintText: 'e.g. Amoxicillin 500mg',
++                  validator: (val) {
++                    if (val == null || val.trim().isEmpty) {
++                      return 'Medication name is required.';
++                    }
++                    return null;
++                  },
++                ),
++                const SizedBox(height: AppDimensions.paddingM),
++
++                // Dosage field
++                AppTextField(
++                  labelText: '${l10n.dosage} *',
++                  controller: _dosageController,
++                  hintText: 'e.g. One tablet twice daily',
++                  validator: (val) {
++                    if (val == null || val.trim().isEmpty) {
++                      return 'Dosage description is required.';
++                    }
++                    return null;
++                  },
++                ),
++                const SizedBox(height: AppDimensions.paddingM),
++
++                // Duration field
++                AppTextField(
++                  labelText: '${l10n.duration} *',
++                  controller: _durationController,
++                  hintText: 'e.g. 7 Days',
++                  validator: (val) {
++                    if (val == null || val.trim().isEmpty) {
++                      return 'Duration is required.';
++                    }
++                    return null;
++                  },
++                ),
++                const SizedBox(height: AppDimensions.paddingM),
++
++                // Instructions field
++                AppTextField(
++                  labelText: l10n.instructions,
++                  controller: _instructionsController,
++                  hintText: 'e.g. Take with food / before sleep...',
++                  maxLines: 2,
++                  validator: null,
++                ),
++                const SizedBox(height: AppDimensions.paddingL),
++
++                // Action buttons
++                Row(
++                  children: [
++                    Expanded(
++                      child: AppButton(
++                        text: l10n.cancel,
++                        isOutline: true,
++                        onPressed: () => Navigator.of(context).pop(),
++                      ),
++                    ),
++                    const SizedBox(width: 12),
++                    Expanded(
++                      child: AppButton(
++                        text: l10n.save,
++                        onPressed: _submit,
++                      ),
++                    ),
++                  ],
++                ),
++              ],
++            ),
++          ),
++        ),
++      ),
++    );
++  }
++}
+diff --git a/lib/features/medical_records/screens/create_record_screen.dart b/lib/features/medical_records/screens/create_record_screen.dart
+new file mode 100644
+index 0000000..33098c1
+--- /dev/null
++++ b/lib/features/medical_records/screens/create_record_screen.dart
+@@ -0,0 +1,196 @@
++import 'package:flutter/material.dart';
++import 'package:flutter_bloc/flutter_bloc.dart';
++import 'package:go_router/go_router.dart';
++import 'package:clinic_app/core/l10n/app_localizations.dart';
++import '../../../core/theme/app_dimensions.dart';
++import '../../../shared/extensions/context_extensions.dart';
++import '../../../shared/widgets/app_button.dart';
++import '../../../shared/widgets/app_card.dart';
++import '../../../shared/widgets/app_loading_indicator.dart';
++import '../../../shared/widgets/app_text_field.dart';
++import '../../../shared/dialogs/app_dialogs.dart';
++import '../bloc/medical_records_bloc.dart';
++import '../bloc/medical_records_event.dart';
++import '../bloc/medical_records_state.dart';
++
++class CreateRecordScreen extends StatefulWidget {
++  final int appointmentId;
++  final String patientName;
++
++  const CreateRecordScreen({
++    super.key,
++    required this.appointmentId,
++    required this.patientName,
++  });
++
++  @override
++  State<CreateRecordScreen> createState() => _CreateRecordScreenState();
++}
++
++class _CreateRecordScreenState extends State<CreateRecordScreen> {
++  final _formKey = GlobalKey<FormState>();
++  final _symptomsController = TextEditingController();
++  final _diagnosisController = TextEditingController();
++  final _notesController = TextEditingController();
++
++  @override
++  void dispose() {
++    _symptomsController.dispose();
++    _diagnosisController.dispose();
++    _notesController.dispose();
++    super.dispose();
++  }
++
++  void _submit() {
++    if (_formKey.currentState?.validate() ?? false) {
++      context.read<MedicalRecordsBloc>().add(
++            CreateMedicalRecordEvent(
++              appointmentId: widget.appointmentId,
++              symptoms: _symptomsController.text.trim(),
++              diagnosis: _diagnosisController.text.trim(),
++              doctorNotes: _notesController.text.trim(),
++            ),
++          );
++    }
++  }
++
++  @override
++  Widget build(BuildContext context) {
++    final colors = context.appColors;
++    final l10n = AppLocalizations.of(context);
++
++    return Scaffold(
++      backgroundColor: colors.background,
++      appBar: AppBar(
++        title: Text(
++          l10n.createMedicalRecord,
++          style: context.textTheme.titleLarge?.copyWith(
++            fontWeight: FontWeight.bold,
++            color: colors.text,
++          ),
++        ),
++        backgroundColor: Colors.transparent,
++        elevation: 0,
++        leading: IconButton(
++          icon: Icon(Icons.close_rounded, color: colors.text),
++          onPressed: () => context.pop(),
++        ),
++      ),
++      body: BlocConsumer<MedicalRecordsBloc, MedicalRecordsState>(
++        listener: (context, state) {
++          if (state is CreateMedicalRecordSuccess) {
++            AppDialogs.showSuccess(
++              context: context,
++              title: l10n.success,
++              message: l10n.recordCreatedSuccess,
++              onPressed: () {
++                // Navigate to the newly created record details to allow adding prescriptions
++                context.pushReplacement('/medical-records/${state.record.id}');
++              },
++            );
++          } else if (state is MedicalRecordsFailure) {
++            AppDialogs.showError(
++              context: context,
++              title: l10n.error,
++              message: state.errorMessage,
++            );
++          }
++        },
++        builder: (context, state) {
++          final isLoading = state is MedicalRecordsActionInProgress;
++
++          return Stack(
++            children: [
++              SingleChildScrollView(
++                padding: const EdgeInsets.all(AppDimensions.paddingM),
++                child: Form(
++                  key: _formKey,
++                  child: Column(
++                    crossAxisAlignment: CrossAxisAlignment.start,
++                    children: [
++                      // Patient Info header
++                      AppCard(
++                        color: colors.primary.withValues(alpha: 0.05),
++                        child: Row(
++                          children: [
++                            Icon(Icons.person_outline_rounded, color: colors.primary, size: 24),
++                            const SizedBox(width: 12),
++                            Expanded(
++                              child: Column(
++                                crossAxisAlignment: CrossAxisAlignment.start,
++                                children: [
++                                  Text(
++                                    l10n.patientName,
++                                    style: context.textTheme.bodySmall?.copyWith(color: colors.textSecondary),
++                                  ),
++                                  Text(
++                                    widget.patientName,
++                                    style: context.textTheme.titleMedium?.copyWith(
++                                      fontWeight: FontWeight.bold,
++                                      color: colors.text,
++                                    ),
++                                  ),
++                                ],
++                              ),
++                            ),
++                          ],
++                        ),
++                      ),
++                      const SizedBox(height: AppDimensions.paddingL),
++
++                      // Symptoms text input
++                      AppTextField(
++                        labelText: l10n.symptoms,
++                        controller: _symptomsController,
++                        hintText: 'Enter symptoms reported by the patient...',
++                        maxLines: 3,
++                        validator: null, // Optional field
++                      ),
++                      const SizedBox(height: AppDimensions.paddingM),
++
++                      // Diagnosis text input
++                      AppTextField(
++                        labelText: '${l10n.diagnosis} *',
++                        controller: _diagnosisController,
++                        hintText: 'Enter medical diagnosis here...',
++                        maxLines: 3,
++                        validator: (val) {
++                          if (val == null || val.trim().isEmpty) {
++                            return 'Diagnosis is required to create a medical record.';
++                          }
++                          return null;
++                        },
++                      ),
++                      const SizedBox(height: AppDimensions.paddingM),
++
++                      // Notes text input
++                      AppTextField(
++                        labelText: l10n.doctorNotes,
++                        controller: _notesController,
++                        hintText: 'Enter additional clinical notes (optional)...',
++                        maxLines: 4,
++                        validator: null,
++                      ),
++                      const SizedBox(height: AppDimensions.paddingXL),
++
++                      // Submit button
++                      AppButton(
++                        text: l10n.createMedicalRecord,
++                        onPressed: isLoading ? null : _submit,
++                      ),
++                    ],
++                  ),
++                ),
++              ),
++              if (isLoading)
++                Container(
++                  color: Colors.black.withValues(alpha: 0.3),
++                  child: const Center(child: AppLoadingIndicator()),
++                ),
++            ],
++          );
++        },
++      ),
++    );
++  }
++}
+diff --git a/lib/features/medical_records/screens/patient_records_screen.dart b/lib/features/medical_records/screens/patient_records_screen.dart
+new file mode 100644
+index 0000000..118fed7
+--- /dev/null
++++ b/lib/features/medical_records/screens/patient_records_screen.dart
+@@ -0,0 +1,209 @@
++import 'package:flutter/material.dart';
++import 'package:flutter_animate/flutter_animate.dart';
++import 'package:flutter_bloc/flutter_bloc.dart';
++import 'package:go_router/go_router.dart';
++import 'package:clinic_app/core/l10n/app_localizations.dart';
++import '../../../core/theme/app_dimensions.dart';
++import '../../../core/utils/date_formatters.dart';
++import '../../../shared/extensions/context_extensions.dart';
++import '../../../shared/widgets/app_card.dart';
++import '../../../shared/widgets/app_empty_state.dart';
++import '../../../shared/widgets/app_error_widget.dart';
++import '../../../shared/widgets/app_loading_indicator.dart';
++import '../bloc/medical_records_bloc.dart';
++import '../bloc/medical_records_event.dart';
++import '../bloc/medical_records_state.dart';
++import '../models/medical_record_model.dart';
++
++class PatientRecordsScreen extends StatefulWidget {
++  const PatientRecordsScreen({super.key});
++
++  @override
++  State<PatientRecordsScreen> createState() => _PatientRecordsScreenState();
++}
++
++class _PatientRecordsScreenState extends State<PatientRecordsScreen> {
++  @override
++  void initState() {
++    super.initState();
++    _loadRecords();
++  }
++
++  void _loadRecords() {
++    context.read<MedicalRecordsBloc>().add(const FetchPatientMedicalRecordsEvent());
++  }
++
++  @override
++  Widget build(BuildContext context) {
++    final colors = context.appColors;
++    final l10n = AppLocalizations.of(context);
++
++    return Scaffold(
++      backgroundColor: colors.background,
++      appBar: AppBar(
++        title: Text(
++          l10n.medicalHistory,
++          style: context.textTheme.titleLarge?.copyWith(
++            fontWeight: FontWeight.bold,
++            color: colors.text,
++          ),
++        ),
++        backgroundColor: Colors.transparent,
++        elevation: 0,
++        leading: IconButton(
++          icon: Icon(Icons.arrow_back_rounded, color: colors.text),
++          onPressed: () => context.pop(),
++        ),
++      ),
++      body: BlocBuilder<MedicalRecordsBloc, MedicalRecordsState>(
++        builder: (context, state) {
++          if (state is MedicalRecordsLoading) {
++            return const Center(child: AppLoadingIndicator());
++          }
++
++          if (state is MedicalRecordsFailure) {
++            return AppErrorWidget(
++              errorMessage: state.errorMessage,
++              onRetry: _loadRecords,
++            );
++          }
++
++          if (state is PatientMedicalRecordsLoadSuccess) {
++            final records = state.records;
++
++            if (records.isEmpty) {
++              return RefreshIndicator(
++                onRefresh: () async => _loadRecords(),
++                child: ListView(
++                  physics: const AlwaysScrollableScrollPhysics(),
++                  children: [
++                    SizedBox(height: MediaQuery.of(context).size.height * 0.2),
++                    AppEmptyState(
++                      icon: Icons.assignment_outlined,
++                      title: l10n.noMedicalRecords,
++                      description: 'No medical checkup sheets or records exist on your file.',
++                    ),
++                  ],
++                ),
++              );
++            }
++
++            return RefreshIndicator(
++              onRefresh: () async => _loadRecords(),
++              child: ListView.builder(
++                padding: const EdgeInsets.all(AppDimensions.paddingM),
++                physics: const AlwaysScrollableScrollPhysics(),
++                itemCount: records.length,
++                itemBuilder: (context, index) {
++                  final record = records[index];
++                  return _buildRecordCard(context, record)
++                      .animate()
++                      .fadeIn(delay: (index * 50).ms)
++                      .slideY(begin: 0.05);
++                },
++              ),
++            );
++          }
++
++          return const SizedBox.shrink();
++        },
++      ),
++    );
++  }
++
++  Widget _buildRecordCard(BuildContext context, MedicalRecordModel record) {
++    final colors = context.appColors;
++    final l10n = AppLocalizations.of(context);
++
++    return Padding(
++      padding: const EdgeInsets.only(bottom: 12.0),
++      child: AppCard(
++        onTap: () => context.push('/patient/records/${record.id}'),
++        child: Column(
++          crossAxisAlignment: CrossAxisAlignment.start,
++          children: [
++            Row(
++              mainAxisAlignment: MainAxisAlignment.spaceBetween,
++              children: [
++                Row(
++                  children: [
++                    Icon(Icons.calendar_today_rounded, size: 16, color: colors.primary),
++                    const SizedBox(width: 8),
++                    Text(
++                      DateFormatters.formatDateString(record.visitDate),
++                      style: context.textTheme.titleMedium?.copyWith(
++                        fontWeight: FontWeight.bold,
++                        color: colors.text,
++                      ),
++                    ),
++                  ],
++                ),
++                Icon(Icons.chevron_right_rounded, color: colors.textSecondary),
++              ],
++            ),
++            const Divider(height: 24),
++            Text(
++              'Dr. ${record.doctorName}',
++              style: context.textTheme.bodyMedium?.copyWith(
++                fontWeight: FontWeight.w600,
++                color: colors.text,
++              ),
++            ),
++            if (record.diagnosis != null && record.diagnosis!.isNotEmpty) ...[
++              const SizedBox(height: 8),
++              Row(
++                crossAxisAlignment: CrossAxisAlignment.start,
++                children: [
++                  Text(
++                    '${l10n.diagnosis}: ',
++                    style: context.textTheme.bodySmall?.copyWith(
++                      fontWeight: FontWeight.bold,
++                      color: colors.textSecondary,
++                    ),
++                  ),
++                  Expanded(
++                    child: Text(
++                      record.diagnosis!,
++                      style: context.textTheme.bodySmall?.copyWith(
++                        color: colors.textSecondary,
++                      ),
++                      maxLines: 2,
++                      overflow: TextOverflow.ellipsis,
++                    ),
++                  ),
++                ],
++              ),
++            ],
++            if (record.prescriptions.isNotEmpty) ...[
++              const SizedBox(height: 12),
++              Row(
++                children: [
++                  Container(
++                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
++                    decoration: BoxDecoration(
++                      color: colors.primary.withValues(alpha: 0.1),
++                      borderRadius: BorderRadius.circular(6),
++                    ),
++                    child: Row(
++                      children: [
++                        Icon(Icons.medication_liquid_rounded, size: 12, color: colors.primary),
++                        const SizedBox(width: 4),
++                        Text(
++                          '${record.prescriptions.length} Meds',
++                          style: context.textTheme.labelSmall?.copyWith(
++                            color: colors.primary,
++                            fontWeight: FontWeight.bold,
++                          ),
++                        ),
++                      ],
++                    ),
++                  ),
++                ],
++              ),
++            ],
++          ],
++        ),
++      ),
++    );
++  }
++}
+diff --git a/lib/features/medical_records/screens/record_details_screen.dart b/lib/features/medical_records/screens/record_details_screen.dart
+new file mode 100644
+index 0000000..186bf63
+--- /dev/null
++++ b/lib/features/medical_records/screens/record_details_screen.dart
+@@ -0,0 +1,390 @@
++import 'package:flutter/material.dart';
++import 'package:flutter_animate/flutter_animate.dart';
++import 'package:flutter_bloc/flutter_bloc.dart';
++import 'package:go_router/go_router.dart';
++import 'package:clinic_app/core/l10n/app_localizations.dart';
++import '../../../core/theme/app_dimensions.dart';
++import '../../../core/utils/date_formatters.dart';
++import '../../../shared/extensions/context_extensions.dart';
++import '../../../shared/widgets/app_card.dart';
++import '../../../shared/widgets/app_empty_state.dart';
++import '../../../shared/widgets/app_error_widget.dart';
++import '../../../shared/widgets/app_loading_indicator.dart';
++import '../../../shared/dialogs/app_dialogs.dart';
++import '../../auth/bloc/auth_bloc.dart';
++import '../../auth/bloc/auth_state.dart';
++import '../bloc/medical_records_bloc.dart';
++import '../bloc/medical_records_event.dart';
++import '../bloc/medical_records_state.dart';
++import '../models/medical_record_model.dart';
++import 'add_prescription_dialog.dart';
++
++class RecordDetailsScreen extends StatefulWidget {
++  final int recordId;
++
++  const RecordDetailsScreen({super.key, required this.recordId});
++
++  @override
++  State<RecordDetailsScreen> createState() => _RecordDetailsScreenState();
++}
++
++class _RecordDetailsScreenState extends State<RecordDetailsScreen> {
++  @override
++  void initState() {
++    super.initState();
++    _loadRecordDetails();
++  }
++
++  void _loadRecordDetails() {
++    context.read<MedicalRecordsBloc>().add(FetchMedicalRecordDetailsEvent(widget.recordId));
++  }
++
++  @override
++  Widget build(BuildContext context) {
++    final colors = context.appColors;
++    final l10n = AppLocalizations.of(context);
++
++    // Identify if the logged-in user is a doctor
++    final authState = context.read<AuthBloc>().state;
++    final isDoctor = authState is AuthAuthenticated && authState.user.role == 'doctor';
++
++    return Scaffold(
++      backgroundColor: colors.background,
++      appBar: AppBar(
++        title: Text(
++          l10n.medicalRecordsTitle,
++          style: context.textTheme.titleLarge?.copyWith(
++            fontWeight: FontWeight.bold,
++            color: colors.text,
++          ),
++        ),
++        backgroundColor: Colors.transparent,
++        elevation: 0,
++        leading: IconButton(
++          icon: Icon(Icons.arrow_back_rounded, color: colors.text),
++          onPressed: () => context.pop(),
++        ),
++      ),
++      body: BlocConsumer<MedicalRecordsBloc, MedicalRecordsState>(
++        listener: (context, state) {
++          if (state is AddPrescriptionSuccess) {
++            AppDialogs.showSuccess(
++              context: context,
++              title: l10n.success,
++              message: l10n.prescriptionAddedSuccess,
++            );
++          } else if (state is MedicalRecordsFailure) {
++            AppDialogs.showError(
++              context: context,
++              title: l10n.error,
++              message: state.errorMessage,
++            );
++          }
++        },
++        builder: (context, state) {
++          // If in progress but we already have details loaded, show loading overlay instead of full spinner
++          final inProgress = state is MedicalRecordsActionInProgress;
++
++          if (state is MedicalRecordsLoading) {
++            return const Center(child: AppLoadingIndicator());
++          }
++
++          if (state is MedicalRecordsFailure && state is! MedicalRecordDetailsLoadSuccess) {
++            return AppErrorWidget(
++              errorMessage: state.errorMessage,
++              onRetry: _loadRecordDetails,
++            );
++          }
++
++          MedicalRecordModel? record;
++          if (state is MedicalRecordDetailsLoadSuccess) {
++            record = state.record;
++          } else {
++            // Fallback to bloc state if temporarily in action-in-progress state
++            final bloc = context.read<MedicalRecordsBloc>();
++            if (bloc.state is MedicalRecordDetailsLoadSuccess) {
++              record = (bloc.state as MedicalRecordDetailsLoadSuccess).record;
++            }
++          }
++
++          if (record == null) {
++            return const Center(child: AppLoadingIndicator());
++          }
++
++          return Stack(
++            children: [
++              SingleChildScrollView(
++                padding: const EdgeInsets.all(AppDimensions.paddingM),
++                child: Column(
++                  crossAxisAlignment: CrossAxisAlignment.start,
++                  children: [
++                    // Visit Header Card
++                    _buildHeaderCard(context, record),
++                    const SizedBox(height: AppDimensions.paddingM),
++
++                    // Symptoms Section
++                    if (record.symptoms != null && record.symptoms!.isNotEmpty) ...[
++                      _buildSectionTitle(context, l10n.symptoms, Icons.sick_outlined),
++                      const SizedBox(height: AppDimensions.paddingS),
++                      AppCard(
++                        child: Text(
++                          record.symptoms!,
++                          style: context.textTheme.bodyMedium?.copyWith(color: colors.text),
++                        ),
++                      ),
++                      const SizedBox(height: AppDimensions.paddingM),
++                    ],
++
++                    // Diagnosis Section
++                    if (record.diagnosis != null && record.diagnosis!.isNotEmpty) ...[
++                      _buildSectionTitle(context, l10n.diagnosis, Icons.assignment_outlined),
++                      const SizedBox(height: AppDimensions.paddingS),
++                      AppCard(
++                        child: Text(
++                          record.diagnosis!,
++                          style: context.textTheme.bodyMedium?.copyWith(
++                            color: colors.text,
++                            fontWeight: FontWeight.bold,
++                          ),
++                        ),
++                      ),
++                      const SizedBox(height: AppDimensions.paddingM),
++                    ],
++
++                    // Doctor Notes Section
++                    if (record.doctorNotes != null && record.doctorNotes!.isNotEmpty) ...[
++                      _buildSectionTitle(context, l10n.doctorNotes, Icons.notes_rounded),
++                      const SizedBox(height: AppDimensions.paddingS),
++                      AppCard(
++                        child: Text(
++                          record.doctorNotes!,
++                          style: context.textTheme.bodyMedium?.copyWith(color: colors.textSecondary),
++                        ),
++                      ),
++                      const SizedBox(height: AppDimensions.paddingM),
++                    ],
++
++                    // Prescriptions Section
++                    Row(
++                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
++                      children: [
++                        _buildSectionTitle(context, l10n.prescriptions, Icons.medication_outlined),
++                        if (isDoctor)
++                          TextButton.icon(
++                            icon: Icon(Icons.add_rounded, size: 18, color: colors.primary),
++                            label: Text(
++                              l10n.addPrescription,
++                              style: TextStyle(color: colors.primary, fontWeight: FontWeight.bold),
++                            ),
++                            onPressed: () => _showAddPrescriptionDialog(context, record!.id),
++                          ),
++                      ],
++                    ),
++                    const SizedBox(height: AppDimensions.paddingS),
++
++                    if (record.prescriptions.isEmpty)
++                      AppEmptyState(
++                        icon: Icons.medication_liquid_rounded,
++                        title: 'No Medications Prescribed',
++                        description: 'No drug dosage forms are currently attached to this checkup sheet.',
++                      )
++                    else
++                      ListView.builder(
++                        shrinkWrap: true,
++                        physics: const NeverScrollableScrollPhysics(),
++                        itemCount: record.prescriptions.length,
++                        itemBuilder: (context, index) {
++                          final p = record!.prescriptions[index];
++                          return _buildPrescriptionCard(context, p)
++                              .animate()
++                              .fadeIn(delay: (index * 50).ms)
++                              .slideX(begin: 0.05);
++                        },
++                      ),
++                  ],
++                ),
++              ),
++              if (inProgress)
++                Container(
++                  color: Colors.black.withValues(alpha: 0.3),
++                  child: const Center(child: AppLoadingIndicator()),
++                ),
++            ],
++          );
++        },
++      ),
++    );
++  }
++
++  Widget _buildSectionTitle(BuildContext context, String text, IconData icon) {
++    final colors = context.appColors;
++    return Row(
++      children: [
++        Icon(icon, size: 18, color: colors.primary),
++        const SizedBox(width: 8),
++        Text(
++          text,
++          style: context.textTheme.titleSmall?.copyWith(
++            fontWeight: FontWeight.bold,
++            color: colors.text,
++          ),
++        ),
++      ],
++    );
++  }
++
++  Widget _buildHeaderCard(BuildContext context, MedicalRecordModel record) {
++    final colors = context.appColors;
++    final l10n = AppLocalizations.of(context);
++
++    return AppCard(
++      color: colors.primary.withValues(alpha: 0.05),
++      child: Column(
++        children: [
++          Row(
++            mainAxisAlignment: MainAxisAlignment.spaceBetween,
++            children: [
++              Text(
++                '${l10n.visitDate}:',
++                style: context.textTheme.bodyMedium?.copyWith(
++                  fontWeight: FontWeight.w600,
++                  color: colors.textSecondary,
++                ),
++              ),
++              Text(
++                DateFormatters.formatDateString(record.visitDate),
++                style: context.textTheme.bodyMedium?.copyWith(
++                  fontWeight: FontWeight.bold,
++                  color: colors.primary,
++                ),
++              ),
++            ],
++          ),
++          const Divider(height: 20),
++          _buildHeaderRow(
++            context,
++            Icons.medical_services_outlined,
++            'Doctor:',
++            'Dr. ${record.doctorName}',
++          ),
++          if (record.patientName != null && record.patientName!.isNotEmpty) ...[
++            const SizedBox(height: 8),
++            _buildHeaderRow(
++              context,
++              Icons.person_outline_rounded,
++              'Patient:',
++              record.patientName!,
++            ),
++          ],
++        ],
++      ),
++    );
++  }
++
++  Widget _buildHeaderRow(BuildContext context, IconData icon, String label, String value) {
++    final colors = context.appColors;
++    return Row(
++      children: [
++        Icon(icon, size: 16, color: colors.textSecondary),
++        const SizedBox(width: 8),
++        Text(
++          label,
++          style: context.textTheme.bodyMedium?.copyWith(color: colors.textSecondary),
++        ),
++        const SizedBox(width: 8),
++        Expanded(
++          child: Text(
++            value,
++            style: context.textTheme.bodyMedium?.copyWith(
++              fontWeight: FontWeight.bold,
++              color: colors.text,
++            ),
++            textAlign: TextAlign.end,
++          ),
++        ),
++      ],
++    );
++  }
++
++  Widget _buildPrescriptionCard(BuildContext context, dynamic p) {
++    final colors = context.appColors;
++    final l10n = AppLocalizations.of(context);
++
++    return Padding(
++      padding: const EdgeInsets.only(bottom: 10.0),
++      child: AppCard(
++        child: Column(
++          crossAxisAlignment: CrossAxisAlignment.start,
++          children: [
++            Row(
++              mainAxisAlignment: MainAxisAlignment.spaceBetween,
++              children: [
++                Expanded(
++                  child: Text(
++                    p.medicationName,
++                    style: context.textTheme.titleMedium?.copyWith(
++                      fontWeight: FontWeight.bold,
++                      color: colors.text,
++                    ),
++                  ),
++                ),
++                Container(
++                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
++                  decoration: BoxDecoration(
++                    color: colors.secondary.withValues(alpha: 0.1),
++                    borderRadius: BorderRadius.circular(6),
++                  ),
++                  child: Text(
++                    p.duration,
++                    style: context.textTheme.bodySmall?.copyWith(
++                      color: colors.secondary,
++                      fontWeight: FontWeight.bold,
++                    ),
++                  ),
++                ),
++              ],
++            ),
++            const SizedBox(height: 8),
++            Row(
++              children: [
++                Icon(Icons.loop_rounded, size: 14, color: colors.textSecondary),
++                const SizedBox(width: 6),
++                Text(
++                  '${l10n.dosage}: ${p.dosage}',
++                  style: context.textTheme.bodyMedium?.copyWith(color: colors.textSecondary),
++                ),
++              ],
++            ),
++            if (p.instructions != null && p.instructions!.isNotEmpty) ...[
++              const SizedBox(height: 8),
++              Row(
++                crossAxisAlignment: CrossAxisAlignment.start,
++                children: [
++                  Icon(Icons.info_outline_rounded, size: 14, color: colors.textSecondary),
++                  const SizedBox(width: 6),
++                  Expanded(
++                    child: Text(
++                      p.instructions!,
++                      style: context.textTheme.bodySmall?.copyWith(color: colors.textSecondary),
++                    ),
++                  ),
++                ],
++              ),
++            ],
++          ],
++        ),
++      ),
++    );
++  }
++
++  void _showAddPrescriptionDialog(BuildContext context, int recordId) {
++    showDialog(
++      context: context,
++      barrierDismissible: false,
++      builder: (_) => BlocProvider.value(
++        value: context.read<MedicalRecordsBloc>(),
++        child: AddPrescriptionDialog(recordId: recordId),
++      ),
++    );
++  }
++}
+diff --git a/lib/features/patient/screens/patient_dashboard_screen.dart b/lib/features/patient/screens/patient_dashboard_screen.dart
+index bdead99..0c302bd 100644
+--- a/lib/features/patient/screens/patient_dashboard_screen.dart
++++ b/lib/features/patient/screens/patient_dashboard_screen.dart
+@@ -188,7 +188,7 @@ class PatientDashboardScreen extends StatelessWidget {
+                     icon: Icons.medical_information_outlined,
+                     title: l10n.medicalRecordsTitle,
+                     color: colors.success,
+-                    onTap: () {},
++                    onTap: () => context.push('/patient/records'),
+                   ),
+                   _buildGridItem(
+                     context,
+diff --git a/lib/shared/widgets/app_text_field.dart b/lib/shared/widgets/app_text_field.dart
+index 5db20d4..6574b4e 100644
+--- a/lib/shared/widgets/app_text_field.dart
++++ b/lib/shared/widgets/app_text_field.dart
+@@ -12,6 +12,7 @@ class AppTextField extends StatefulWidget {
+   final Widget? suffixIcon;
+   final bool enabled;
+   final ValueChanged<String>? onChanged;
++  final int maxLines;
+ 
+   const AppTextField({
+     super.key,
+@@ -25,6 +26,7 @@ class AppTextField extends StatefulWidget {
+     this.suffixIcon,
+     this.enabled = true,
+     this.onChanged,
++    this.maxLines = 1,
+   });
+ 
+   @override
+@@ -56,6 +58,7 @@ class _AppTextFieldState extends State<AppTextField> {
+           keyboardType: widget.keyboardType,
+           enabled: widget.enabled,
+           onChanged: widget.onChanged,
++          maxLines: widget.maxLines,
+           style: context.textTheme.bodyMedium?.copyWith(color: colors.text),
+           decoration: InputDecoration(
+             hintText: widget.hintText,
+-- 
+2.46.0.windows.1
+

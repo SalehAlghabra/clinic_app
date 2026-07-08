@@ -139,6 +139,14 @@
   "instructions": "تعليمات إضافية (اختياري)",
   "createMedicalRecord": "إنشاء سجل طبي",
   "prescriptionAddedSuccess": "تمت إضافة وصفة الدواء بنجاح!",
-  "recordCreatedSuccess": "تم إنشاء السجل الطبي للزيارة بنجاح!"
+  "recordCreatedSuccess": "تم إنشاء السجل الطبي للزيارة بنجاح!",
+  "walletTitle": "محفظتي",
+  "walletTransactions": "سجل النشاطات والمعاملات",
+  "invoicesTitle": "الفواتير",
+  "transactionType_deposit": "شحن رصيد المحفظة",
+  "transactionType_booking_deduct": "خصم تأمين موعد",
+  "transactionType_refund_full": "استرجاع كامل المبلغ",
+  "transactionType_refund_partial": "استرجاع جزئي للمبلغ",
+  "transactionType_penalty": "غرامة إلغاء موعد"
 }
 

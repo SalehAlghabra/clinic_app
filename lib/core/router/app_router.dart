@@ -29,6 +29,16 @@ import '../../features/medical_records/repository/medical_records_repository.dar
 import '../../features/medical_records/screens/patient_records_screen.dart';
 import '../../features/medical_records/screens/record_details_screen.dart';
 import '../../features/medical_records/screens/create_record_screen.dart';
+import '../../features/wallet/bloc/wallet_bloc.dart';
+import '../../features/wallet/data/wallet_api_service.dart';
+import '../../features/wallet/repository/wallet_repository.dart';
+import '../../features/wallet/screens/wallet_screen.dart';
+import '../../features/invoices/bloc/invoices_bloc.dart';
+import '../../features/invoices/data/invoices_api_service.dart';
+import '../../features/invoices/repository/invoices_repository.dart';
+import '../../features/invoices/screens/invoices_list_screen.dart';
+import '../../features/invoices/screens/invoice_details_screen.dart';
+import '../../features/invoices/models/invoice_model.dart';
 import '../api/api_client.dart';
 import '../services/storage_service.dart';
 
@@ -48,6 +58,14 @@ class AppRouter {
 
     final medicalRecordsRepository = MedicalRecordsRepository(
       MedicalRecordsApiService(apiClient),
+    );
+
+    final walletRepository = WalletRepository(
+      WalletApiService(apiClient),
+    );
+
+    final invoicesRepository = InvoicesRepository(
+      InvoicesApiService(apiClient),
     );
 
     return GoRouter(
@@ -81,7 +99,10 @@ class AppRouter {
           routes: [
             GoRoute(
               path: '/patient/dashboard',
-              builder: (context, state) => const PatientDashboardScreen(),
+              builder: (context, state) => BlocProvider(
+                create: (_) => WalletBloc(repository: walletRepository),
+                child: const PatientDashboardScreen(),
+              ),
             ),
             GoRoute(
               path: '/patient/doctors',
@@ -99,8 +120,9 @@ class AppRouter {
             ),
             GoRoute(
               path: '/patient/wallet',
-              builder: (context, state) => const Scaffold(
-                body: Center(child: Text('My Wallet (Coming soon in Phase 7)')),
+              builder: (context, state) => BlocProvider(
+                create: (_) => WalletBloc(repository: walletRepository),
+                child: const WalletScreen(),
               ),
             ),
           ],
@@ -149,6 +171,24 @@ class AppRouter {
               create: (_) => MedicalRecordsBloc(repository: medicalRecordsRepository),
               child: CreateRecordScreen(appointmentId: id, patientName: patientName),
             );
+          },
+        ),
+
+        // Patient Invoices list
+        GoRoute(
+          path: '/patient/invoices',
+          builder: (context, state) => BlocProvider(
+            create: (_) => InvoicesBloc(repository: invoicesRepository),
+            child: const InvoicesListScreen(),
+          ),
+        ),
+
+        // Patient Invoice Details Page
+        GoRoute(
+          path: '/patient/invoices/details',
+          builder: (context, state) {
+            final invoice = state.extra as InvoiceModel;
+            return InvoiceDetailsScreen(invoice: invoice);
           },
         ),
 

@@ -539,7 +539,7 @@ abstract class AppLocalizations {
   /// No description provided for @transactionType_deposit.
   ///
   /// In en, this message translates to:
-  /// **'Deposit'**
+  /// **'Deposit Topping'**
   String get transactionType_deposit;
 
   /// No description provided for @transactionType_booking_deduct.
@@ -563,7 +563,7 @@ abstract class AppLocalizations {
   /// No description provided for @transactionType_penalty.
   ///
   /// In en, this message translates to:
-  /// **'Penalty'**
+  /// **'Cancellation Penalty'**
   String get transactionType_penalty;
 
   /// No description provided for @selectDate.
@@ -829,6 +829,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Medical record created successfully!'**
   String get recordCreatedSuccess;
+
+  /// No description provided for @walletTransactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity Logs'**
+  String get walletTransactions;
 }
 
 class _AppLocalizationsDelegate

@@ -233,7 +233,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get status_completed => 'Completed';
 
   @override
-  String get transactionType_deposit => 'Deposit';
+  String get transactionType_deposit => 'Deposit Topping';
 
   @override
   String get transactionType_booking_deduct => 'Booking Deduction';
@@ -245,7 +245,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get transactionType_refund_partial => 'Partial Refund';
 
   @override
-  String get transactionType_penalty => 'Penalty';
+  String get transactionType_penalty => 'Cancellation Penalty';
 
   @override
   String get selectDate => 'Select Date';
@@ -382,4 +382,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recordCreatedSuccess => 'Medical record created successfully!';
+
+  @override
+  String get walletTransactions => 'Activity Logs';
 }
