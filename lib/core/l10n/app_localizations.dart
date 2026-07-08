@@ -739,6 +739,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'History & Archive'**
   String get appointmentsHistory;
+
+  /// No description provided for @medicalHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical History'**
+  String get medicalHistory;
+
+  /// No description provided for @noMedicalRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'No medical records found.'**
+  String get noMedicalRecords;
+
+  /// No description provided for @visitDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Visit Date'**
+  String get visitDate;
+
+  /// No description provided for @symptoms.
+  ///
+  /// In en, this message translates to:
+  /// **'Symptoms'**
+  String get symptoms;
+
+  /// No description provided for @diagnosis.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnosis'**
+  String get diagnosis;
+
+  /// No description provided for @doctorNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctor Notes'**
+  String get doctorNotes;
+
+  /// No description provided for @prescriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescriptions'**
+  String get prescriptions;
+
+  /// No description provided for @addPrescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Prescription'**
+  String get addPrescription;
+
+  /// No description provided for @medicationName.
+  ///
+  /// In en, this message translates to:
+  /// **'Medication Name'**
+  String get medicationName;
+
+  /// No description provided for @dosage.
+  ///
+  /// In en, this message translates to:
+  /// **'Dosage'**
+  String get dosage;
+
+  /// No description provided for @duration.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration'**
+  String get duration;
+
+  /// No description provided for @instructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Instructions (Optional)'**
+  String get instructions;
+
+  /// No description provided for @createMedicalRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Medical Record'**
+  String get createMedicalRecord;
+
+  /// No description provided for @prescriptionAddedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescription added successfully!'**
+  String get prescriptionAddedSuccess;
+
+  /// No description provided for @recordCreatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical record created successfully!'**
+  String get recordCreatedSuccess;
 }
 
 class _AppLocalizationsDelegate

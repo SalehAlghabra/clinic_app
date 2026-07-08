@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:clinic_app/core/l10n/app_localizations.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/utils/date_formatters.dart';
@@ -287,14 +288,12 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
               AppButton(
                 text: l10n.completeVisit,
                 onPressed: () async {
-                  final ok = await AppDialogs.showConfirmation(
-                    context: context,
-                    title: l10n.completeVisit,
-                    message: 'Are you sure you want to mark this visit as completed?',
+                  await context.push(
+                    '/doctor/appointments/${app.id}/create-record',
+                    extra: app.patientName,
                   );
-                  if (ok == true) {
-                    bloc.add(UpdateAppointmentStatusEvent(id: app.id, status: 'completed'));
-                  }
+                  // Reload list to reflect completed status
+                  bloc.add(const FetchDoctorAppointmentsEvent());
                 },
               ),
             ],

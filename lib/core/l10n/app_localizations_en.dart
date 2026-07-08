@@ -337,4 +337,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appointmentsHistory => 'History & Archive';
+
+  @override
+  String get medicalHistory => 'Medical History';
+
+  @override
+  String get noMedicalRecords => 'No medical records found.';
+
+  @override
+  String get visitDate => 'Visit Date';
+
+  @override
+  String get symptoms => 'Symptoms';
+
+  @override
+  String get diagnosis => 'Diagnosis';
+
+  @override
+  String get doctorNotes => 'Doctor Notes';
+
+  @override
+  String get prescriptions => 'Prescriptions';
+
+  @override
+  String get addPrescription => 'Add Prescription';
+
+  @override
+  String get medicationName => 'Medication Name';
+
+  @override
+  String get dosage => 'Dosage';
+
+  @override
+  String get duration => 'Duration';
+
+  @override
+  String get instructions => 'Instructions (Optional)';
+
+  @override
+  String get createMedicalRecord => 'Create Medical Record';
+
+  @override
+  String get prescriptionAddedSuccess => 'Prescription added successfully!';
+
+  @override
+  String get recordCreatedSuccess => 'Medical record created successfully!';
 }

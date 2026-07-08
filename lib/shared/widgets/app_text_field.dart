@@ -12,6 +12,7 @@ class AppTextField extends StatefulWidget {
   final Widget? suffixIcon;
   final bool enabled;
   final ValueChanged<String>? onChanged;
+  final int maxLines;
 
   const AppTextField({
     super.key,
@@ -25,6 +26,7 @@ class AppTextField extends StatefulWidget {
     this.suffixIcon,
     this.enabled = true,
     this.onChanged,
+    this.maxLines = 1,
   });
 
   @override
@@ -56,6 +58,7 @@ class _AppTextFieldState extends State<AppTextField> {
           keyboardType: widget.keyboardType,
           enabled: widget.enabled,
           onChanged: widget.onChanged,
+          maxLines: widget.maxLines,
           style: context.textTheme.bodyMedium?.copyWith(color: colors.text),
           decoration: InputDecoration(
             hintText: widget.hintText,

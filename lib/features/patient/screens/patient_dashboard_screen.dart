@@ -188,7 +188,7 @@ class PatientDashboardScreen extends StatelessWidget {
                     icon: Icons.medical_information_outlined,
                     title: l10n.medicalRecordsTitle,
                     color: colors.success,
-                    onTap: () {},
+                    onTap: () => context.push('/patient/records'),
                   ),
                   _buildGridItem(
                     context,

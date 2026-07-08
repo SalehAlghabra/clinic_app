@@ -123,6 +123,22 @@
   "cancellationReasonLabel": "سبب الإلغاء",
   "appointmentsPending": "قيد المراجعة",
   "appointmentsConfirmed": "المواعيد المؤكدة",
-  "appointmentsHistory": "السجل والأرشيف"
+  "appointmentsHistory": "السجل والأرشيف",
+  "medicalRecordsTitle": "السجلات الطبية",
+  "medicalHistory": "السجل الطبي التاريخي",
+  "noMedicalRecords": "لا توجد سجلات طبية مسجلة.",
+  "visitDate": "تاريخ الزيارة",
+  "symptoms": "الأعراض",
+  "diagnosis": "التشخيص",
+  "doctorNotes": "ملاحظات الطبيب",
+  "prescriptions": "الوصفات الطبية",
+  "addPrescription": "إضافة وصفة دواء",
+  "medicationName": "اسم الدواء",
+  "dosage": "الجرعة وكيفية الاستعمال",
+  "duration": "المدة الزمنية",
+  "instructions": "تعليمات إضافية (اختياري)",
+  "createMedicalRecord": "إنشاء سجل طبي",
+  "prescriptionAddedSuccess": "تمت إضافة وصفة الدواء بنجاح!",
+  "recordCreatedSuccess": "تم إنشاء السجل الطبي للزيارة بنجاح!"
 }
 

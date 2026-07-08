@@ -333,4 +333,49 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get appointmentsHistory => 'السجل والأرشيف';
+
+  @override
+  String get medicalHistory => 'السجل الطبي التاريخي';
+
+  @override
+  String get noMedicalRecords => 'لا توجد سجلات طبية مسجلة.';
+
+  @override
+  String get visitDate => 'تاريخ الزيارة';
+
+  @override
+  String get symptoms => 'الأعراض';
+
+  @override
+  String get diagnosis => 'التشخيص';
+
+  @override
+  String get doctorNotes => 'ملاحظات الطبيب';
+
+  @override
+  String get prescriptions => 'الوصفات الطبية';
+
+  @override
+  String get addPrescription => 'إضافة وصفة دواء';
+
+  @override
+  String get medicationName => 'اسم الدواء';
+
+  @override
+  String get dosage => 'الجرعة وكيفية الاستعمال';
+
+  @override
+  String get duration => 'المدة الزمنية';
+
+  @override
+  String get instructions => 'تعليمات إضافية (اختياري)';
+
+  @override
+  String get createMedicalRecord => 'إنشاء سجل طبي';
+
+  @override
+  String get prescriptionAddedSuccess => 'تمت إضافة وصفة الدواء بنجاح!';
+
+  @override
+  String get recordCreatedSuccess => 'تم إنشاء السجل الطبي للزيارة بنجاح!';
 }

@@ -23,6 +23,12 @@ import '../../features/doctor/bloc/doctor_appointments_bloc.dart';
 import '../../features/doctor/screens/doctor_main_screen.dart';
 import '../../features/doctor/screens/doctor_appointments_screen.dart';
 import '../../features/doctor/screens/doctor_settings_screen.dart';
+import '../../features/medical_records/bloc/medical_records_bloc.dart';
+import '../../features/medical_records/data/medical_records_api_service.dart';
+import '../../features/medical_records/repository/medical_records_repository.dart';
+import '../../features/medical_records/screens/patient_records_screen.dart';
+import '../../features/medical_records/screens/record_details_screen.dart';
+import '../../features/medical_records/screens/create_record_screen.dart';
 import '../api/api_client.dart';
 import '../services/storage_service.dart';
 
@@ -38,6 +44,10 @@ class AppRouter {
 
     final doctorRepository = DoctorRepository(
       DoctorApiService(apiClient),
+    );
+
+    final medicalRecordsRepository = MedicalRecordsRepository(
+      MedicalRecordsApiService(apiClient),
     );
 
     return GoRouter(
@@ -104,6 +114,40 @@ class AppRouter {
             return BlocProvider(
               create: (_) => DoctorDetailBloc(repository: patientRepository),
               child: DoctorDetailScreen(doctorId: id),
+            );
+          },
+        ),
+
+        // Patient Medical Records History List
+        GoRoute(
+          path: '/patient/records',
+          builder: (context, state) => BlocProvider(
+            create: (_) => MedicalRecordsBloc(repository: medicalRecordsRepository),
+            child: const PatientRecordsScreen(),
+          ),
+        ),
+
+        // Medical Record Details (accessible by both Patient and Doctor)
+        GoRoute(
+          path: '/medical-records/:id',
+          builder: (context, state) {
+            final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+            return BlocProvider(
+              create: (_) => MedicalRecordsBloc(repository: medicalRecordsRepository),
+              child: RecordDetailsScreen(recordId: id),
+            );
+          },
+        ),
+
+        // Doctor Create Medical Record Form
+        GoRoute(
+          path: '/doctor/appointments/:id/create-record',
+          builder: (context, state) {
+            final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
+            final patientName = state.extra as String? ?? 'Patient';
+            return BlocProvider(
+              create: (_) => MedicalRecordsBloc(repository: medicalRecordsRepository),
+              child: CreateRecordScreen(appointmentId: id, patientName: patientName),
             );
           },
         ),
