@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import '../../features/auth/bloc/auth_bloc.dart';
-import '../../features/auth/bloc/auth_event.dart';
-import '../../features/auth/data/auth_api_service.dart';
 import '../../features/auth/repository/auth_repository.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/otp_verification_screen.dart';
@@ -33,12 +30,8 @@ class AppRouter {
   static GoRouter createRouter({
     required StorageService storageService,
     required ApiClient apiClient,
+    required AuthRepository authRepository,
   }) {
-    final authRepository = AuthRepository(
-      apiService: AuthApiService(apiClient),
-      storageService: storageService,
-    );
-
     final patientRepository = PatientRepository(
       PatientApiService(apiClient),
     );
@@ -52,34 +45,21 @@ class AppRouter {
       routes: [
         GoRoute(
           path: '/splash',
-          builder: (context, state) => BlocProvider(
-            create: (_) => AuthBloc(repository: authRepository)
-              ..add(const AuthCheckRequested()),
-            child: const SplashScreen(),
-          ),
+          builder: (context, state) => const SplashScreen(),
         ),
         GoRoute(
           path: '/login',
-          builder: (context, state) => BlocProvider(
-            create: (_) => AuthBloc(repository: authRepository),
-            child: const LoginScreen(),
-          ),
+          builder: (context, state) => const LoginScreen(),
         ),
         GoRoute(
           path: '/register',
-          builder: (context, state) => BlocProvider(
-            create: (_) => AuthBloc(repository: authRepository),
-            child: const RegisterScreen(),
-          ),
+          builder: (context, state) => const RegisterScreen(),
         ),
         GoRoute(
           path: '/otp-verification',
           builder: (context, state) {
             final email = state.extra as String? ?? '';
-            return BlocProvider(
-              create: (_) => AuthBloc(repository: authRepository),
-              child: OtpVerificationScreen(email: email),
-            );
+            return OtpVerificationScreen(email: email);
           },
         ),
 

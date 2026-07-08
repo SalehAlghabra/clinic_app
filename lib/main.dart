@@ -12,14 +12,29 @@ import 'features/settings/bloc/locale_state.dart';
 import 'features/settings/bloc/theme_cubit.dart';
 import 'features/settings/bloc/theme_state.dart';
 
+import 'features/auth/data/auth_api_service.dart';
+import 'features/auth/repository/auth_repository.dart';
+import 'features/auth/bloc/auth_bloc.dart';
+import 'features/auth/bloc/auth_event.dart';
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   final storageService = StorageService();
   final apiClient = ApiClient(storageService: storageService);
+
+  final authRepository = AuthRepository(
+    apiService: AuthApiService(apiClient),
+    storageService: storageService,
+  );
+
+  final authBloc = AuthBloc(repository: authRepository)
+    ..add(const AuthCheckRequested());
+
   final router = AppRouter.createRouter(
     storageService: storageService,
     apiClient: apiClient,
+    authRepository: authRepository,
   );
 
   runApp(
@@ -27,6 +42,7 @@ void main() {
       providers: [
         BlocProvider<ThemeCubit>(create: (_) => ThemeCubit(storageService)),
         BlocProvider<LocaleCubit>(create: (_) => LocaleCubit(storageService)),
+        BlocProvider<AuthBloc>(create: (_) => authBloc),
       ],
       child: MyApp(router: router),
     ),
