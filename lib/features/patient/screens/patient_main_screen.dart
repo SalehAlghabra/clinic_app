@@ -13,6 +13,7 @@ class PatientMainScreen extends StatelessWidget {
     if (location.startsWith('/patient/doctors')) return 1;
     if (location.startsWith('/patient/appointments')) return 2;
     if (location.startsWith('/patient/wallet')) return 3;
+    if (location.startsWith('/patient/settings')) return 4;
     return 0; // default is dashboard
   }
 
@@ -29,6 +30,9 @@ class PatientMainScreen extends StatelessWidget {
         break;
       case 3:
         context.go('/patient/wallet');
+        break;
+      case 4:
+        context.go('/patient/settings');
         break;
     }
   }
@@ -62,6 +66,11 @@ class PatientMainScreen extends StatelessWidget {
             icon: const Icon(Icons.account_balance_wallet_outlined),
             activeIcon: const Icon(Icons.account_balance_wallet_rounded),
             label: l10n.walletTitle,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.person_outline_rounded),
+            activeIcon: const Icon(Icons.person_rounded),
+            label: l10n.profileTitle,
           ),
         ],
       ),

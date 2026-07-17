@@ -17,6 +17,7 @@ import '../../features/patient/screens/doctor_list_screen.dart';
 import '../../features/patient/screens/patient_dashboard_screen.dart';
 import '../../features/patient/screens/patient_appointments_screen.dart';
 import '../../features/patient/screens/patient_main_screen.dart';
+import '../../features/patient/screens/patient_settings_screen.dart';
 import '../../features/doctor/data/doctor_api_service.dart';
 import '../../features/doctor/repository/doctor_repository.dart';
 import '../../features/doctor/bloc/doctor_appointments_bloc.dart';
@@ -124,6 +125,10 @@ class AppRouter {
                 create: (_) => WalletBloc(repository: walletRepository),
                 child: const WalletScreen(),
               ),
+            ),
+            GoRoute(
+              path: '/patient/settings',
+              builder: (context, state) => const PatientSettingsScreen(),
             ),
           ],
         ),

@@ -8,10 +8,7 @@ import '../../../shared/extensions/context_extensions.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/app_loading_indicator.dart';
 import '../../auth/bloc/auth_bloc.dart';
-import '../../auth/bloc/auth_event.dart';
 import '../../auth/bloc/auth_state.dart';
-import '../../settings/bloc/locale_cubit.dart';
-import '../../settings/bloc/theme_cubit.dart';
 import '../../wallet/bloc/wallet_bloc.dart';
 import '../../wallet/bloc/wallet_event.dart';
 import '../../wallet/bloc/wallet_state.dart';
@@ -34,15 +31,12 @@ class _PatientDashboardScreenState extends State<PatientDashboardScreen> {
     context.read<WalletBloc>().add(const FetchWalletDataEvent());
   }
 
-  void _logout(BuildContext context) {
-    context.read<AuthBloc>().add(const AuthLogoutRequested());
-  }
+
 
   @override
   Widget build(BuildContext context) {
     final colors = context.appColors;
     final l10n = AppLocalizations.of(context);
-    final isArabic = context.read<LocaleCubit>().isArabic;
 
     // Get user name from AuthBloc
     final authState = context.read<AuthBloc>().state;
@@ -61,34 +55,7 @@ class _PatientDashboardScreenState extends State<PatientDashboardScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        actions: [
-          // Theme switch
-          IconButton(
-            icon: Icon(
-              Theme.of(context).brightness == Brightness.dark
-                  ? Icons.light_mode_outlined
-                  : Icons.dark_mode_outlined,
-              color: colors.text,
-            ),
-            onPressed: () => context.read<ThemeCubit>().toggleTheme(),
-          ),
-          // Language toggle
-          TextButton(
-            onPressed: () => context.read<LocaleCubit>().toggleLocale(),
-            child: Text(
-              isArabic ? 'English' : 'العربية',
-              style: TextStyle(
-                color: colors.primary,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          // Logout
-          IconButton(
-            icon: Icon(Icons.logout_rounded, color: colors.error),
-            onPressed: () => _logout(context),
-          ),
-        ],
+        actions: const [],
       ),
       body: SafeArea(
         child: RefreshIndicator(
