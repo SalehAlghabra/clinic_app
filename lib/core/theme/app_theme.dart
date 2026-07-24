@@ -20,7 +20,11 @@ class AppTheme {
       appBarTheme: AppBarTheme(
         backgroundColor: colors.surface,
         elevation: 0,
+        scrolledUnderElevation: 2.0,
+        surfaceTintColor: colors.primary.withValues(alpha: 0.05),
         iconTheme: IconThemeData(color: colors.text),
+        actionsIconTheme: IconThemeData(color: colors.primary),
+        centerTitle: false,
         titleTextStyle: AppTextStyles.textTheme(
           colors.text,
         ).titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -77,7 +81,11 @@ class AppTheme {
       appBarTheme: AppBarTheme(
         backgroundColor: colors.surface,
         elevation: 0,
+        scrolledUnderElevation: 2.0,
+        surfaceTintColor: colors.primary.withValues(alpha: 0.05),
         iconTheme: IconThemeData(color: colors.text),
+        actionsIconTheme: IconThemeData(color: colors.primary),
+        centerTitle: false,
         titleTextStyle: AppTextStyles.textTheme(
           colors.text,
         ).titleLarge?.copyWith(fontWeight: FontWeight.bold),

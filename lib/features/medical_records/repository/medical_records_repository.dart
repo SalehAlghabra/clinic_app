@@ -34,8 +34,8 @@ class MedicalRecordsRepository {
       return MedicalRecordResult.success(list);
     } on ApiException catch (e) {
       return MedicalRecordResult.failure(ServerFailure(e.message));
-    } catch (_) {
-      return MedicalRecordResult.failure(const NetworkFailure());
+    } catch (e) {
+      return MedicalRecordResult.failure(ServerFailure(e.toString()));
     }
   }
 
@@ -46,8 +46,8 @@ class MedicalRecordsRepository {
       return MedicalRecordResult.success(record);
     } on ApiException catch (e) {
       return MedicalRecordResult.failure(ServerFailure(e.message));
-    } catch (_) {
-      return MedicalRecordResult.failure(const NetworkFailure());
+    } catch (e) {
+      return MedicalRecordResult.failure(ServerFailure(e.toString()));
     }
   }
 
@@ -71,8 +71,8 @@ class MedicalRecordsRepository {
       return MedicalRecordResult.success(record);
     } on ApiException catch (e) {
       return MedicalRecordResult.failure(ServerFailure(e.message));
-    } catch (_) {
-      return MedicalRecordResult.failure(const NetworkFailure());
+    } catch (e) {
+      return MedicalRecordResult.failure(ServerFailure(e.toString()));
     }
   }
 
@@ -96,8 +96,8 @@ class MedicalRecordsRepository {
       return MedicalRecordResult.success(prescription);
     } on ApiException catch (e) {
       return MedicalRecordResult.failure(ServerFailure(e.message));
-    } catch (_) {
-      return MedicalRecordResult.failure(const NetworkFailure());
+    } catch (e) {
+      return MedicalRecordResult.failure(ServerFailure(e.toString()));
     }
   }
 }

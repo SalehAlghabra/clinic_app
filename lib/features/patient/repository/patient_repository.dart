@@ -112,8 +112,8 @@ class PatientRepository {
       return PatientResult.success(AppointmentPreviewModel.fromJson(res));
     } on ApiException catch (e) {
       return PatientResult.failure(ServerFailure(e.message));
-    } catch (_) {
-      return PatientResult.failure(const NetworkFailure());
+    } catch (e) {
+      return PatientResult.failure(ServerFailure(e.toString()));
     }
   }
 
@@ -136,8 +136,8 @@ class PatientRepository {
       return PatientResult.success(res);
     } on ApiException catch (e) {
       return PatientResult.failure(ServerFailure(e.message));
-    } catch (_) {
-      return PatientResult.failure(const NetworkFailure());
+    } catch (e) {
+      return PatientResult.failure(ServerFailure(e.toString()));
     }
   }
 

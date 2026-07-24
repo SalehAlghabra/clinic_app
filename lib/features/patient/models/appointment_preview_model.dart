@@ -1,5 +1,19 @@
 import 'package:equatable/equatable.dart';
 
+double _parseDouble(dynamic val) {
+  if (val == null) return 0.0;
+  if (val is num) return val.toDouble();
+  if (val is String) return double.tryParse(val) ?? 0.0;
+  return 0.0;
+}
+
+double? _parseNullableDouble(dynamic val) {
+  if (val == null) return null;
+  if (val is num) return val.toDouble();
+  if (val is String) return double.tryParse(val);
+  return null;
+}
+
 class AppointmentPreviewModel extends Equatable {
   final BookingSummary bookingSummary;
   final PaymentSummary paymentSummary;
@@ -39,7 +53,7 @@ class BookingSummary extends Equatable {
   factory BookingSummary.fromJson(Map<String, dynamic> json) {
     return BookingSummary(
       serviceName: json['service_name'] as String? ?? '',
-      servicePrice: (json['service_price'] as num?)?.toDouble() ?? 0.0,
+      servicePrice: _parseDouble(json['service_price']),
       appointmentDate: json['appointment_date'] as String? ?? '',
       appointmentTime: json['appointment_time'] as String? ?? '',
     );
@@ -66,10 +80,10 @@ class PaymentSummary extends Equatable {
 
   factory PaymentSummary.fromJson(Map<String, dynamic> json) {
     return PaymentSummary(
-      depositRequired: (json['deposit_required'] as num?)?.toDouble() ?? 0.0,
-      walletBalance: (json['wallet_balance'] as num?)?.toDouble() ?? 0.0,
-      balanceAfter: (json['balance_after'] as num?)?.toDouble(),
-      remainingAtVisit: (json['remaining_at_visit'] as num?)?.toDouble() ?? 0.0,
+      depositRequired: _parseDouble(json['deposit_required']),
+      walletBalance: _parseDouble(json['wallet_balance']),
+      balanceAfter: _parseNullableDouble(json['balance_after']),
+      remainingAtVisit: _parseDouble(json['remaining_at_visit']),
       hasSufficient: json['has_sufficient'] as bool? ?? false,
     );
   }
