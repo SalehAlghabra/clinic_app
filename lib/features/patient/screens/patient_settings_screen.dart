@@ -14,6 +14,8 @@ import '../../settings/bloc/theme_cubit.dart';
 import '../../settings/bloc/theme_state.dart';
 import '../../settings/bloc/locale_cubit.dart';
 
+import '../../../shared/widgets/app_top_actions.dart';
+
 class PatientSettingsScreen extends StatelessWidget {
   const PatientSettingsScreen({super.key});
 
@@ -34,6 +36,10 @@ class PatientSettingsScreen extends StatelessWidget {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: const [
+          AppTopActions(),
+          SizedBox(width: 8),
+        ],
       ),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {

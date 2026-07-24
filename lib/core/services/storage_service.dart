@@ -50,6 +50,14 @@ class StorageService {
     return await read(StorageKeys.themeMode);
   }
 
+  Future<void> savePrimaryColor(String colorHex) async {
+    await write(StorageKeys.primaryColor, colorHex);
+  }
+
+  Future<String?> getPrimaryColor() async {
+    return await read(StorageKeys.primaryColor);
+  }
+
   Future<void> clearAuthData() async {
     await delete(StorageKeys.token);
     await delete(StorageKeys.role);

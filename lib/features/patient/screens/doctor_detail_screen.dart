@@ -25,6 +25,8 @@ import '../models/service_model.dart';
 import '../models/appointment_preview_model.dart';
 import '../repository/patient_repository.dart';
 
+import '../../../shared/widgets/app_top_actions.dart';
+
 class DoctorDetailScreen extends StatefulWidget {
   final int doctorId;
 
@@ -66,6 +68,10 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
           icon: Icon(Icons.arrow_back_ios_new, color: colors.text, size: 20),
           onPressed: () => context.pop(),
         ),
+        actions: const [
+          AppTopActions(),
+          SizedBox(width: 8),
+        ],
       ),
       body: BlocListener<DoctorDetailBloc, DoctorDetailState>(
         listener: (context, state) {
@@ -180,7 +186,7 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
                       ),
                       child: AppButton(
                         text: l10n.bookAppointment,
-                        onPressed: () => _showBookingBottomSheet(context, _selectedService!),
+                        onPressed: () => _showBookingBottomSheet(context, _selectedService!, state.schedules),
                       ),
                     ).animate().slideY(begin: 0.2, duration: 400.ms),
                 ],
@@ -193,7 +199,7 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
     );
   }
 
-  void _showBookingBottomSheet(BuildContext context, ServiceModel service) {
+  void _showBookingBottomSheet(BuildContext context, ServiceModel service, List<ScheduleModel> schedules) {
     final patientRepo = context.read<DoctorDetailBloc>().repository;
     showModalBottomSheet(
       context: context,
@@ -206,6 +212,7 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
             doctorId: widget.doctorId,
             service: service,
             patientRepository: patientRepo,
+            schedules: schedules,
           ),
         );
       },
@@ -394,11 +401,13 @@ class _BookingBottomSheet extends StatefulWidget {
   final int doctorId;
   final ServiceModel service;
   final PatientRepository patientRepository;
+  final List<ScheduleModel> schedules;
 
   const _BookingBottomSheet({
     required this.doctorId,
     required this.service,
     required this.patientRepository,
+    required this.schedules,
   });
 
   @override
@@ -576,14 +585,52 @@ class _BookingBottomSheetState extends State<_BookingBottomSheet> {
   // To prevent MediaQuery context issues, we pass sheetContext
   BuildContext sheetContext(BuildContext context) => context;
 
+  int _dayNameToWeekday(String dayName) {
+    switch (dayName.toLowerCase().trim()) {
+      case 'monday':
+        return DateTime.monday;
+      case 'tuesday':
+        return DateTime.tuesday;
+      case 'wednesday':
+        return DateTime.wednesday;
+      case 'thursday':
+        return DateTime.thursday;
+      case 'friday':
+        return DateTime.friday;
+      case 'saturday':
+        return DateTime.saturday;
+      case 'sunday':
+        return DateTime.sunday;
+      default:
+        return 0;
+    }
+  }
+
   void _pickDate(BuildContext context) async {
     final now = DateTime.now();
     final appointmentBloc = context.read<AppointmentBloc>();
+
+    final allowedWeekdays = widget.schedules
+        .map((s) => _dayNameToWeekday(s.dayOfWeek))
+        .where((w) => w > 0)
+        .toSet();
+
+    DateTime initialDate = now;
+    if (allowedWeekdays.isNotEmpty) {
+      while (!allowedWeekdays.contains(initialDate.weekday)) {
+        initialDate = initialDate.add(const Duration(days: 1));
+      }
+    }
+
     final date = await showDatePicker(
       context: context,
-      initialDate: now,
+      initialDate: initialDate,
       firstDate: now,
-      lastDate: now.add(const Duration(days: 30)),
+      lastDate: now.add(const Duration(days: 60)),
+      selectableDayPredicate: (date) {
+        if (allowedWeekdays.isEmpty) return true;
+        return allowedWeekdays.contains(date.weekday);
+      },
       builder: (context, child) {
         final colors = context.appColors;
         return Theme(

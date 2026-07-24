@@ -3,8 +3,8 @@ import 'app_colors.dart';
 import 'app_text_styles.dart';
 
 class AppTheme {
-  static ThemeData get lightTheme {
-    final colors = AppColors.light();
+  static ThemeData lightTheme([Color? primaryColor]) {
+    final colors = AppColors.light(primaryColor);
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
@@ -17,14 +17,6 @@ class AppTheme {
       scaffoldBackgroundColor: colors.background,
       textTheme: AppTextStyles.textTheme(colors.text),
       extensions: [colors],
-      /*  cardTheme: CardTheme(
-        color: colors.surface,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: colors.border),
-        ),
-      ),*/
       appBarTheme: AppBarTheme(
         backgroundColor: colors.surface,
         elevation: 0,
@@ -60,8 +52,8 @@ class AppTheme {
     );
   }
 
-  static ThemeData get darkTheme {
-    final colors = AppColors.dark();
+  static ThemeData darkTheme([Color? primaryColor]) {
+    final colors = AppColors.dark(primaryColor);
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,

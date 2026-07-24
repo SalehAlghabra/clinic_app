@@ -86,6 +86,9 @@ class PatientRepository {
       final slots = (res['available_slots'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [];
       return PatientResult.success(slots);
     } on ApiException catch (e) {
+      if (e.statusCode == 404) {
+        return const PatientResult.success([]);
+      }
       return PatientResult.failure(ServerFailure(e.message));
     } catch (_) {
       return PatientResult.failure(const NetworkFailure());

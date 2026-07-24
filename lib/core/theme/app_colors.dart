@@ -25,31 +25,37 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.warning,
   });
 
-  factory AppColors.light() => const AppColors(
-        primary: Color(0xFF0077B6),
-        secondary: Color(0xFF00B4D8),
-        background: Color(0xFFF8FAFC),
-        surface: Color(0xFFFFFFFF),
-        text: Color(0xFF1E293B),
-        textSecondary: Color(0xFF64748B),
-        border: Color(0xFFE2E8F0),
-        error: Color(0xFFEF4444),
-        success: Color(0xFF10B981),
-        warning: Color(0xFFF59E0B),
-      );
+  factory AppColors.light([Color? customPrimary]) {
+    final primaryColor = customPrimary ?? const Color(0xFF0077B6);
+    return AppColors(
+      primary: primaryColor,
+      secondary: primaryColor.withValues(alpha: 0.8),
+      background: const Color(0xFFF8FAFC),
+      surface: const Color(0xFFFFFFFF),
+      text: const Color(0xFF1E293B),
+      textSecondary: const Color(0xFF64748B),
+      border: const Color(0xFFE2E8F0),
+      error: const Color(0xFFEF4444),
+      success: const Color(0xFF10B981),
+      warning: const Color(0xFFF59E0B),
+    );
+  }
 
-  factory AppColors.dark() => const AppColors(
-        primary: Color(0xFF38BDF8),
-        secondary: Color(0xFF22D3EE),
-        background: Color(0xFF0F172A),
-        surface: Color(0xFF1E293B),
-        text: Color(0xFFF1F5F9),
-        textSecondary: Color(0xFF94A3B8),
-        border: Color(0xFF334155),
-        error: Color(0xFFF87171),
-        success: Color(0xFF34D399),
-        warning: Color(0xFFFBBF24),
-      );
+  factory AppColors.dark([Color? customPrimary]) {
+    final primaryColor = customPrimary ?? const Color(0xFF38BDF8);
+    return AppColors(
+      primary: primaryColor,
+      secondary: primaryColor.withValues(alpha: 0.8),
+      background: const Color(0xFF0F172A),
+      surface: const Color(0xFF1E293B),
+      text: const Color(0xFFF1F5F9),
+      textSecondary: const Color(0xFF94A3B8),
+      border: const Color(0xFF334155),
+      error: const Color(0xFFF87171),
+      success: const Color(0xFF34D399),
+      warning: const Color(0xFFFBBF24),
+    );
+  }
 
   @override
   AppColors copyWith({

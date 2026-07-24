@@ -14,6 +14,8 @@ import '../bloc/wallet_event.dart';
 import '../bloc/wallet_state.dart';
 import '../models/wallet_transaction_model.dart';
 
+import '../../../shared/widgets/app_top_actions.dart';
+
 class WalletScreen extends StatefulWidget {
   const WalletScreen({super.key});
 
@@ -51,10 +53,12 @@ class _WalletScreenState extends State<WalletScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         actions: [
+          const AppTopActions(),
           IconButton(
             icon: Icon(Icons.refresh_rounded, color: colors.text),
             onPressed: _loadWalletData,
           ),
+          const SizedBox(width: 8),
         ],
       ),
       body: BlocBuilder<WalletBloc, WalletState>(

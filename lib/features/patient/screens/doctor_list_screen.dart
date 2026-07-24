@@ -14,6 +14,8 @@ import '../bloc/doctor_list_event.dart';
 import '../bloc/doctor_list_state.dart';
 import '../models/doctor_model.dart';
 
+import '../../../shared/widgets/app_top_actions.dart';
+
 class DoctorListScreen extends StatefulWidget {
   const DoctorListScreen({super.key});
 
@@ -55,6 +57,10 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
+        actions: const [
+          AppTopActions(),
+          SizedBox(width: 8),
+        ],
       ),
       body: SafeArea(
         child: Column(

@@ -18,6 +18,8 @@ import '../models/doctor_appointment_model.dart';
 import '../../auth/bloc/auth_bloc.dart';
 import '../../auth/bloc/auth_state.dart';
 
+import '../../../shared/widgets/app_top_actions.dart';
+
 class DoctorDashboardScreen extends StatefulWidget {
   const DoctorDashboardScreen({super.key});
 
@@ -69,6 +71,10 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: const [
+          AppTopActions(),
+          SizedBox(width: 8),
+        ],
       ),
       body: BlocConsumer<DoctorAppointmentsBloc, DoctorAppointmentsState>(
         listener: (context, state) {

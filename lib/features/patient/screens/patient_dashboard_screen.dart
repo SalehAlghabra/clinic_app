@@ -13,6 +13,8 @@ import '../../wallet/bloc/wallet_bloc.dart';
 import '../../wallet/bloc/wallet_event.dart';
 import '../../wallet/bloc/wallet_state.dart';
 
+import '../../../shared/widgets/app_top_actions.dart';
+
 class PatientDashboardScreen extends StatefulWidget {
   const PatientDashboardScreen({super.key});
 
@@ -55,7 +57,10 @@ class _PatientDashboardScreenState extends State<PatientDashboardScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
-        actions: const [],
+        actions: const [
+          AppTopActions(),
+          SizedBox(width: 8),
+        ],
       ),
       body: SafeArea(
         child: RefreshIndicator(

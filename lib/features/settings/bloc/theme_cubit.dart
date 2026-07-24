@@ -6,31 +6,44 @@ import 'theme_state.dart';
 class ThemeCubit extends Cubit<ThemeState> {
   final StorageService _storageService;
 
-  ThemeCubit(this._storageService) : super(const ThemeState(ThemeMode.light)) {
+  ThemeCubit(this._storageService)
+      : super(const ThemeState(themeMode: ThemeMode.light)) {
     _loadTheme();
   }
 
   Future<void> _loadTheme() async {
     final themeName = await _storageService.getThemeMode();
+    final primaryHex = await _storageService.getPrimaryColor();
+
+    ThemeMode mode = ThemeMode.light;
     if (themeName != null) {
       if (themeName == 'dark') {
-        emit(const ThemeState(ThemeMode.dark));
-      } else if (themeName == 'light') {
-        emit(const ThemeState(ThemeMode.light));
-      } else {
-        emit(const ThemeState(ThemeMode.system));
+        mode = ThemeMode.dark;
+      } else if (themeName == 'system') {
+        mode = ThemeMode.system;
       }
     }
+
+    Color? primaryColor;
+    if (primaryHex != null && primaryHex.isNotEmpty) {
+      try {
+        final val = int.parse(primaryHex, radix: 16);
+        primaryColor = Color(val);
+      } catch (_) {}
+    }
+
+    emit(ThemeState(themeMode: mode, primaryColor: primaryColor));
   }
 
   Future<void> toggleTheme() async {
     final newMode = state.themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
-    emit(ThemeState(newMode));
+    emit(state.copyWith(themeMode: newMode));
     await _storageService.saveThemeMode(newMode.name);
   }
 
-  Future<void> setTheme(ThemeMode themeMode) async {
-    emit(ThemeState(themeMode));
-    await _storageService.saveThemeMode(themeMode.name);
+  Future<void> setPrimaryColor(Color color) async {
+    emit(state.copyWith(primaryColor: color));
+    final hexString = color.toARGB32().toRadixString(16);
+    await _storageService.savePrimaryColor(hexString);
   }
 }

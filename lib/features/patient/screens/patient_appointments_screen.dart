@@ -17,6 +17,8 @@ import '../bloc/appointment_event.dart';
 import '../bloc/appointment_state.dart';
 import '../models/appointment_model.dart';
 
+import '../../../shared/widgets/app_top_actions.dart';
+
 class PatientAppointmentsScreen extends StatefulWidget {
   const PatientAppointmentsScreen({super.key});
 
@@ -62,6 +64,10 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen>
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: const [
+          AppTopActions(),
+          SizedBox(width: 8),
+        ],
         bottom: TabBar(
           controller: _tabController,
           labelColor: colors.primary,
