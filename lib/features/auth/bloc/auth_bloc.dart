@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/errors/failures.dart';
+import '../../../core/services/notification_service.dart';
 import '../repository/auth_repository.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
@@ -29,6 +30,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     if (result.isSuccess) {
       emit(AuthAuthenticated(result.data!));
+      NotificationService().registerFcmToken(_repository);
     } else {
       emit(const AuthUnauthenticated());
     }
@@ -50,6 +52,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final loginResponse = result.data!;
       if (loginResponse.isVerified) {
         emit(AuthAuthenticated(loginResponse.user!));
+        NotificationService().registerFcmToken(_repository);
       } else {
         emit(AuthOtpSent(
           email: loginResponse.email!,
@@ -75,6 +78,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     if (result.isSuccess) {
       emit(AuthAuthenticated(result.data!));
+      NotificationService().registerFcmToken(_repository);
     } else {
       _emitFailure(emit, result.failure!);
     }

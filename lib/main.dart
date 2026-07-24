@@ -12,13 +12,17 @@ import 'features/settings/bloc/locale_state.dart';
 import 'features/settings/bloc/theme_cubit.dart';
 import 'features/settings/bloc/theme_state.dart';
 
+import 'core/services/notification_service.dart';
 import 'features/auth/data/auth_api_service.dart';
 import 'features/auth/repository/auth_repository.dart';
 import 'features/auth/bloc/auth_bloc.dart';
 import 'features/auth/bloc/auth_event.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase & Push Notifications
+  await NotificationService().init();
 
   final storageService = StorageService();
   final apiClient = ApiClient(storageService: storageService);

@@ -173,4 +173,14 @@ class AuthRepository {
       return AuthResult.failure(const NetworkFailure());
     }
   }
+
+  /// Update FCM token on backend.
+  Future<AuthResult<void>> updateFcmToken(String fcmToken) async {
+    try {
+      await _apiService.updateFcmToken(fcmToken);
+      return const AuthResult.success(null);
+    } catch (_) {
+      return const AuthResult.failure(ServerFailure('Failed to update FCM token'));
+    }
+  }
 }

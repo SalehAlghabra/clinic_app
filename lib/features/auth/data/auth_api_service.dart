@@ -86,4 +86,13 @@ class AuthApiService {
     final response = await _apiClient.get(ApiEndpoints.me);
     return response.data as Map<String, dynamic>;
   }
+
+  /// POST /api/auth/fcm-token   [Protected]
+  /// Body: { fcm_token }
+  Future<void> updateFcmToken(String fcmToken) async {
+    await _apiClient.post(
+      ApiEndpoints.fcmToken,
+      data: {'fcm_token': fcmToken},
+    );
+  }
 }
