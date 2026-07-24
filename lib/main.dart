@@ -21,9 +21,6 @@ import 'features/auth/bloc/auth_event.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase & Push Notifications
-  await NotificationService().init();
-
   final storageService = StorageService();
   final apiClient = ApiClient(storageService: storageService);
 
@@ -51,6 +48,9 @@ void main() async {
       child: MyApp(router: router),
     ),
   );
+
+  // Initialize Firebase in background after UI mounts so startup is non-blocking
+  NotificationService().init();
 }
 
 class MyApp extends StatelessWidget {

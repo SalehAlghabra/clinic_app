@@ -16,8 +16,8 @@ class NotificationService {
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
-  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
+  FirebaseMessaging? _messaging;
+  FlutterLocalNotificationsPlugin? _localNotifications;
 
   static const AndroidNotificationChannel _channel = AndroidNotificationChannel(
     'high_importance_channel',
@@ -34,11 +34,14 @@ class NotificationService {
     try {
       await Firebase.initializeApp();
 
+      _messaging = FirebaseMessaging.instance;
+      _localNotifications = FlutterLocalNotificationsPlugin();
+
       // Register background message handler
       FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
       // Request notification permissions
-      NotificationSettings settings = await _messaging.requestPermission(
+      NotificationSettings settings = await _messaging!.requestPermission(
         alert: true,
         badge: true,
         sound: true,
@@ -55,15 +58,15 @@ class NotificationService {
         iOS: darwinSettings,
       );
 
-      await _localNotifications.initialize(settings: initSettings);
+      await _localNotifications!.initialize(settings: initSettings);
 
       // Create Android channel
-      await _localNotifications
+      await _localNotifications!
           .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
           ?.createNotificationChannel(_channel);
 
       // Foreground presentation options
-      await _messaging.setForegroundNotificationPresentationOptions(
+      await _messaging!.setForegroundNotificationPresentationOptions(
         alert: true,
         badge: true,
         sound: true,
@@ -74,8 +77,8 @@ class NotificationService {
         RemoteNotification? notification = message.notification;
         AndroidNotification? android = message.notification?.android;
 
-        if (notification != null) {
-          _localNotifications.show(
+        if (notification != null && _localNotifications != null) {
+          _localNotifications!.show(
             id: notification.hashCode,
             title: notification.title,
             body: notification.body,
@@ -99,22 +102,23 @@ class NotificationService {
       });
 
       _initialized = true;
-    } catch (e) {
-      debugPrint('NotificationService init error: $e');
+    } catch (e, stack) {
+      debugPrint('NotificationService init error: $e\n$stack');
     }
   }
 
   /// Retrieves current FCM Token and sends it to Laravel backend
   Future<void> registerFcmToken(AuthRepository authRepository) async {
     try {
-      String? token = await _messaging.getToken();
+      if (_messaging == null) return;
+      String? token = await _messaging!.getToken();
       if (token != null && token.isNotEmpty) {
         debugPrint('FCM Token retrieved: $token');
         await authRepository.updateFcmToken(token);
       }
 
       // Listen for token refresh events
-      _messaging.onTokenRefresh.listen((newToken) async {
+      _messaging!.onTokenRefresh.listen((newToken) async {
         debugPrint('FCM Token refreshed: $newToken');
         await authRepository.updateFcmToken(newToken);
       });
