@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart' as dio;
 import '../../../core/api/api_client.dart';
 import '../../../core/api/api_endpoints.dart';
 
@@ -6,9 +7,6 @@ class AuthApiService {
 
   AuthApiService(this._apiClient);
 
-  /// POST /api/auth/register
-  /// Body: { name, email, password, password_confirmation, phone? }
-  /// Returns: { message, user, token }
   Future<Map<String, dynamic>> register({
     required String name,
     required String email,
@@ -29,9 +27,6 @@ class AuthApiService {
     return response.data as Map<String, dynamic>;
   }
 
-  /// POST /api/auth/login
-  /// Body: { email, password }
-  /// Returns: { message, email } — sends OTP, no token yet
   Future<Map<String, dynamic>> login({
     required String email,
     required String password,
@@ -46,9 +41,6 @@ class AuthApiService {
     return response.data as Map<String, dynamic>;
   }
 
-  /// POST /api/auth/verify-otp
-  /// Body: { email, otp }
-  /// Returns: { message, user, token }
   Future<Map<String, dynamic>> verifyOtp({
     required String email,
     required String otp,
@@ -63,9 +55,6 @@ class AuthApiService {
     return response.data as Map<String, dynamic>;
   }
 
-  /// POST /api/auth/resend-otp
-  /// Body: { email }
-  /// Returns: { message, email }
   Future<Map<String, dynamic>> resendOtp({required String email}) async {
     final response = await _apiClient.post(
       ApiEndpoints.resendOtp,
@@ -74,21 +63,79 @@ class AuthApiService {
     return response.data as Map<String, dynamic>;
   }
 
-  /// POST /api/auth/logout   [Protected]
-  /// Returns: { message }
+  Future<void> forgotPassword(String email) async {
+    await _apiClient.post(
+      ApiEndpoints.forgotPassword,
+      data: {'email': email},
+    );
+  }
+
+  Future<void> verifyResetOtp(String email, String otp) async {
+    await _apiClient.post(
+      ApiEndpoints.verifyResetOtp,
+      data: {'email': email, 'otp': otp},
+    );
+  }
+
+  Future<void> resetPassword({
+    required String email,
+    required String otp,
+    required String password,
+    required String passwordConfirmation,
+  }) async {
+    await _apiClient.post(
+      ApiEndpoints.resetPassword,
+      data: {
+        'email': email,
+        'otp': otp,
+        'password': password,
+        'password_confirmation': passwordConfirmation,
+      },
+    );
+  }
+
+  Future<Map<String, dynamic>> updateProfile({
+    String? name,
+    String? phone,
+    String? currentPassword,
+    String? password,
+    String? profilePictureUrl,
+    List<int>? fileBytes,
+    String? fileName,
+  }) async {
+    final map = <String, dynamic>{};
+    if (name != null && name.isNotEmpty) map['name'] = name;
+    if (phone != null) map['phone'] = phone;
+    if (password != null && password.isNotEmpty) {
+      map['password'] = password;
+      map['password_confirmation'] = password;
+      if (currentPassword != null) map['current_password'] = currentPassword;
+    }
+    if (fileBytes != null && fileName != null) {
+      map['profile_picture'] = dio.MultipartFile.fromBytes(fileBytes, filename: fileName);
+    } else if (profilePictureUrl != null && profilePictureUrl.isNotEmpty) {
+      map['profile_picture'] = profilePictureUrl;
+    }
+
+    final formData = dio.FormData.fromMap(map);
+
+    final response = await _apiClient.post(
+      ApiEndpoints.updateProfile,
+      data: formData,
+    );
+
+    return response.data as Map<String, dynamic>;
+  }
+
   Future<void> logout() async {
     await _apiClient.post(ApiEndpoints.logout);
   }
 
-  /// GET /api/auth/me   [Protected]
-  /// Returns: User object
   Future<Map<String, dynamic>> me() async {
     final response = await _apiClient.get(ApiEndpoints.me);
     return response.data as Map<String, dynamic>;
   }
 
-  /// POST /api/auth/fcm-token   [Protected]
-  /// Body: { fcm_token }
   Future<void> updateFcmToken(String fcmToken) async {
     await _apiClient.post(
       ApiEndpoints.fcmToken,

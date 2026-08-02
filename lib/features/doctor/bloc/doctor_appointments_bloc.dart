@@ -33,7 +33,12 @@ class DoctorAppointmentsBloc extends Bloc<DoctorAppointmentsEvent, DoctorAppoint
   ) async {
     final previousState = state;
     emit(const DoctorAppointmentActionInProgress());
-    final result = await _repository.updateAppointmentStatus(event.id, event.status);
+    final result = await _repository.updateAppointmentStatus(
+      event.id,
+      event.status,
+      additionalCost: event.additionalCost,
+      additionalNote: event.additionalNote,
+    );
     if (result.isSuccess) {
       emit(DoctorAppointmentActionSuccess(result.data!));
       // Reload appointments list

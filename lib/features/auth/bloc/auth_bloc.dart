@@ -17,6 +17,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthOtpResendRequested>(_onOtpResendRequested);
     on<AuthRegisterRequested>(_onRegisterRequested);
     on<AuthLogoutRequested>(_onLogoutRequested);
+    on<AuthProfileUpdated>((event, emit) => emit(AuthAuthenticated(event.user)));
   }
 
   /// Called on app start — validates stored token via GET /auth/me

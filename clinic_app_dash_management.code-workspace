@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../clinic_dashboard"
+		},
+		{
+			"path": "../clinic-managment"
+		},
+		{
+			"path": "../dashboard"
+		}
+	]
+}

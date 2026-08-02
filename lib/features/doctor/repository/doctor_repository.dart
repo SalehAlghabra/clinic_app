@@ -39,9 +39,19 @@ class DoctorRepository {
   }
 
   /// Update appointment status
-  Future<DoctorResult<String>> updateAppointmentStatus(int id, String status) async {
+  Future<DoctorResult<String>> updateAppointmentStatus(
+    int id,
+    String status, {
+    double? additionalCost,
+    String? additionalNote,
+  }) async {
     try {
-      final data = await _apiService.updateAppointmentStatus(id, status);
+      final data = await _apiService.updateAppointmentStatus(
+        id,
+        status,
+        additionalCost: additionalCost,
+        additionalNote: additionalNote,
+      );
       final msg = data['message'] as String? ?? 'Status updated successfully';
       return DoctorResult.success(msg);
     } on ApiException catch (e) {

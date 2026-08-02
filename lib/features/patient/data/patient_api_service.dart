@@ -24,12 +24,6 @@ class PatientApiService {
     return response.data as List<dynamic>;
   }
 
-  /// GET /api/doctors/{doctorId}/services
-  Future<List<dynamic>> getDoctorServices(int doctorId) async {
-    final response = await _apiClient.get(ApiEndpoints.doctorServices(doctorId));
-    return response.data as List<dynamic>;
-  }
-
   /// GET /api/doctors/{doctorId}/available-slots?date=YYYY-MM-DD
   Future<Map<String, dynamic>> getAvailableSlots(int doctorId, String date) async {
     final response = await _apiClient.get(
@@ -42,7 +36,6 @@ class PatientApiService {
   /// POST /api/appointments/preview
   Future<Map<String, dynamic>> previewAppointment({
     required int doctorId,
-    required int serviceId,
     required String date,
     required String time,
   }) async {
@@ -50,7 +43,6 @@ class PatientApiService {
       ApiEndpoints.appointmentPreview,
       data: {
         'doctor_id': doctorId,
-        'service_id': serviceId,
         'appointment_date': date,
         'appointment_time': time,
       },
@@ -61,7 +53,6 @@ class PatientApiService {
   /// POST /api/appointments
   Future<Map<String, dynamic>> bookAppointment({
     required int doctorId,
-    required int serviceId,
     required String date,
     required String time,
     String? notes,
@@ -70,7 +61,6 @@ class PatientApiService {
       ApiEndpoints.bookAppointment,
       data: {
         'doctor_id': doctorId,
-        'service_id': serviceId,
         'appointment_date': date,
         'appointment_time': time,
         if (notes != null && notes.isNotEmpty) 'notes': notes,

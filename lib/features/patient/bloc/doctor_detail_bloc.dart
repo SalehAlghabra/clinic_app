@@ -20,21 +20,17 @@ class DoctorDetailBloc extends Bloc<DoctorDetailEvent, DoctorDetailState> {
   ) async {
     emit(const DoctorDetailLoading());
 
-    // Call detail, schedules, and services in parallel/sequential
     final detailResult = await _repository.getDoctorDetail(event.doctorId);
     final schedulesResult = await _repository.getDoctorSchedules(event.doctorId);
-    final servicesResult = await _repository.getDoctorServices(event.doctorId);
 
-    if (detailResult.isSuccess && schedulesResult.isSuccess && servicesResult.isSuccess) {
+    if (detailResult.isSuccess && schedulesResult.isSuccess) {
       emit(DoctorDetailSuccess(
         doctor: detailResult.data!,
         schedules: schedulesResult.data!,
-        services: servicesResult.data!,
       ));
     } else {
       final error = detailResult.failure?.message ??
           schedulesResult.failure?.message ??
-          servicesResult.failure?.message ??
           'Failed to load doctor details';
       emit(DoctorDetailFailure(error));
     }

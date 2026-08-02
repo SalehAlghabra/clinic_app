@@ -3,7 +3,6 @@ import '../../../core/errors/failures.dart';
 import '../data/patient_api_service.dart';
 import '../models/doctor_model.dart';
 import '../models/schedule_model.dart';
-import '../models/service_model.dart';
 import '../models/appointment_model.dart';
 import '../models/appointment_preview_model.dart';
 
@@ -66,19 +65,6 @@ class PatientRepository {
     }
   }
 
-  /// Fetch services for a doctor
-  Future<PatientResult<List<ServiceModel>>> getDoctorServices(int doctorId) async {
-    try {
-      final list = await _apiService.getDoctorServices(doctorId);
-      final services = list.map((e) => ServiceModel.fromJson(e as Map<String, dynamic>)).toList();
-      return PatientResult.success(services);
-    } on ApiException catch (e) {
-      return PatientResult.failure(ServerFailure(e.message));
-    } catch (_) {
-      return PatientResult.failure(const NetworkFailure());
-    }
-  }
-
   /// Fetch available slots for a doctor on a specific date
   Future<PatientResult<List<String>>> getAvailableSlots(int doctorId, String date) async {
     try {
@@ -98,14 +84,12 @@ class PatientRepository {
   /// Preview an appointment booking with wallet calculations
   Future<PatientResult<AppointmentPreviewModel>> previewAppointment({
     required int doctorId,
-    required int serviceId,
     required String date,
     required String time,
   }) async {
     try {
       final res = await _apiService.previewAppointment(
         doctorId: doctorId,
-        serviceId: serviceId,
         date: date,
         time: time,
       );
@@ -120,7 +104,6 @@ class PatientRepository {
   /// Book a new appointment
   Future<PatientResult<Map<String, dynamic>>> bookAppointment({
     required int doctorId,
-    required int serviceId,
     required String date,
     required String time,
     String? notes,
@@ -128,7 +111,6 @@ class PatientRepository {
     try {
       final res = await _apiService.bookAppointment(
         doctorId: doctorId,
-        serviceId: serviceId,
         date: date,
         time: time,
         notes: notes,

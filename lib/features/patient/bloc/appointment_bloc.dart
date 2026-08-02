@@ -47,7 +47,6 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     emit(const AppointmentLoading());
     final result = await _patientRepository.previewAppointment(
       doctorId: event.doctorId,
-      serviceId: event.serviceId,
       date: event.date,
       time: event.time,
     );
@@ -65,7 +64,6 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     emit(const AppointmentActionInProgress());
     final result = await _patientRepository.bookAppointment(
       doctorId: event.doctorId,
-      serviceId: event.serviceId,
       date: event.date,
       time: event.time,
       notes: event.notes,

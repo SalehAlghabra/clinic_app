@@ -26,38 +26,34 @@ class FetchAvailableSlotsEvent extends AppointmentEvent {
 
 class PreviewAppointmentEvent extends AppointmentEvent {
   final int doctorId;
-  final int serviceId;
   final String date;
   final String time;
 
   const PreviewAppointmentEvent({
     required this.doctorId,
-    required this.serviceId,
     required this.date,
     required this.time,
   });
 
   @override
-  List<Object?> get props => [doctorId, serviceId, date, time];
+  List<Object?> get props => [doctorId, date, time];
 }
 
 class BookAppointmentEvent extends AppointmentEvent {
   final int doctorId;
-  final int serviceId;
   final String date;
   final String time;
   final String? notes;
 
   const BookAppointmentEvent({
     required this.doctorId,
-    required this.serviceId,
     required this.date,
     required this.time,
     this.notes,
   });
 
   @override
-  List<Object?> get props => [doctorId, serviceId, date, time, notes];
+  List<Object?> get props => [doctorId, date, time, notes];
 }
 
 class CancelAppointmentEvent extends AppointmentEvent {

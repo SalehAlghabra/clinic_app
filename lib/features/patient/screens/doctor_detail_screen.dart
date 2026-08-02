@@ -21,7 +21,6 @@ import '../bloc/appointment_event.dart';
 import '../bloc/appointment_state.dart';
 import '../models/doctor_model.dart';
 import '../models/schedule_model.dart';
-import '../models/service_model.dart';
 import '../models/appointment_preview_model.dart';
 import '../repository/patient_repository.dart';
 
@@ -37,8 +36,6 @@ class DoctorDetailScreen extends StatefulWidget {
 }
 
 class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
-  ServiceModel? _selectedService;
-
   @override
   void initState() {
     super.initState();
@@ -73,133 +70,84 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
           SizedBox(width: 8),
         ],
       ),
-      body: BlocListener<DoctorDetailBloc, DoctorDetailState>(
-        listener: (context, state) {
-          if (state is DoctorDetailSuccess) {
-            if (_selectedService == null && state.services.isNotEmpty) {
-              setState(() {
-                _selectedService = state.services.first;
-              });
-            }
-          }
-        },
-        child: BlocBuilder<DoctorDetailBloc, DoctorDetailState>(
-          builder: (context, state) {
-            if (state is DoctorDetailLoading) {
-              return const Center(child: AppLoadingIndicator());
-            } else if (state is DoctorDetailFailure) {
-              return AppErrorWidget(
-                errorMessage: state.errorMessage,
-                onRetry: () => context
-                    .read<DoctorDetailBloc>()
-                    .add(FetchDoctorDetailRequested(widget.doctorId)),
-              );
-            } else if (state is DoctorDetailSuccess) {
-              return Column(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.all(AppDimensions.paddingM),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Doctor Header Info
-                          _buildDoctorHeader(context, state.doctor),
+      body: BlocBuilder<DoctorDetailBloc, DoctorDetailState>(
+        builder: (context, state) {
+          if (state is DoctorDetailLoading) {
+            return const Center(child: AppLoadingIndicator());
+          } else if (state is DoctorDetailFailure) {
+            return AppErrorWidget(
+              errorMessage: state.errorMessage,
+              onRetry: () => context
+                  .read<DoctorDetailBloc>()
+                  .add(FetchDoctorDetailRequested(widget.doctorId)),
+            );
+          } else if (state is DoctorDetailSuccess) {
+            return Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(AppDimensions.paddingM),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Doctor Header Info
+                        _buildDoctorHeader(context, state.doctor),
 
-                          const SizedBox(height: AppDimensions.paddingL),
+                        const SizedBox(height: AppDimensions.paddingL),
 
-                          // Services Section
+                        // Schedules Section
+                        Text(
+                          l10n.appointmentsTitle,
+                          style: context.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: colors.text,
+                          ),
+                        ).animate().fadeIn(delay: 200.ms),
+                        const SizedBox(height: 8),
+                        if (state.schedules.isEmpty)
                           Text(
-                            l10n.medicalRecordsTitle, // Utilizing as Section title
-                            style: context.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: colors.text,
-                            ),
-                          ).animate().fadeIn(delay: 200.ms),
-                          const SizedBox(height: 8),
-                          if (state.services.isEmpty)
-                            Text(
-                              'No services registered for this doctor.',
-                              style: TextStyle(color: colors.textSecondary),
-                            )
-                          else
-                            ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: state.services.length,
-                              itemBuilder: (context, index) {
-                                final service = state.services[index];
-                                final isSelected = _selectedService?.id == service.id;
-                                return GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedService = service;
-                                    });
-                                  },
-                                  child: _buildServiceItem(context, service, isSelected)
-                                      .animate()
-                                      .fadeIn(delay: (250 + index * 50).ms),
-                                );
-                              },
-                            ),
-
-                          const SizedBox(height: AppDimensions.paddingL),
-
-                          // Schedules Section
-                          Text(
-                            l10n.appointmentsTitle, // Utilizing as Section title
-                            style: context.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: colors.text,
-                            ),
-                          ).animate().fadeIn(delay: 400.ms),
-                          const SizedBox(height: 8),
-                          if (state.schedules.isEmpty)
-                            Text(
-                              'No work schedule available.',
-                              style: TextStyle(color: colors.textSecondary),
-                            )
-                          else
-                            ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: state.schedules.length,
-                              itemBuilder: (context, index) {
-                                final schedule = state.schedules[index];
-                                return _buildScheduleItem(context, schedule)
-                                    .animate()
-                                    .fadeIn(delay: (450 + index * 50).ms);
-                              },
-                            ),
-                        ],
-                      ),
+                            'No work schedule available.',
+                            style: TextStyle(color: colors.textSecondary),
+                          )
+                        else
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: state.schedules.length,
+                            itemBuilder: (context, index) {
+                              final schedule = state.schedules[index];
+                              return _buildScheduleItem(context, schedule)
+                                  .animate()
+                                  .fadeIn(delay: (250 + index * 50).ms);
+                            },
+                          ),
+                      ],
                     ),
                   ),
+                ),
 
-                  // CTA Booking Button
-                  if (_selectedService != null)
-                    Container(
-                      padding: const EdgeInsets.all(AppDimensions.paddingM),
-                      decoration: BoxDecoration(
-                        color: colors.surface,
-                        border: Border(top: BorderSide(color: colors.border)),
-                      ),
-                      child: AppButton(
-                        text: l10n.bookAppointment,
-                        onPressed: () => _showBookingBottomSheet(context, _selectedService!, state.schedules),
-                      ),
-                    ).animate().slideY(begin: 0.2, duration: 400.ms),
-                ],
-              );
-            }
-            return const SizedBox.shrink();
-          },
-        ),
+                // CTA Booking Button
+                Container(
+                  padding: const EdgeInsets.all(AppDimensions.paddingM),
+                  decoration: BoxDecoration(
+                    color: colors.surface,
+                    border: Border(top: BorderSide(color: colors.border)),
+                  ),
+                  child: AppButton(
+                    text: '${l10n.bookAppointment} (\$${state.doctor.consultationFee.toStringAsFixed(2)})',
+                    onPressed: () => _showBookingBottomSheet(context, state.doctor, state.schedules),
+                  ),
+                ).animate().slideY(begin: 0.2, duration: 400.ms),
+              ],
+            );
+          }
+          return const SizedBox.shrink();
+        },
       ),
     );
   }
 
-  void _showBookingBottomSheet(BuildContext context, ServiceModel service, List<ScheduleModel> schedules) {
+  void _showBookingBottomSheet(BuildContext context, DoctorModel doctor, List<ScheduleModel> schedules) {
     final patientRepo = context.read<DoctorDetailBloc>().repository;
     showModalBottomSheet(
       context: context,
@@ -209,8 +157,7 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
         return BlocProvider(
           create: (_) => AppointmentBloc(patientRepo),
           child: _BookingBottomSheet(
-            doctorId: widget.doctorId,
-            service: service,
+            doctor: doctor,
             patientRepository: patientRepo,
             schedules: schedules,
           ),
@@ -234,8 +181,16 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
                 decoration: BoxDecoration(
                   color: colors.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(16),
+                  image: doctor.profilePictureUrl != null
+                      ? DecorationImage(
+                          image: NetworkImage(doctor.profilePictureUrl!),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
                 ),
-                child: Icon(Icons.person_rounded, color: colors.primary, size: 36),
+                child: doctor.profilePictureUrl == null
+                    ? Icon(Icons.person_rounded, color: colors.primary, size: 36)
+                    : null,
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -262,6 +217,14 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
                           color: colors.secondary,
                           fontWeight: FontWeight.bold,
                         ),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Consultation Fee: \$${doctor.consultationFee.toStringAsFixed(2)}',
+                      style: context.textTheme.titleSmall?.copyWith(
+                        color: colors.primary,
+                        fontWeight: FontWeight.extrabold,
                       ),
                     ),
                   ],
@@ -292,72 +255,24 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Icon(Icons.phone_enabled_outlined, size: 16, color: colors.textSecondary),
-              const SizedBox(width: 8),
-              Text(
-                doctor.phone ?? 'No phone number',
-                style: context.textTheme.bodyMedium?.copyWith(
-                  color: colors.textSecondary,
+          if (doctor.phone != null && doctor.phone!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.phone_enabled_outlined, size: 16, color: colors.textSecondary),
+                const SizedBox(width: 8),
+                Text(
+                  doctor.phone!,
+                  style: context.textTheme.bodyMedium?.copyWith(
+                    color: colors.textSecondary,
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1);
-  }
-
-  Widget _buildServiceItem(BuildContext context, ServiceModel service, bool isSelected) {
-    final colors = context.appColors;
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: AnimatedContainer(
-        duration: 200.ms,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected ? colors.primary : colors.border,
-            width: isSelected ? 2.0 : 1.0,
-          ),
-        ),
-        child: AppCard(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    isSelected ? Icons.check_circle_rounded : Icons.radio_button_off_rounded,
-                    color: isSelected ? colors.primary : colors.textSecondary,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    service.serviceName,
-                    style: context.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colors.text,
-                    ),
-                  ),
-                ],
-              ),
-              Text(
-                '${service.price.toStringAsFixed(2)} SP',
-                style: context.textTheme.titleMedium?.copyWith(
-                  color: colors.primary,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   Widget _buildScheduleItem(BuildContext context, ScheduleModel schedule) {
@@ -398,14 +313,12 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
 }
 
 class _BookingBottomSheet extends StatefulWidget {
-  final int doctorId;
-  final ServiceModel service;
+  final DoctorModel doctor;
   final PatientRepository patientRepository;
   final List<ScheduleModel> schedules;
 
   const _BookingBottomSheet({
-    required this.doctorId,
-    required this.service,
+    required this.doctor,
     required this.patientRepository,
     required this.schedules,
   });
@@ -479,9 +392,10 @@ class _BookingBottomSheetState extends State<_BookingBottomSheet> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '${l10n.medicalRecordsTitle}: ${widget.service.serviceName}',
+                  '${widget.doctor.name} (${widget.doctor.specialization}) — Fee: \$${widget.doctor.consultationFee.toStringAsFixed(2)}',
                   style: context.textTheme.bodyMedium?.copyWith(
-                    color: colors.textSecondary,
+                    color: colors.primary,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: AppDimensions.paddingM),
@@ -565,8 +479,7 @@ class _BookingBottomSheetState extends State<_BookingBottomSheet> {
                           final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate!);
                           context.read<AppointmentBloc>().add(
                                 PreviewAppointmentEvent(
-                                  doctorId: widget.doctorId,
-                                  serviceId: widget.service.id,
+                                  doctorId: widget.doctor.id,
                                   date: dateStr,
                                   time: _selectedTime!,
                                 ),
@@ -582,7 +495,6 @@ class _BookingBottomSheetState extends State<_BookingBottomSheet> {
     );
   }
 
-  // To prevent MediaQuery context issues, we pass sheetContext
   BuildContext sheetContext(BuildContext context) => context;
 
   int _dayNameToWeekday(String dayName) {
@@ -653,7 +565,7 @@ class _BookingBottomSheetState extends State<_BookingBottomSheet> {
       });
       final dateStr = DateFormat('yyyy-MM-dd').format(date);
       appointmentBloc.add(
-        FetchAvailableSlotsEvent(doctorId: widget.doctorId, date: dateStr),
+        FetchAvailableSlotsEvent(doctorId: widget.doctor.id, date: dateStr),
       );
     }
   }
@@ -764,7 +676,7 @@ class _BookingBottomSheetState extends State<_BookingBottomSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Booking details list
-                      _buildDetailRow(context, 'Doctor', preview.bookingSummary.serviceName), // Service detail
+                      _buildDetailRow(context, 'Doctor', preview.bookingSummary.doctorName),
                       _buildDetailRow(
                         context,
                         'Date',
@@ -787,31 +699,31 @@ class _BookingBottomSheetState extends State<_BookingBottomSheet> {
                       const SizedBox(height: 12),
                       _buildPaymentRow(
                         context,
-                        'Service Price',
-                        '${preview.bookingSummary.servicePrice.toStringAsFixed(2)} SP',
+                        'Consultation Fee',
+                        '\$${preview.bookingSummary.consultationFee.toStringAsFixed(2)}',
                       ),
                       _buildPaymentRow(
                         context,
                         l10n.depositRequired,
-                        '${preview.paymentSummary.depositRequired.toStringAsFixed(2)} SP',
+                        '\$${preview.paymentSummary.depositRequired.toStringAsFixed(2)}',
                         isHighlighted: true,
                       ),
                       _buildPaymentRow(
                         context,
                         l10n.walletBalance,
-                        '${preview.paymentSummary.walletBalance.toStringAsFixed(2)} SP',
+                        '\$${preview.paymentSummary.walletBalance.toStringAsFixed(2)}',
                       ),
                       if (preview.paymentSummary.balanceAfter != null)
                         _buildPaymentRow(
                           context,
                           l10n.balanceAfter,
-                          '${preview.paymentSummary.balanceAfter!.toStringAsFixed(2)} SP',
+                          '\$${preview.paymentSummary.balanceAfter!.toStringAsFixed(2)}',
                           isGreen: true,
                         ),
                       _buildPaymentRow(
                         context,
                         'Remaining at Clinic',
-                        '${preview.paymentSummary.remainingAtVisit.toStringAsFixed(2)} SP',
+                        '\$${preview.paymentSummary.remainingAtVisit.toStringAsFixed(2)}',
                       ),
                       const SizedBox(height: 16),
 
@@ -866,8 +778,7 @@ class _BookingBottomSheetState extends State<_BookingBottomSheet> {
                               final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate!);
                               context.read<AppointmentBloc>().add(
                                     BookAppointmentEvent(
-                                      doctorId: widget.doctorId,
-                                      serviceId: widget.service.id,
+                                      doctorId: widget.doctor.id,
                                       date: dateStr,
                                       time: _selectedTime!,
                                       notes: _notesController.text,
@@ -892,8 +803,8 @@ class _BookingBottomSheetState extends State<_BookingBottomSheet> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       onPressed: () {
-                        Navigator.of(dialogContext).pop(); // pop dialog
-                        Navigator.of(context).pop(); // pop sheet
+                        Navigator.of(dialogContext).pop();
+                        Navigator.of(context).pop();
                         context.go('/patient/wallet');
                       },
                       child: const Text('Top Up Wallet', style: TextStyle(color: Colors.white)),

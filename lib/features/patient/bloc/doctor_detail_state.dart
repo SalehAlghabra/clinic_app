@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import '../models/doctor_model.dart';
 import '../models/schedule_model.dart';
-import '../models/service_model.dart';
 
 abstract class DoctorDetailState extends Equatable {
   const DoctorDetailState();
@@ -21,16 +20,14 @@ class DoctorDetailLoading extends DoctorDetailState {
 class DoctorDetailSuccess extends DoctorDetailState {
   final DoctorModel doctor;
   final List<ScheduleModel> schedules;
-  final List<ServiceModel> services;
 
   const DoctorDetailSuccess({
     required this.doctor,
     required this.schedules,
-    required this.services,
   });
 
   @override
-  List<Object?> get props => [doctor, schedules, services];
+  List<Object?> get props => [doctor, schedules];
 }
 
 class DoctorDetailFailure extends DoctorDetailState {

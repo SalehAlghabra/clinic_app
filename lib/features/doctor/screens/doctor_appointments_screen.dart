@@ -199,6 +199,91 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
     );
   }
 
+  void _showCompleteVisitDialog(BuildContext context, DoctorAppointmentModel app) {
+    final costController = TextEditingController(text: '0.00');
+    final noteController = TextEditingController();
+    final bloc = context.read<DoctorAppointmentsBloc>();
+    final colors = context.appColors;
+
+    showDialog(
+      context: context,
+      builder: (dialogCtx) {
+        return AlertDialog(
+          backgroundColor: colors.surface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(
+            'Complete Appointment & Issue Invoice',
+            style: TextStyle(color: colors.text, fontWeight: FontWeight.bold),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Patient: ${app.patientName}',
+                  style: TextStyle(color: colors.textSecondary, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Consultation Fee (Pre-paid): \$${app.consultationFee.toStringAsFixed(2)}',
+                  style: TextStyle(color: colors.primary, fontWeight: FontWeight.bold),
+                ),
+                const Divider(height: 24),
+                TextField(
+                  controller: costController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    labelText: 'Additional Cost (\$)',
+                    prefixIcon: const Icon(Icons.attach_money),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: noteController,
+                  maxLines: 2,
+                  decoration: InputDecoration(
+                    labelText: 'Additional Notes / Lab Tests',
+                    prefixIcon: const Icon(Icons.note_alt_outlined),
+                    hintText: 'e.g. ECG test & blood work',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogCtx),
+              child: Text('Cancel', style: TextStyle(color: colors.textSecondary)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colors.primary,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              onPressed: () {
+                final extraCost = double.tryParse(costController.text.trim()) ?? 0.0;
+                final extraNote = noteController.text.trim();
+                Navigator.pop(dialogCtx);
+                bloc.add(
+                  UpdateAppointmentStatusEvent(
+                    id: app.id,
+                    status: 'completed',
+                    additionalCost: extraCost,
+                    additionalNote: extraNote,
+                  ),
+                );
+              },
+              child: const Text('Complete & Issue Invoice', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildAppointmentCard(BuildContext context, DoctorAppointmentModel app) {
     final colors = context.appColors;
     final l10n = AppLocalizations.of(context);
@@ -241,8 +326,8 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
             const Divider(height: 24),
             _buildInfoRow(
               context,
-              Icons.medical_services_outlined,
-              app.service,
+              Icons.monetization_on_outlined,
+              'Consultation Fee: \$${app.consultationFee.toStringAsFixed(2)}',
             ),
             const SizedBox(height: 8),
             _buildInfoRow(
@@ -250,6 +335,14 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
               Icons.calendar_today_rounded,
               '${app.appointmentDate}  •  ${DateFormatters.formatTime(app.appointmentTime)}',
             ),
+            if (app.additionalCost > 0 || (app.additionalNote != null && app.additionalNote!.isNotEmpty)) ...[
+              const SizedBox(height: 8),
+              _buildInfoRow(
+                context,
+                Icons.medical_services_outlined,
+                'Extra Cost: \$${app.additionalCost.toStringAsFixed(2)} (${app.additionalNote ?? ''})',
+              ),
+            ],
             if (app.notes != null && app.notes!.isNotEmpty) ...[
               const SizedBox(height: 8),
               _buildInfoRow(
@@ -293,14 +386,7 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
               const Divider(height: 24),
               AppButton(
                 text: l10n.completeVisit,
-                onPressed: () async {
-                  await context.push(
-                    '/doctor/appointments/${app.id}/create-record',
-                    extra: app.patientName,
-                  );
-                  // Reload list to reflect completed status
-                  bloc.add(const FetchDoctorAppointmentsEvent());
-                },
+                onPressed: () => _showCompleteVisitDialog(context, app),
               ),
             ],
           ],

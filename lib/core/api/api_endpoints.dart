@@ -4,16 +4,18 @@ class ApiEndpoints {
   static const String login = '/api/auth/login';
   static const String verifyOtp = '/api/auth/verify-otp';
   static const String resendOtp = '/api/auth/resend-otp';
+  static const String forgotPassword = '/api/auth/forgot-password';
+  static const String verifyResetOtp = '/api/auth/verify-reset-otp';
+  static const String resetPassword = '/api/auth/reset-password';
   static const String logout = '/api/auth/logout';
   static const String me = '/api/auth/me';
   static const String updateProfile = '/api/auth/profile';
   static const String fcmToken = '/api/auth/fcm-token';
 
-  // Doctors & Services & Schedules
+  // Doctors & Schedules
   static const String doctors = '/api/doctors';
   static String doctorDetail(int id) => '/api/doctors/$id';
   static String doctorSchedules(int doctorId) => '/api/doctors/$doctorId/schedules';
-  static String doctorServices(int doctorId) => '/api/doctors/$doctorId/services';
   static String availableSlots(int doctorId) => '/api/doctors/$doctorId/available-slots';
 
   // Settings

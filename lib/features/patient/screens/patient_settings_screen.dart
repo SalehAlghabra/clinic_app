@@ -1,6 +1,8 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:clinic_app/core/l10n/app_localizations.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../shared/extensions/context_extensions.dart';
@@ -10,6 +12,8 @@ import '../../../shared/dialogs/app_dialogs.dart';
 import '../../auth/bloc/auth_bloc.dart';
 import '../../auth/bloc/auth_event.dart';
 import '../../auth/bloc/auth_state.dart';
+import '../../auth/data/models/user_model.dart';
+import '../../auth/repository/auth_repository.dart';
 import '../../settings/bloc/theme_cubit.dart';
 import '../../settings/bloc/theme_state.dart';
 import '../../settings/bloc/locale_cubit.dart';
@@ -18,6 +22,221 @@ import '../../../shared/widgets/app_top_actions.dart';
 
 class PatientSettingsScreen extends StatelessWidget {
   const PatientSettingsScreen({super.key});
+
+  void _showEditProfileDialog(BuildContext context, UserModel user) {
+    final nameController = TextEditingController(text: user.name);
+    final phoneController = TextEditingController(text: user.phone ?? '');
+    final currentPasswordController = TextEditingController();
+    final passwordController = TextEditingController();
+    final confirmPasswordController = TextEditingController();
+
+    Uint8List? selectedBytes;
+    String? selectedFileName;
+    bool isSubmitting = false;
+
+    showDialog(
+      context: context,
+      builder: (dialogCtx) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            final colors = context.appColors;
+
+            return AlertDialog(
+              backgroundColor: colors.surface,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: Text(
+                'Edit Profile',
+                style: TextStyle(color: colors.text, fontWeight: FontWeight.bold),
+              ),
+              content: SizedBox(
+                width: 360,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircleAvatar(
+                        radius: 36,
+                        backgroundColor: colors.primary.withValues(alpha: 0.15),
+                        backgroundImage: selectedBytes != null
+                            ? MemoryImage(selectedBytes!)
+                            : (user.profilePictureUrl != null
+                                ? NetworkImage(user.profilePictureUrl!) as ImageProvider
+                                : null),
+                        child: (selectedBytes == null && user.profilePictureUrl == null)
+                            ? Icon(Icons.person, size: 36, color: colors.primary)
+                            : null,
+                      ),
+                      const SizedBox(height: 12),
+                      OutlinedButton.icon(
+                        onPressed: () async {
+                          final result = await FilePicker.platform.pickFiles(
+                            type: FileType.image,
+                            withData: true,
+                          );
+                          if (result != null && result.files.isNotEmpty) {
+                            final file = result.files.first;
+                            if (file.bytes != null) {
+                              setDialogState(() {
+                                selectedBytes = file.bytes;
+                                selectedFileName = file.name;
+                              });
+                            }
+                          }
+                        },
+                        icon: const Icon(Icons.photo_library_outlined, size: 18),
+                        label: Text(
+                          selectedFileName != null ? selectedFileName! : 'Choose Photo from Device',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: colors.primary,
+                          side: BorderSide(color: colors.primary),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                          labelText: 'Name',
+                          prefixIcon: const Icon(Icons.person_outline),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: phoneController,
+                        decoration: InputDecoration(
+                          labelText: 'Phone',
+                          prefixIcon: const Icon(Icons.phone_outlined),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                      const Divider(height: 32),
+                      Text('Change Password', style: TextStyle(color: colors.text, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: currentPasswordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: 'Current Password',
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: passwordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: 'New Password',
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: confirmPasswordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: 'Confirm New Password',
+                          prefixIcon: const Icon(Icons.lock_outline),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogCtx),
+                  child: Text('Cancel', style: TextStyle(color: colors.textSecondary)),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colors.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  onPressed: isSubmitting
+                      ? null
+                      : () async {
+                          final pass = passwordController.text.trim();
+                          final confirmPass = confirmPasswordController.text.trim();
+                          final currPass = currentPasswordController.text.trim();
+
+                          if (pass.isNotEmpty) {
+                            if (currPass.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Current password is required to set a new password'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                              return;
+                            }
+                            if (pass != confirmPass) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('New password and confirmation do not match'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                              return;
+                            }
+                          }
+
+                          setDialogState(() => isSubmitting = true);
+                          try {
+                            final authRepo = RepositoryProvider.of<AuthRepository>(context);
+                            final res = await authRepo.updateProfile(
+                              name: nameController.text.trim(),
+                              phone: phoneController.text.trim(),
+                              currentPassword: currPass.isNotEmpty ? currPass : null,
+                              password: pass.isNotEmpty ? pass : null,
+                              fileBytes: selectedBytes,
+                              fileName: selectedFileName,
+                            );
+
+                            if (res.isSuccess && dialogCtx.mounted) {
+                              Navigator.pop(dialogCtx);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Profile updated successfully!'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                              context.read<AuthBloc>().add(AuthProfileUpdated(res.data!));
+                            } else {
+                              setDialogState(() => isSubmitting = false);
+                              if (dialogCtx.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(res.failure?.message ?? 'Failed to update profile'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
+                          } catch (e) {
+                            setDialogState(() => isSubmitting = false);
+                            if (dialogCtx.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+                              );
+                            }
+                          }
+                        },
+                  child: isSubmitting
+                      ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Text('Save Changes', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,9 +267,10 @@ class PatientSettingsScreen extends StatelessWidget {
           }
         },
         builder: (context, state) {
-          final patientName = state is AuthAuthenticated ? state.user.name : 'Patient';
-          final patientEmail = state is AuthAuthenticated ? state.user.email : 'patient@clinic.com';
-          final patientPhone = state is AuthAuthenticated ? (state.user.phone ?? '') : '';
+          final user = state is AuthAuthenticated ? state.user : null;
+          final patientName = user?.name ?? 'Patient';
+          final patientEmail = user?.email ?? 'patient@clinic.com';
+          final patientPhone = user?.phone ?? '';
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(AppDimensions.paddingM),
@@ -67,8 +287,16 @@ class PatientSettingsScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: colors.primary.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
+                          image: user?.profilePictureUrl != null
+                              ? DecorationImage(
+                                  image: NetworkImage(user!.profilePictureUrl!),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
                         ),
-                        child: Icon(Icons.person_rounded, color: colors.primary, size: 32),
+                        child: user?.profilePictureUrl == null
+                            ? Icon(Icons.person_rounded, color: colors.primary, size: 32)
+                            : null,
                       ),
                       const SizedBox(width: AppDimensions.paddingM),
                       Expanded(
@@ -78,8 +306,8 @@ class PatientSettingsScreen extends StatelessWidget {
                             Text(
                               patientName,
                               style: context.textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: colors.text,
+                                fontWeight: FontWeight.bold,
+                                color: colors.text,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -101,6 +329,11 @@ class PatientSettingsScreen extends StatelessWidget {
                           ],
                         ),
                       ),
+                      if (user != null)
+                        IconButton(
+                          icon: Icon(Icons.edit_outlined, color: colors.primary),
+                          onPressed: () => _showEditProfileDialog(context, user),
+                        ),
                     ],
                   ),
                 ),

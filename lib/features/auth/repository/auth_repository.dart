@@ -4,7 +4,6 @@ import '../../../core/services/storage_service.dart';
 import '../data/auth_api_service.dart';
 import '../models/user_model.dart';
 
-/// Result type to avoid Either/Result dependencies — simple sealed approach.
 class AuthResult<T> {
   final T? data;
   final Failure? failure;
@@ -42,8 +41,6 @@ class AuthRepository {
   })  : _apiService = apiService,
         _storageService = storageService;
 
-  /// Register a new patient account.
-  /// Returns the registered email since verification via OTP is required first.
   Future<AuthResult<String>> register({
     required String name,
     required String email,
@@ -59,8 +56,6 @@ class AuthRepository {
         passwordConfirmation: passwordConfirmation,
         phone: phone,
       );
-
-      // Backend returns: { message, email, verified }
       return AuthResult.success(data['email'] as String);
     } on ValidationException catch (e) {
       return AuthResult.failure(ValidationFailure(e.message, e.errors));
@@ -71,9 +66,6 @@ class AuthRepository {
     }
   }
 
-  /// Login: checks password.
-  /// If email is verified, stores user + token and returns AuthLoginResponse with isVerified = true.
-  /// If email is not verified, returns AuthLoginResponse with isVerified = false.
   Future<AuthResult<AuthLoginResponse>> login({
     required String email,
     required String password,
@@ -108,8 +100,6 @@ class AuthRepository {
     }
   }
 
-  /// Step 2 of login: verify OTP and receive the auth token.
-  /// Saves token + role locally on success.
   Future<AuthResult<UserModel>> verifyOtp({
     required String email,
     required String otp,
@@ -131,7 +121,6 @@ class AuthRepository {
     }
   }
 
-  /// Resend OTP to the given email.
   Future<AuthResult<String>> resendOtp({required String email}) async {
     try {
       final data = await _apiService.resendOtp(email: email);
@@ -143,28 +132,92 @@ class AuthRepository {
     }
   }
 
-  /// Logout — revoke Sanctum token on backend, clear local storage.
+  Future<AuthResult<void>> forgotPassword(String email) async {
+    try {
+      await _apiService.forgotPassword(email);
+      return const AuthResult.success(null);
+    } on ApiException catch (e) {
+      return AuthResult.failure(ServerFailure(e.message));
+    } catch (_) {
+      return const AuthResult.failure(NetworkFailure());
+    }
+  }
+
+  Future<AuthResult<void>> verifyResetOtp(String email, String otp) async {
+    try {
+      await _apiService.verifyResetOtp(email, otp);
+      return const AuthResult.success(null);
+    } on ApiException catch (e) {
+      return AuthResult.failure(ServerFailure(e.message));
+    } catch (_) {
+      return const AuthResult.failure(NetworkFailure());
+    }
+  }
+
+  Future<AuthResult<void>> resetPassword({
+    required String email,
+    required String otp,
+    required String password,
+    required String passwordConfirmation,
+  }) async {
+    try {
+      await _apiService.resetPassword(
+        email: email,
+        otp: otp,
+        password: password,
+        passwordConfirmation: passwordConfirmation,
+      );
+      return const AuthResult.success(null);
+    } on ApiException catch (e) {
+      return AuthResult.failure(ServerFailure(e.message));
+    } catch (_) {
+      return const AuthResult.failure(NetworkFailure());
+    }
+  }
+
+  Future<AuthResult<UserModel>> updateProfile({
+    String? name,
+    String? phone,
+    String? currentPassword,
+    String? password,
+    String? profilePictureUrl,
+    List<int>? fileBytes,
+    String? fileName,
+  }) async {
+    try {
+      final data = await _apiService.updateProfile(
+        name: name,
+        phone: phone,
+        currentPassword: currentPassword,
+        password: password,
+        profilePictureUrl: profilePictureUrl,
+        fileBytes: fileBytes,
+        fileName: fileName,
+      );
+      final user = UserModel.fromJson(data['user'] as Map<String, dynamic>);
+      return AuthResult.success(user);
+    } on ApiException catch (e) {
+      return AuthResult.failure(ServerFailure(e.message));
+    } catch (e) {
+      return AuthResult.failure(ServerFailure(e.toString()));
+    }
+  }
+
   Future<AuthResult<void>> logout() async {
     try {
       await _apiService.logout();
-    } catch (_) {
-      // Even if the request fails, we still clear local storage
-    }
+    } catch (_) {}
     await _storageService.clearAuthData();
     return const AuthResult.success(null);
   }
 
-  /// Validate stored token by calling GET /auth/me.
-  /// Returns [UserModel] if token is still valid, failure otherwise.
   Future<AuthResult<UserModel>> getCurrentUser() async {
     try {
       final data = await _apiService.me();
       final user = UserModel.fromJson(data);
-      // Refresh role in storage in case it changed
       await _storageService.saveRole(user.role);
       return AuthResult.success(user);
     } on ApiException catch (e) {
-      // 401 means token is stale — clear storage
       if (e.statusCode == 401) {
         await _storageService.clearAuthData();
       }
@@ -174,7 +227,6 @@ class AuthRepository {
     }
   }
 
-  /// Update FCM token on backend.
   Future<AuthResult<void>> updateFcmToken(String fcmToken) async {
     try {
       await _apiService.updateFcmToken(fcmToken);

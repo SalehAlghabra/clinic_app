@@ -14,11 +14,18 @@ class FetchDoctorAppointmentsEvent extends DoctorAppointmentsEvent {
 class UpdateAppointmentStatusEvent extends DoctorAppointmentsEvent {
   final int id;
   final String status;
+  final double? additionalCost;
+  final String? additionalNote;
 
-  const UpdateAppointmentStatusEvent({required this.id, required this.status});
+  const UpdateAppointmentStatusEvent({
+    required this.id,
+    required this.status,
+    this.additionalCost,
+    this.additionalNote,
+  });
 
   @override
-  List<Object?> get props => [id, status];
+  List<Object?> get props => [id, status, additionalCost, additionalNote];
 }
 
 class CancelDayAppointmentsEvent extends DoctorAppointmentsEvent {

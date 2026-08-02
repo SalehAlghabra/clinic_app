@@ -38,29 +38,29 @@ class AppointmentPreviewModel extends Equatable {
 }
 
 class BookingSummary extends Equatable {
-  final String serviceName;
-  final double servicePrice;
+  final String doctorName;
+  final double consultationFee;
   final String appointmentDate;
   final String appointmentTime;
 
   const BookingSummary({
-    required this.serviceName,
-    required this.servicePrice,
+    required this.doctorName,
+    required this.consultationFee,
     required this.appointmentDate,
     required this.appointmentTime,
   });
 
   factory BookingSummary.fromJson(Map<String, dynamic> json) {
     return BookingSummary(
-      serviceName: json['service_name'] as String? ?? '',
-      servicePrice: _parseDouble(json['service_price']),
+      doctorName: json['doctor_name'] as String? ?? json['service_name'] as String? ?? '',
+      consultationFee: _parseDouble(json['consultation_fee'] ?? json['service_price'] ?? json['deposit_required']),
       appointmentDate: json['appointment_date'] as String? ?? '',
       appointmentTime: json['appointment_time'] as String? ?? '',
     );
   }
 
   @override
-  List<Object?> get props => [serviceName, servicePrice, appointmentDate, appointmentTime];
+  List<Object?> get props => [doctorName, consultationFee, appointmentDate, appointmentTime];
 }
 
 class PaymentSummary extends Equatable {
@@ -80,7 +80,7 @@ class PaymentSummary extends Equatable {
 
   factory PaymentSummary.fromJson(Map<String, dynamic> json) {
     return PaymentSummary(
-      depositRequired: _parseDouble(json['deposit_required']),
+      depositRequired: _parseDouble(json['deposit_required'] ?? json['consultation_fee']),
       walletBalance: _parseDouble(json['wallet_balance']),
       balanceAfter: _parseNullableDouble(json['balance_after']),
       remainingAtVisit: _parseDouble(json['remaining_at_visit']),

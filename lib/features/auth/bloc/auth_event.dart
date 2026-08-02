@@ -68,3 +68,12 @@ class AuthRegisterRequested extends AuthEvent {
 class AuthLogoutRequested extends AuthEvent {
   const AuthLogoutRequested();
 }
+
+/// Profile updated with new user object
+class AuthProfileUpdated extends AuthEvent {
+  final UserModel user;
+  const AuthProfileUpdated(this.user);
+
+  @override
+  List<Object?> get props => [user];
+}
