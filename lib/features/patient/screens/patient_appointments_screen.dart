@@ -244,7 +244,7 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen>
             _buildInfoRow(
               context,
               Icons.medical_services_outlined,
-              '${appointment.service} (${appointment.price.toStringAsFixed(2)} SP)',
+              'Consultation Fee: \$${appointment.consultationFee.toStringAsFixed(2)}',
             ),
             const SizedBox(height: 8),
             _buildInfoRow(

@@ -224,7 +224,7 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
                       'Consultation Fee: \$${doctor.consultationFee.toStringAsFixed(2)}',
                       style: context.textTheme.titleSmall?.copyWith(
                         color: colors.primary,
-                        fontWeight: FontWeight.extrabold,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                   ],

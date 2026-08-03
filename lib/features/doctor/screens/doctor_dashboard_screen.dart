@@ -372,7 +372,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
           children: [
             const SizedBox(height: 4),
             Text(
-              '${app.service}  •  ${DateFormatters.formatTime(app.appointmentTime)}',
+              'Consultation Fee: \$${app.consultationFee.toStringAsFixed(2)}  •  ${DateFormatters.formatTime(app.appointmentTime)}',
               style: TextStyle(color: colors.textSecondary, fontSize: 13),
             ),
           ],

@@ -173,7 +173,7 @@ class _InvoicesListScreenState extends State<InvoicesListScreen>
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Dr. ${invoice.doctorName} • ${invoice.service}',
+                    'Dr. ${invoice.doctorName}',
                     style: context.textTheme.bodyMedium?.copyWith(color: colors.textSecondary),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

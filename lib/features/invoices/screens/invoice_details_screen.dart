@@ -88,7 +88,7 @@ class InvoiceDetailsScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              invoice.service,
+                              'Consultation & Medical Visit',
                               style: context.textTheme.bodyMedium?.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: colors.text,

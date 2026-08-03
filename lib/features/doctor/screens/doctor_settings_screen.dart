@@ -12,7 +12,7 @@ import '../../../shared/dialogs/app_dialogs.dart';
 import '../../auth/bloc/auth_bloc.dart';
 import '../../auth/bloc/auth_event.dart';
 import '../../auth/bloc/auth_state.dart';
-import '../../auth/data/models/user_model.dart';
+import '../../auth/models/user_model.dart';
 import '../../auth/repository/auth_repository.dart';
 import '../../settings/bloc/theme_cubit.dart';
 import '../../settings/bloc/theme_state.dart';

@@ -421,7 +421,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: TextButton(
                       onPressed: _showForgotPasswordDialog,
                       child: Text(
-                        l10n.forgotPasswordLabel,
+                        'Forgot Password?',
                         style: TextStyle(color: colors.primary, fontWeight: FontWeight.w600),
                       ),
                     ),
