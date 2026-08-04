@@ -633,6 +633,7 @@ class _BookingBottomSheetState extends State<_BookingBottomSheet> {
   void _showPreviewDialog(BuildContext context, AppointmentPreviewModel preview) {
     final appointmentBloc = context.read<AppointmentBloc>();
     final mainContext = context;
+    final parentContext = context;
     final colors = context.appColors;
     final l10n = AppLocalizations.of(context);
 
@@ -643,7 +644,7 @@ class _BookingBottomSheetState extends State<_BookingBottomSheet> {
         return BlocProvider.value(
           value: appointmentBloc,
           child: BlocConsumer<AppointmentBloc, AppointmentState>(
-            listener: (context, state) {
+            listener: (blocContext, state) {
               if (state is AppointmentBookSuccess) {
                 if (dialogContext.mounted) {
                   Navigator.of(dialogContext).pop();
@@ -651,14 +652,18 @@ class _BookingBottomSheetState extends State<_BookingBottomSheet> {
                 if (mainContext.mounted) {
                   Navigator.of(mainContext).pop();
                 }
-                AppDialogs.showSuccess(
-                  context: context,
-                  title: l10n.success,
-                  message: state.message,
-                  onPressed: () {
-                    context.go('/patient/appointments');
-                  },
-                );
+                if (parentContext.mounted) {
+                  AppDialogs.showSuccess(
+                    context: parentContext,
+                    title: l10n.success,
+                    message: state.message,
+                    onPressed: () {
+                      if (parentContext.mounted) {
+                        parentContext.go('/patient/appointments');
+                      }
+                    },
+                  );
+                }
               } else if (state is AppointmentFailure) {
                 AppDialogs.showError(
                   context: dialogContext.mounted ? dialogContext : mainContext,

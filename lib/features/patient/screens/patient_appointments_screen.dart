@@ -241,7 +241,7 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen>
             _buildInfoRow(
               context,
               Icons.calendar_today_rounded,
-              '${appointment.appointmentDate}  •  ${DateFormatters.formatTime(appointment.appointmentTime)}',
+              '${DateFormatters.formatDateString(appointment.appointmentDate)}  •  ${DateFormatters.formatTime(appointment.appointmentTime)}',
             ),
             if (appointment.notes != null && appointment.notes!.isNotEmpty) ...[
               const SizedBox(height: 8),
