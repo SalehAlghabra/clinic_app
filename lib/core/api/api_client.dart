@@ -22,6 +22,7 @@ class ApiClient {
 
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
+        options.baseUrl = AppConfig.baseUrl;
         final token = await _storageService.getToken();
         if (token != null) {
           options.headers['Authorization'] = 'Bearer $token';
@@ -44,6 +45,18 @@ class ApiClient {
   }
 
   Dio get dio => _dio;
+
+  void updateBaseUrl(String newUrl) {
+    String formatted = newUrl.trim();
+    if (!formatted.startsWith('http://') && !formatted.startsWith('https://')) {
+      formatted = 'http://$formatted';
+    }
+    if (formatted.endsWith('/')) {
+      formatted = formatted.substring(0, formatted.length - 1);
+    }
+    _dio.options.baseUrl = formatted;
+    AppConfig.currentBaseUrl = formatted;
+  }
 
   ApiException _handleDioError(DioException error) {
     if (error.type == DioExceptionType.connectionTimeout ||

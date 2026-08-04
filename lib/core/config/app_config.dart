@@ -19,8 +19,10 @@ class AppConfig {
   //            All HTTP calls go through ApiClient which reads this value.
   // ──────────────────────────────────────────────────────────────────────────
 
-  static const String baseUrl =
-      'http://192.168.1.103:8000'; // ← change x to your machine's IP
+  static const String defaultBaseUrl = 'http://192.168.1.103:8000';
+  static String currentBaseUrl = defaultBaseUrl;
+
+  static String get baseUrl => currentBaseUrl;
 
   static const Duration connectTimeout = Duration(seconds: 15);
   static const Duration receiveTimeout = Duration(seconds: 15);

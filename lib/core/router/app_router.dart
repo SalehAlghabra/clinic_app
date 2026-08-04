@@ -138,8 +138,11 @@ class AppRouter {
           path: '/patient/doctors/:id',
           builder: (context, state) {
             final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
-            return BlocProvider(
-              create: (_) => DoctorDetailBloc(repository: patientRepository),
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => DoctorDetailBloc(repository: patientRepository)),
+                BlocProvider(create: (_) => AppointmentBloc(patientRepository)),
+              ],
               child: DoctorDetailScreen(doctorId: id),
             );
           },

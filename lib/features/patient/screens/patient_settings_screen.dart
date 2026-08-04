@@ -33,6 +33,9 @@ class PatientSettingsScreen extends StatelessWidget {
     Uint8List? selectedBytes;
     String? selectedFileName;
     bool isSubmitting = false;
+    bool showCurrentPassword = false;
+    bool showNewPassword = false;
+    bool showConfirmPassword = false;
 
     showDialog(
       context: context,
@@ -40,12 +43,14 @@ class PatientSettingsScreen extends StatelessWidget {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             final colors = context.appColors;
+            final l10n = AppLocalizations.of(context);
+            final isArabic = Localizations.localeOf(context).languageCode == 'ar';
 
             return AlertDialog(
               backgroundColor: colors.surface,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
               title: Text(
-                'Edit Profile',
+                l10n.editProfile,
                 style: TextStyle(color: colors.text, fontWeight: FontWeight.bold),
               ),
               content: SizedBox(
@@ -85,7 +90,9 @@ class PatientSettingsScreen extends StatelessWidget {
                         },
                         icon: const Icon(Icons.photo_library_outlined, size: 18),
                         label: Text(
-                          selectedFileName != null ? selectedFileName! : 'Choose Photo from Device',
+                          selectedFileName != null
+                              ? selectedFileName!
+                              : (isArabic ? 'اختر صورة من الجهاز' : 'Choose Photo from Device'),
                           overflow: TextOverflow.ellipsis,
                         ),
                         style: OutlinedButton.styleFrom(
@@ -97,7 +104,7 @@ class PatientSettingsScreen extends StatelessWidget {
                       TextField(
                         controller: nameController,
                         decoration: InputDecoration(
-                          labelText: 'Name',
+                          labelText: l10n.fullNameLabel,
                           prefixIcon: const Icon(Icons.person_outline),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         ),
@@ -106,40 +113,61 @@ class PatientSettingsScreen extends StatelessWidget {
                       TextField(
                         controller: phoneController,
                         decoration: InputDecoration(
-                          labelText: 'Phone',
+                          labelText: l10n.phoneLabel,
                           prefixIcon: const Icon(Icons.phone_outlined),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                       ),
                       const Divider(height: 32),
-                      Text('Change Password', style: TextStyle(color: colors.text, fontWeight: FontWeight.bold)),
+                      Text(
+                        isArabic ? 'تغيير كلمة المرور' : 'Change Password',
+                        style: TextStyle(color: colors.text, fontWeight: FontWeight.bold),
+                      ),
                       const SizedBox(height: 8),
                       TextField(
                         controller: currentPasswordController,
-                        obscureText: true,
+                        obscureText: !showCurrentPassword,
                         decoration: InputDecoration(
-                          labelText: 'Current Password',
+                          labelText: isArabic ? 'كلمة المرور الحالية' : 'Current Password',
                           prefixIcon: const Icon(Icons.lock_outline),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              showCurrentPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                            ),
+                            onPressed: () => setDialogState(() => showCurrentPassword = !showCurrentPassword),
+                          ),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                       ),
                       const SizedBox(height: 12),
                       TextField(
                         controller: passwordController,
-                        obscureText: true,
+                        obscureText: !showNewPassword,
                         decoration: InputDecoration(
-                          labelText: 'New Password',
+                          labelText: isArabic ? 'كلمة المرور الجديدة' : 'New Password',
                           prefixIcon: const Icon(Icons.lock_outline),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              showNewPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                            ),
+                            onPressed: () => setDialogState(() => showNewPassword = !showNewPassword),
+                          ),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                       ),
                       const SizedBox(height: 12),
                       TextField(
                         controller: confirmPasswordController,
-                        obscureText: true,
+                        obscureText: !showConfirmPassword,
                         decoration: InputDecoration(
-                          labelText: 'Confirm New Password',
+                          labelText: l10n.confirmPasswordLabel,
                           prefixIcon: const Icon(Icons.lock_outline),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              showConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                            ),
+                            onPressed: () => setDialogState(() => showConfirmPassword = !showConfirmPassword),
+                          ),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         ),
                       ),
@@ -150,7 +178,7 @@ class PatientSettingsScreen extends StatelessWidget {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(dialogCtx),
-                  child: Text('Cancel', style: TextStyle(color: colors.textSecondary)),
+                  child: Text(l10n.cancel, style: TextStyle(color: colors.textSecondary)),
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -167,8 +195,12 @@ class PatientSettingsScreen extends StatelessWidget {
                           if (pass.isNotEmpty) {
                             if (currPass.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Current password is required to set a new password'),
+                                SnackBar(
+                                  content: Text(
+                                    isArabic
+                                        ? 'كلمة المرور الحالية مطلوبة لتعيين كلمة مرور جديدة'
+                                        : 'Current password is required to set a new password',
+                                  ),
                                   backgroundColor: Colors.red,
                                 ),
                               );
@@ -176,8 +208,8 @@ class PatientSettingsScreen extends StatelessWidget {
                             }
                             if (pass != confirmPass) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('New password and confirmation do not match'),
+                                SnackBar(
+                                  content: Text(l10n.passwordsDoNotMatch),
                                   backgroundColor: Colors.red,
                                 ),
                               );
@@ -202,8 +234,8 @@ class PatientSettingsScreen extends StatelessWidget {
                               final authBloc = context.read<AuthBloc>();
                               Navigator.pop(dialogCtx);
                               messenger.showSnackBar(
-                                const SnackBar(
-                                  content: Text('Profile updated successfully!'),
+                                SnackBar(
+                                  content: Text(l10n.profileUpdated),
                                   backgroundColor: Colors.green,
                                 ),
                               );
@@ -213,7 +245,7 @@ class PatientSettingsScreen extends StatelessWidget {
                               if (dialogCtx.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text(res.failure?.message ?? 'Failed to update profile'),
+                                    content: Text(res.failure?.message ?? l10n.errorOccurred),
                                     backgroundColor: Colors.red,
                                   ),
                                 );
@@ -230,7 +262,7 @@ class PatientSettingsScreen extends StatelessWidget {
                         },
                   child: isSubmitting
                       ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Text('Save Changes', style: TextStyle(color: Colors.white)),
+                      : Text(l10n.save, style: const TextStyle(color: Colors.white)),
                 ),
               ],
             );

@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:clinic_app/core/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'core/config/app_config.dart';
+import 'core/constants/storage_keys.dart';
 import 'core/api/api_client.dart';
 import 'core/router/app_router.dart';
 import 'core/services/storage_service.dart';
@@ -22,6 +24,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final storageService = StorageService();
+  final savedUrl = await storageService.read(StorageKeys.customBaseUrl);
+  if (savedUrl != null && savedUrl.isNotEmpty) {
+    AppConfig.currentBaseUrl = savedUrl;
+  }
   final apiClient = ApiClient(storageService: storageService);
 
   final authRepository = AuthRepository(

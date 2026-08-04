@@ -225,6 +225,8 @@ class _WalletScreenState extends State<WalletScreen> {
 
   Widget _buildTopupBanner(BuildContext context) {
     final colors = context.appColors;
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+
     return AppCard(
       color: colors.secondary.withValues(alpha: 0.05),
       borderSide: BorderSide(color: colors.secondary.withValues(alpha: 0.2)),
@@ -238,7 +240,7 @@ class _WalletScreenState extends State<WalletScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'How to top-up?',
+                  isArabic ? 'كيفية شحن المحفظة؟' : 'How to top-up?',
                   style: context.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: colors.text,
@@ -246,7 +248,9 @@ class _WalletScreenState extends State<WalletScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'To add funds to your wallet balance, please visit the clinic receptionist desk or call administration at +963 11 9999.',
+                  isArabic
+                      ? 'لاقتطاع أو إضافة رصيد إلى محفظتك، يرجى مراجعة موظف الاستقبال في العيادة أو التواصل مع إدارة العيادة.'
+                      : 'To add funds to your wallet balance, please visit the clinic receptionist desk or contact clinic administration.',
                   style: context.textTheme.bodySmall?.copyWith(color: colors.textSecondary),
                 ),
               ],
@@ -257,42 +261,72 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
+  String _getLocalizedDescription(BuildContext context, WalletTransactionModel tx) {
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+    final desc = tx.description ?? '';
+
+    if (desc.startsWith('Wallet deposit')) {
+      return isArabic ? 'إيداع / شحن رصيد المحفظة' : 'Wallet Balance Deposit';
+    } else if (desc.contains('Consultation fee') || desc.contains('booking_deduct')) {
+      return isArabic ? 'خصم رسوم الكشفية للموعد' : 'Consultation Fee Deduction';
+    } else if (desc.contains('Full refund')) {
+      return isArabic ? 'استرداد كامل لمبلغ الحجز' : 'Full Booking Refund';
+    } else if (desc.contains('Partial refund')) {
+      return isArabic ? 'استرداد جزئي بعد خصم الغرامة' : 'Partial Refund After Penalty';
+    } else if (desc.contains('Penalty')) {
+      return isArabic ? 'خصم غرامة إشغال الموعد' : 'Cancellation Penalty Charge';
+    } else if (desc.isNotEmpty) {
+      return desc;
+    }
+
+    final l10n = AppLocalizations.of(context);
+    switch (tx.type) {
+      case 'deposit':
+        return l10n.transactionType_deposit;
+      case 'booking_deduct':
+        return l10n.transactionType_booking_deduct;
+      case 'refund_full':
+        return l10n.transactionType_refund_full;
+      case 'refund_partial':
+        return l10n.transactionType_refund_partial;
+      case 'penalty':
+        return l10n.transactionType_penalty;
+      default:
+        return tx.type;
+    }
+  }
+
   Widget _buildTransactionItem(BuildContext context, WalletTransactionModel tx) {
     final colors = context.appColors;
-    final l10n = AppLocalizations.of(context);
 
     // Identify color & sign based on type
     Color txColor = colors.error;
     String sign = '-';
-    String localizedType = tx.type;
 
     switch (tx.type) {
       case 'deposit':
         txColor = colors.success;
         sign = '+';
-        localizedType = l10n.transactionType_deposit;
         break;
       case 'booking_deduct':
         txColor = colors.error;
         sign = '-';
-        localizedType = l10n.transactionType_booking_deduct;
         break;
       case 'refund_full':
         txColor = colors.success;
         sign = '+';
-        localizedType = l10n.transactionType_refund_full;
         break;
       case 'refund_partial':
         txColor = colors.success;
         sign = '+';
-        localizedType = l10n.transactionType_refund_partial;
         break;
       case 'penalty':
         txColor = Colors.orange;
         sign = '-';
-        localizedType = l10n.transactionType_penalty;
         break;
     }
+
+    final displayDescription = _getLocalizedDescription(context, tx);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10.0),
@@ -322,7 +356,7 @@ class _WalletScreenState extends State<WalletScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    tx.description ?? localizedType,
+                    displayDescription,
                     style: context.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: colors.text,
