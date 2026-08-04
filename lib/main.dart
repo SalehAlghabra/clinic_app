@@ -39,13 +39,18 @@ void main() async {
   );
 
   runApp(
-    MultiBlocProvider(
+    MultiRepositoryProvider(
       providers: [
-        BlocProvider<ThemeCubit>(create: (_) => ThemeCubit(storageService)),
-        BlocProvider<LocaleCubit>(create: (_) => LocaleCubit(storageService)),
-        BlocProvider<AuthBloc>(create: (_) => authBloc),
+        RepositoryProvider<AuthRepository>.value(value: authRepository),
       ],
-      child: MyApp(router: router),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<ThemeCubit>(create: (_) => ThemeCubit(storageService)),
+          BlocProvider<LocaleCubit>(create: (_) => LocaleCubit(storageService)),
+          BlocProvider<AuthBloc>(create: (_) => authBloc),
+        ],
+        child: MyApp(router: router),
+      ),
     ),
   );
 

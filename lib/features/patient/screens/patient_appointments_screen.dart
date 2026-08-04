@@ -29,6 +29,7 @@ class PatientAppointmentsScreen extends StatefulWidget {
 class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  List<AppointmentModel> _cachedAppointments = [];
 
   @override
   void initState() {
@@ -82,11 +83,11 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen>
       body: BlocConsumer<AppointmentBloc, AppointmentState>(
         listener: (context, state) {
           if (state is AppointmentCancelSuccess) {
+            _loadAppointments();
             AppDialogs.showSuccess(
               context: context,
               title: l10n.success,
               message: '${state.message}\n${state.refundStatus}',
-              onPressed: _loadAppointments,
             );
           } else if (state is AppointmentFailure) {
             AppDialogs.showError(
@@ -97,61 +98,49 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen>
           }
         },
         builder: (context, state) {
-          if (state is AppointmentLoading && state is! AppointmentActionInProgress) {
+          if (state is AppointmentsLoadSuccess) {
+            _cachedAppointments = state.appointments;
+          }
+
+          if (state is AppointmentLoading && _cachedAppointments.isEmpty) {
             return const Center(child: AppLoadingIndicator());
           }
 
-          if (state is AppointmentFailure) {
+          if (state is AppointmentFailure && _cachedAppointments.isEmpty) {
             return AppErrorWidget(
               errorMessage: state.errorMessage,
               onRetry: _loadAppointments,
             );
           }
 
-          if (state is AppointmentsLoadSuccess || state is AppointmentActionInProgress || state is AppointmentCancelSuccess) {
-            List<AppointmentModel> allList = [];
-            if (state is AppointmentsLoadSuccess) {
-              allList = state.appointments;
-            } else {
-              // Keep showing previous items during cancellation action loaders
-              // Find active state
-              final bloc = context.read<AppointmentBloc>();
-              if (bloc.state is AppointmentsLoadSuccess) {
-                allList = (bloc.state as AppointmentsLoadSuccess).appointments;
-              }
-            }
+          final upcoming = _cachedAppointments
+              .where((e) => e.status == 'pending' || e.status == 'confirmed')
+              .toList();
+          final past = _cachedAppointments
+              .where((e) =>
+                  e.status == 'completed' ||
+                  e.status == 'cancelled' ||
+                  e.status == 'rejected')
+              .toList();
 
-            final upcoming = allList
-                .where((e) => e.status == 'pending' || e.status == 'confirmed')
-                .toList();
-            final past = allList
-                .where((e) =>
-                    e.status == 'completed' ||
-                    e.status == 'cancelled' ||
-                    e.status == 'rejected')
-                .toList();
-
-            return Stack(
-              children: [
-                TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildAppointmentsList(context, upcoming, isUpcoming: true),
-                    _buildAppointmentsList(context, past, isUpcoming: false),
-                  ],
-                ),
-                if (state is AppointmentActionInProgress)
-                  Container(
-                    color: Colors.black.withValues(alpha: 0.3),
-                    child: const Center(
-                      child: AppLoadingIndicator(),
-                    ),
+          return Stack(
+            children: [
+              TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildAppointmentsList(context, upcoming, isUpcoming: true),
+                  _buildAppointmentsList(context, past, isUpcoming: false),
+                ],
+              ),
+              if (state is AppointmentActionInProgress)
+                Container(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  child: const Center(
+                    child: AppLoadingIndicator(),
                   ),
-              ],
-            );
-          }
-
-          return const SizedBox.shrink();
+                ),
+            ],
+          );
         },
       ),
     );

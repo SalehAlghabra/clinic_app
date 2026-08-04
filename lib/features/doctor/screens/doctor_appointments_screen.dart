@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:clinic_app/core/l10n/app_localizations.dart';
 import '../../../core/theme/app_dimensions.dart';
 import '../../../core/utils/date_formatters.dart';
@@ -23,7 +22,8 @@ class DoctorAppointmentsScreen extends StatefulWidget {
   const DoctorAppointmentsScreen({super.key});
 
   @override
-  State<DoctorAppointmentsScreen> createState() => _DoctorAppointmentsScreenState();
+  State<DoctorAppointmentsScreen> createState() =>
+      _DoctorAppointmentsScreenState();
 }
 
 class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
@@ -44,7 +44,9 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
   }
 
   void _loadAppointments() {
-    context.read<DoctorAppointmentsBloc>().add(const FetchDoctorAppointmentsEvent());
+    context.read<DoctorAppointmentsBloc>().add(
+      const FetchDoctorAppointmentsEvent(),
+    );
   }
 
   @override
@@ -64,10 +66,7 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: const [
-          AppTopActions(),
-          SizedBox(width: 8),
-        ],
+        actions: const [AppTopActions(), SizedBox(width: 8)],
         bottom: TabBar(
           controller: _tabController,
           labelColor: colors.primary,
@@ -98,11 +97,13 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
           }
         },
         builder: (context, state) {
-          if (state is DoctorAppointmentsLoading && state is! DoctorAppointmentActionInProgress) {
+          if (state is DoctorAppointmentsLoading &&
+              state is! DoctorAppointmentActionInProgress) {
             return const Center(child: AppLoadingIndicator());
           }
 
-          if (state is DoctorAppointmentsFailure && state is! DoctorAppointmentsLoadSuccess) {
+          if (state is DoctorAppointmentsFailure &&
+              state is! DoctorAppointmentsLoadSuccess) {
             return AppErrorWidget(
               errorMessage: state.errorMessage,
               onRetry: _loadAppointments,
@@ -115,17 +116,22 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
           } else {
             final bloc = context.read<DoctorAppointmentsBloc>();
             if (bloc.state is DoctorAppointmentsLoadSuccess) {
-              allList = (bloc.state as DoctorAppointmentsLoadSuccess).appointments;
+              allList =
+                  (bloc.state as DoctorAppointmentsLoadSuccess).appointments;
             }
           }
 
           final pending = allList.where((e) => e.status == 'pending').toList();
-          final confirmed = allList.where((e) => e.status == 'confirmed').toList();
+          final confirmed = allList
+              .where((e) => e.status == 'confirmed')
+              .toList();
           final history = allList
-              .where((e) =>
-                  e.status == 'completed' ||
-                  e.status == 'rejected' ||
-                  e.status == 'cancelled')
+              .where(
+                (e) =>
+                    e.status == 'completed' ||
+                    e.status == 'rejected' ||
+                    e.status == 'cancelled',
+              )
               .toList();
 
           return Stack(
@@ -141,9 +147,7 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
               if (state is DoctorAppointmentActionInProgress)
                 Container(
                   color: Colors.black.withValues(alpha: 0.3),
-                  child: const Center(
-                    child: AppLoadingIndicator(),
-                  ),
+                  child: const Center(child: AppLoadingIndicator()),
                 ),
             ],
           );
@@ -173,8 +177,8 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
                 description: type == 'pending'
                     ? 'No pending appointment requests to review.'
                     : type == 'confirmed'
-                        ? 'No confirmed visit slots for the upcoming schedule.'
-                        : 'No appointments in your history log.',
+                    ? 'No confirmed visit slots for the upcoming schedule.'
+                    : 'No appointments in your history log.',
               ),
             ),
           ),
@@ -190,16 +194,19 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
         itemCount: list.length,
         itemBuilder: (context, index) {
           final appointment = list[index];
-          return _buildAppointmentCard(context, appointment)
-              .animate()
-              .fadeIn(delay: (index * 50).ms)
-              .slideY(begin: 0.05);
+          return _buildAppointmentCard(
+            context,
+            appointment,
+          ).animate().fadeIn(delay: (index * 50).ms).slideY(begin: 0.05);
         },
       ),
     );
   }
 
-  void _showCompleteVisitDialog(BuildContext context, DoctorAppointmentModel app) {
+  void _showCompleteVisitDialog(
+    BuildContext context,
+    DoctorAppointmentModel app,
+  ) {
     final costController = TextEditingController(text: '0.00');
     final noteController = TextEditingController();
     final bloc = context.read<DoctorAppointmentsBloc>();
@@ -210,7 +217,9 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
       builder: (dialogCtx) {
         return AlertDialog(
           backgroundColor: colors.surface,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: Text(
             'Complete Appointment & Issue Invoice',
             style: TextStyle(color: colors.text, fontWeight: FontWeight.bold),
@@ -222,21 +231,31 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
               children: [
                 Text(
                   'Patient: ${app.patientName}',
-                  style: TextStyle(color: colors.textSecondary, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: colors.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Consultation Fee (Pre-paid): \$${app.consultationFee.toStringAsFixed(2)}',
-                  style: TextStyle(color: colors.primary, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: colors.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const Divider(height: 24),
                 TextField(
                   controller: costController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   decoration: InputDecoration(
                     labelText: 'Additional Cost (\$)',
                     prefixIcon: const Icon(Icons.attach_money),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -247,7 +266,9 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
                     labelText: 'Additional Notes / Lab Tests',
                     prefixIcon: const Icon(Icons.note_alt_outlined),
                     hintText: 'e.g. ECG test & blood work',
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ],
@@ -256,15 +277,21 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogCtx),
-              child: Text('Cancel', style: TextStyle(color: colors.textSecondary)),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: colors.textSecondary),
+              ),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: colors.primary,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               onPressed: () {
-                final extraCost = double.tryParse(costController.text.trim()) ?? 0.0;
+                final extraCost =
+                    double.tryParse(costController.text.trim()) ?? 0.0;
                 final extraNote = noteController.text.trim();
                 Navigator.pop(dialogCtx);
                 bloc.add(
@@ -276,7 +303,10 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
                   ),
                 );
               },
-              child: const Text('Complete & Issue Invoice', style: TextStyle(color: Colors.white)),
+              child: const Text(
+                'Complete & Issue Invoice',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         );
@@ -284,7 +314,10 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
     );
   }
 
-  Widget _buildAppointmentCard(BuildContext context, DoctorAppointmentModel app) {
+  Widget _buildAppointmentCard(
+    BuildContext context,
+    DoctorAppointmentModel app,
+  ) {
     final colors = context.appColors;
     final l10n = AppLocalizations.of(context);
     final bloc = context.read<DoctorAppointmentsBloc>();
@@ -314,11 +347,17 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
               const SizedBox(height: 4),
               Row(
                 children: [
-                  Icon(Icons.phone_outlined, size: 14, color: colors.textSecondary),
+                  Icon(
+                    Icons.phone_outlined,
+                    size: 14,
+                    color: colors.textSecondary,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     app.patientPhone,
-                    style: context.textTheme.bodySmall?.copyWith(color: colors.textSecondary),
+                    style: context.textTheme.bodySmall?.copyWith(
+                      color: colors.textSecondary,
+                    ),
                   ),
                 ],
               ),
@@ -335,7 +374,9 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
               Icons.calendar_today_rounded,
               '${app.appointmentDate}  •  ${DateFormatters.formatTime(app.appointmentTime)}',
             ),
-            if (app.additionalCost > 0 || (app.additionalNote != null && app.additionalNote!.isNotEmpty)) ...[
+            if (app.additionalCost > 0 ||
+                (app.additionalNote != null &&
+                    app.additionalNote!.isNotEmpty)) ...[
               const SizedBox(height: 8),
               _buildInfoRow(
                 context,
@@ -345,11 +386,7 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
             ],
             if (app.notes != null && app.notes!.isNotEmpty) ...[
               const SizedBox(height: 8),
-              _buildInfoRow(
-                context,
-                Icons.notes_rounded,
-                app.notes!,
-              ),
+              _buildInfoRow(context, Icons.notes_rounded, app.notes!),
             ],
             if (app.status == 'pending') ...[
               const Divider(height: 24),
@@ -363,10 +400,16 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
                         final ok = await AppDialogs.showConfirmation(
                           context: context,
                           title: l10n.rejectVisit,
-                          message: 'Are you sure you want to reject this appointment request?',
+                          message:
+                              'Are you sure you want to reject this appointment request?',
                         );
                         if (ok == true) {
-                          bloc.add(UpdateAppointmentStatusEvent(id: app.id, status: 'rejected'));
+                          bloc.add(
+                            UpdateAppointmentStatusEvent(
+                              id: app.id,
+                              status: 'rejected',
+                            ),
+                          );
                         }
                       },
                     ),
@@ -376,7 +419,12 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
                     child: AppButton(
                       text: l10n.confirmVisit,
                       onPressed: () {
-                        bloc.add(UpdateAppointmentStatusEvent(id: app.id, status: 'confirmed'));
+                        bloc.add(
+                          UpdateAppointmentStatusEvent(
+                            id: app.id,
+                            status: 'confirmed',
+                          ),
+                        );
                       },
                     ),
                   ),

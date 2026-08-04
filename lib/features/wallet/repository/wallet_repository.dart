@@ -39,10 +39,18 @@ class WalletRepository {
   Future<WalletResult<List<WalletTransactionModel>>> getWalletTransactions({int page = 1}) async {
     try {
       final response = await _apiService.getWalletTransactions(page: page);
-      // Backend returns standard pagination. Let's parse 'data' list.
-      final List rawData = response.data['data'] as List? ?? [];
+      List rawData = [];
+      if (response.data is Map<String, dynamic>) {
+        final dataField = response.data['data'];
+        if (dataField is List) {
+          rawData = dataField;
+        }
+      } else if (response.data is List) {
+        rawData = response.data as List;
+      }
       final list = rawData
-          .map((e) => WalletTransactionModel.fromJson(e as Map<String, dynamic>))
+          .whereType<Map<String, dynamic>>()
+          .map((e) => WalletTransactionModel.fromJson(e))
           .toList();
       return WalletResult.success(list);
     } on ApiException catch (e) {

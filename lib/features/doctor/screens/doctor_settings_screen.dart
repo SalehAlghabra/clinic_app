@@ -198,14 +198,16 @@ class DoctorSettingsScreen extends StatelessWidget {
                             );
 
                             if (res.isSuccess && dialogCtx.mounted) {
+                              final messenger = ScaffoldMessenger.of(context);
+                              final authBloc = context.read<AuthBloc>();
                               Navigator.pop(dialogCtx);
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              messenger.showSnackBar(
                                 const SnackBar(
                                   content: Text('Profile updated successfully!'),
                                   backgroundColor: Colors.green,
                                 ),
                               );
-                              context.read<AuthBloc>().add(AuthProfileUpdated(res.data!));
+                              authBloc.add(AuthProfileUpdated(res.data!));
                             } else {
                               setDialogState(() => isSubmitting = false);
                               if (dialogCtx.mounted) {

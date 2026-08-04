@@ -72,7 +72,8 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
       final resData = result.data!;
       emit(AppointmentBookSuccess(
         message: resData['message'] as String? ?? 'Booked successfully',
-        depositPaid: (resData['deposit_paid'] as num?)?.toDouble() ?? 0.0,
+        depositPaid: (resData['consultation_fee'] as num?)?.toDouble() ??
+                     (resData['deposit_paid'] as num?)?.toDouble() ?? 0.0,
         walletBalance: (resData['wallet_balance'] as num?)?.toDouble() ?? 0.0,
       ));
     } else {

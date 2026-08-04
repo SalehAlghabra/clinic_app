@@ -20,7 +20,7 @@ class AppConfig {
   // ──────────────────────────────────────────────────────────────────────────
 
   static const String baseUrl =
-      'http://10.176.2.144:8000'; // ← change x to your machine's IP
+      'http://192.168.1.103:8000'; // ← change x to your machine's IP
 
   static const Duration connectTimeout = Duration(seconds: 15);
   static const Duration receiveTimeout = Duration(seconds: 15);

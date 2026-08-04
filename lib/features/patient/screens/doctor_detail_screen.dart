@@ -632,6 +632,8 @@ class _BookingBottomSheetState extends State<_BookingBottomSheet> {
 
   void _showPreviewDialog(BuildContext context, AppointmentPreviewModel preview) {
     final appointmentBloc = context.read<AppointmentBloc>();
+    final mainContext = context;
+    final rootNavigator = Navigator.of(context, rootNavigator: true);
     final colors = context.appColors;
     final l10n = AppLocalizations.of(context);
 
@@ -644,19 +646,28 @@ class _BookingBottomSheetState extends State<_BookingBottomSheet> {
           child: BlocConsumer<AppointmentBloc, AppointmentState>(
             listener: (context, state) {
               if (state is AppointmentBookSuccess) {
-                Navigator.of(dialogContext).pop(); // pop dialog
-                Navigator.of(context).pop(); // pop sheet
-                AppDialogs.showSuccess(
-                  context: context,
-                  title: l10n.success,
-                  message: state.message,
-                  onPressed: () {
-                    context.go('/patient/appointments');
-                  },
-                );
+                if (dialogContext.mounted) {
+                  Navigator.of(dialogContext).pop(); // pop preview dialog
+                }
+                if (mainContext.mounted) {
+                  Navigator.of(mainContext).pop(); // pop booking sheet
+                }
+                final activeContext = rootNavigator.context;
+                if (activeContext.mounted) {
+                  AppDialogs.showSuccess(
+                    context: activeContext,
+                    title: l10n.success,
+                    message: state.message,
+                    onPressed: () {
+                      if (activeContext.mounted) {
+                        activeContext.go('/patient/appointments');
+                      }
+                    },
+                  );
+                }
               } else if (state is AppointmentFailure) {
                 AppDialogs.showError(
-                  context: context,
+                  context: dialogContext.mounted ? dialogContext : mainContext,
                   title: l10n.error,
                   message: state.errorMessage,
                 );

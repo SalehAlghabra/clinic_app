@@ -110,8 +110,9 @@ class _PatientDashboardScreenState extends State<PatientDashboardScreen> {
                       );
                     }
 
-                    double balance = 0.0;
-                    int violations = 0;
+                    final authState = context.read<AuthBloc>().state;
+                    double balance = authState is AuthAuthenticated ? authState.user.walletBalance : 0.0;
+                    int violations = authState is AuthAuthenticated ? authState.user.violationCount : 0;
 
                     if (state is WalletLoadSuccess) {
                       balance = state.balance.walletBalance;

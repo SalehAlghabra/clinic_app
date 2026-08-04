@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../../core/config/app_config.dart';
 
 class UserModel extends Equatable {
   final int id;
@@ -25,6 +26,34 @@ class UserModel extends Equatable {
     this.profilePictureUrl,
   });
 
+  static String? _parseProfilePictureUrl(dynamic rawUrl, dynamic rawPath) {
+    String? url = rawUrl as String? ?? rawPath as String?;
+    if (url == null || url.isEmpty || url.contains('default-avatar.png')) {
+      return null;
+    }
+
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      final base = AppConfig.baseUrl.endsWith('/')
+          ? AppConfig.baseUrl.substring(0, AppConfig.baseUrl.length - 1)
+          : AppConfig.baseUrl;
+      final path = url.startsWith('/') ? url : '/$url';
+      return '$base$path';
+    }
+
+    if (url.contains('localhost') || url.contains('127.0.0.1')) {
+      final baseUri = Uri.parse(AppConfig.baseUrl);
+      final rawUri = Uri.parse(url);
+      final fixedUri = rawUri.replace(
+        scheme: baseUri.scheme,
+        host: baseUri.host,
+        port: baseUri.hasPort ? baseUri.port : null,
+      );
+      return fixedUri.toString();
+    }
+
+    return url;
+  }
+
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['id'] as int,
@@ -36,7 +65,7 @@ class UserModel extends Equatable {
       walletBalance: double.tryParse(json['wallet_balance']?.toString() ?? '0.00') ?? 0.00,
       violationCount: json['violation_count'] as int? ?? 0,
       profilePicture: json['profile_picture'] as String?,
-      profilePictureUrl: json['profile_picture_url'] as String?,
+      profilePictureUrl: _parseProfilePictureUrl(json['profile_picture_url'], json['profile_picture']),
     );
   }
 

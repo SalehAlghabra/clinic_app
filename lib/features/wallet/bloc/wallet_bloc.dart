@@ -22,15 +22,13 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     final balanceResult = await _repository.getWalletBalance();
     final transactionsResult = await _repository.getWalletTransactions(page: event.page);
 
-    if (balanceResult.isSuccess && transactionsResult.isSuccess) {
+    if (balanceResult.isSuccess) {
       emit(WalletLoadSuccess(
         balance: balanceResult.data!,
-        transactions: transactionsResult.data!,
+        transactions: transactionsResult.data ?? const [],
       ));
     } else {
-      final error = balanceResult.failure?.message ?? 
-                    transactionsResult.failure?.message ?? 
-                    'Failed to load wallet information';
+      final error = balanceResult.failure?.message ?? 'Failed to load wallet balance';
       emit(WalletFailure(error));
     }
   }
