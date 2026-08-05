@@ -652,18 +652,20 @@ class _BookingBottomSheetState extends State<_BookingBottomSheet> {
                 if (mainContext.mounted) {
                   Navigator.of(mainContext).pop();
                 }
-                if (parentContext.mounted) {
-                  AppDialogs.showSuccess(
-                    context: parentContext,
-                    title: l10n.success,
-                    message: state.message,
-                    onPressed: () {
-                      if (parentContext.mounted) {
-                        parentContext.go('/patient/appointments');
-                      }
-                    },
-                  );
-                }
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (parentContext.mounted) {
+                    AppDialogs.showSuccess(
+                      context: parentContext,
+                      title: l10n.success,
+                      message: state.message,
+                      onPressed: () {
+                        if (parentContext.mounted) {
+                          parentContext.go('/patient/appointments');
+                        }
+                      },
+                    );
+                  }
+                });
               } else if (state is AppointmentFailure) {
                 AppDialogs.showError(
                   context: dialogContext.mounted ? dialogContext : mainContext,

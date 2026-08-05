@@ -83,14 +83,18 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen>
       body: BlocConsumer<AppointmentBloc, AppointmentState>(
         listener: (context, state) {
           if (state is AppointmentCancelSuccess) {
-            AppDialogs.showSuccess(
-              context: context,
-              title: l10n.success,
-              message: '${state.message}\n${state.refundStatus}',
-              onPressed: () {
-                _loadAppointments();
-              },
-            );
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) {
+                AppDialogs.showSuccess(
+                  context: context,
+                  title: l10n.success,
+                  message: '${state.message}\n${state.refundStatus}',
+                  onPressed: () {
+                    _loadAppointments();
+                  },
+                );
+              }
+            });
           } else if (state is AppointmentFailure) {
             AppDialogs.showError(
               context: context,
