@@ -103,7 +103,7 @@ class InvoiceDetailsScreen extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '${invoice.totalAmount.toStringAsFixed(2)} SP',
+                        '\$${invoice.totalAmount.toStringAsFixed(2)}',
                         style: context.textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: colors.text,
@@ -125,20 +125,20 @@ class InvoiceDetailsScreen extends StatelessWidget {
                   _buildSummaryRow(
                     context,
                     label: 'Total consultation fee',
-                    value: '${invoice.totalAmount.toStringAsFixed(2)} SP',
+                    value: '\$${invoice.totalAmount.toStringAsFixed(2)}',
                   ),
                   const SizedBox(height: 10),
                   _buildSummaryRow(
                     context,
                     label: 'Deposit paid from wallet',
-                    value: '-${invoice.depositAmount.toStringAsFixed(2)} SP',
+                    value: '-\$${invoice.depositAmount.toStringAsFixed(2)}',
                     valueColor: colors.success,
                   ),
                   const Divider(height: 24),
                   _buildSummaryRow(
                     context,
                     label: isPaid ? 'Amount Paid' : 'Remaining balance due',
-                    value: '${(isPaid ? invoice.totalAmount : invoice.remainingAmount).toStringAsFixed(2)} SP',
+                    value: '\$${(isPaid ? invoice.totalAmount : invoice.remainingAmount).toStringAsFixed(2)}',
                     isBold: true,
                     valueColor: isPaid ? colors.primary : colors.error,
                   ),
@@ -243,7 +243,7 @@ class InvoiceDetailsScreen extends StatelessWidget {
                 Text(
                   isPaid
                       ? 'This invoice has been fully paid. Thank you for choosing our clinic.'
-                      : 'Please pay the remaining amount of ${invoice.remainingAmount.toStringAsFixed(2)} SP at the clinic desk during your visit using cash or card.',
+                      : 'Please pay the remaining amount of \$${invoice.remainingAmount.toStringAsFixed(2)} at the clinic desk during your visit using cash or card.',
                   style: context.textTheme.bodySmall?.copyWith(color: colors.textSecondary),
                 ),
               ],

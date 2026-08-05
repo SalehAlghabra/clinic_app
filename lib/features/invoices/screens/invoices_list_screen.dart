@@ -204,7 +204,7 @@ class _InvoicesListScreenState extends State<InvoicesListScreen>
                   ),
                 ),
                 Text(
-                  '${invoice.totalAmount.toStringAsFixed(2)} SP',
+                  '\$${invoice.totalAmount.toStringAsFixed(2)}',
                   style: context.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: colors.primary,

@@ -180,7 +180,7 @@ class _WalletScreenState extends State<WalletScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            '${totalBalance.toStringAsFixed(2)} SP',
+            '\$${totalBalance.toStringAsFixed(2)}',
             style: context.textTheme.headlineLarge?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -211,7 +211,7 @@ class _WalletScreenState extends State<WalletScreen> {
                 ),
               ),
               Text(
-                'Fee deposit standard: 50.00 SP',
+                'Fee deposit standard: \$50.00',
                 style: context.textTheme.bodySmall?.copyWith(
                   color: Colors.white.withValues(alpha: 0.75),
                 ),
@@ -379,14 +379,14 @@ class _WalletScreenState extends State<WalletScreen> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  '$sign${tx.amount.toStringAsFixed(2)} SP',
+                  '$sign\$${tx.amount.toStringAsFixed(2)}',
                   style: context.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: txColor,
                   ),
                 ),
                 Text(
-                  'Bal: ${tx.balanceAfter.toStringAsFixed(0)}',
+                  'Bal: \$${tx.balanceAfter.toStringAsFixed(0)}',
                   style: context.textTheme.labelSmall?.copyWith(color: colors.textSecondary),
                 ),
               ],

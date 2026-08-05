@@ -146,7 +146,7 @@ class _PatientDashboardScreenState extends State<PatientDashboardScreen> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            '${balance.toStringAsFixed(2)} SP',
+                            '\$${balance.toStringAsFixed(2)}',
                             style: context.textTheme.headlineLarge?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
