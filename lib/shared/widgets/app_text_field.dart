@@ -61,7 +61,7 @@ class _AppTextFieldState extends State<AppTextField> {
           enabled: widget.enabled,
           onChanged: widget.onChanged,
           maxLines: widget.maxLines,
-          textDirection: widget.textDirection,
+          textDirection: widget.textDirection ?? (widget.isPassword ? TextDirection.ltr : null),
           style: context.textTheme.bodyMedium?.copyWith(color: colors.text),
           decoration: InputDecoration(
             hintText: widget.hintText,

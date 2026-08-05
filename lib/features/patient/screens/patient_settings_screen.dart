@@ -127,6 +127,7 @@ class PatientSettingsScreen extends StatelessWidget {
                       TextField(
                         controller: currentPasswordController,
                         obscureText: !showCurrentPassword,
+                        textDirection: TextDirection.ltr,
                         decoration: InputDecoration(
                           labelText: isArabic ? 'كلمة المرور الحالية' : 'Current Password',
                           prefixIcon: const Icon(Icons.lock_outline),
@@ -143,6 +144,7 @@ class PatientSettingsScreen extends StatelessWidget {
                       TextField(
                         controller: passwordController,
                         obscureText: !showNewPassword,
+                        textDirection: TextDirection.ltr,
                         decoration: InputDecoration(
                           labelText: isArabic ? 'كلمة المرور الجديدة' : 'New Password',
                           prefixIcon: const Icon(Icons.lock_outline),
@@ -159,6 +161,7 @@ class PatientSettingsScreen extends StatelessWidget {
                       TextField(
                         controller: confirmPasswordController,
                         obscureText: !showConfirmPassword,
+                        textDirection: TextDirection.ltr,
                         decoration: InputDecoration(
                           labelText: l10n.confirmPasswordLabel,
                           prefixIcon: const Icon(Icons.lock_outline),
