@@ -16,9 +16,7 @@ import '../../../shared/dialogs/app_dialogs.dart';
 import '../bloc/doctor_detail_bloc.dart';
 import '../bloc/doctor_detail_event.dart';
 import '../bloc/doctor_detail_state.dart';
-import '../bloc/appointment_bloc.dart';
-import '../bloc/appointment_event.dart';
-import '../bloc/appointment_state.dart';
+
 import '../models/doctor_model.dart';
 import '../models/schedule_model.dart';
 import '../models/appointment_preview_model.dart';
@@ -149,20 +147,36 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
 
   void _showBookingBottomSheet(BuildContext context, DoctorModel doctor, List<ScheduleModel> schedules) {
     final patientRepo = context.read<DoctorDetailBloc>().repository;
-    final pageContext = context;
+    // Capture a navigator reference BEFORE showing the sheet
+    final navigator = Navigator.of(context);
+    final router = GoRouter.of(context);
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (sheetContext) {
-        return BlocProvider(
-          create: (_) => AppointmentBloc(patientRepo),
-          child: _BookingBottomSheet(
-            doctor: doctor,
-            patientRepository: patientRepo,
-            schedules: schedules,
-            pageContext: pageContext,
-          ),
+        return _BookingBottomSheet(
+          doctor: doctor,
+          patientRepository: patientRepo,
+          schedules: schedules,
+          onBookingSuccess: (String message) {
+            // Close the bottom sheet first
+            navigator.pop();
+            // Then show success dialog using the DoctorDetailScreen context
+            if (context.mounted) {
+              AppDialogs.showSuccess(
+                context: context,
+                title: AppLocalizations.of(context).success,
+                message: message,
+                onPressed: () {
+                  if (context.mounted) {
+                    router.go('/patient/appointments');
+                  }
+                },
+              );
+            }
+          },
         );
       },
     );
@@ -314,17 +328,23 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Booking bottom sheet — all state is LOCAL, no cross-context BlocConsumers
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum _BookingPhase { selectSlot, preview, booking }
+
 class _BookingBottomSheet extends StatefulWidget {
   final DoctorModel doctor;
   final PatientRepository patientRepository;
   final List<ScheduleModel> schedules;
-  final BuildContext pageContext;
+  final void Function(String message) onBookingSuccess;
 
   const _BookingBottomSheet({
     required this.doctor,
     required this.patientRepository,
     required this.schedules,
-    required this.pageContext,
+    required this.onBookingSuccess,
   });
 
   @override
@@ -332,14 +352,159 @@ class _BookingBottomSheet extends StatefulWidget {
 }
 
 class _BookingBottomSheetState extends State<_BookingBottomSheet> {
+  _BookingPhase _phase = _BookingPhase.selectSlot;
+
+  // Selection state
   DateTime? _selectedDate;
   String? _selectedTime;
+  List<String> _availableSlots = [];
+  bool _loadingSlots = false;
   final TextEditingController _notesController = TextEditingController();
+
+  // Preview state
+  AppointmentPreviewModel? _preview;
+  bool _loadingPreview = false;
+  String? _previewError;
+
+  // Booking state
+  String? _bookingError;
 
   @override
   void dispose() {
     _notesController.dispose();
     super.dispose();
+  }
+
+  int _dayNameToWeekday(String dayName) {
+    switch (dayName.toLowerCase().trim()) {
+      case 'monday': return DateTime.monday;
+      case 'tuesday': return DateTime.tuesday;
+      case 'wednesday': return DateTime.wednesday;
+      case 'thursday': return DateTime.thursday;
+      case 'friday': return DateTime.friday;
+      case 'saturday': return DateTime.saturday;
+      case 'sunday': return DateTime.sunday;
+      default: return 0;
+    }
+  }
+
+  Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final allowedWeekdays = widget.schedules
+        .map((s) => _dayNameToWeekday(s.dayOfWeek))
+        .where((w) => w > 0)
+        .toSet();
+
+    DateTime initialDate = now;
+    if (allowedWeekdays.isNotEmpty) {
+      while (!allowedWeekdays.contains(initialDate.weekday)) {
+        initialDate = initialDate.add(const Duration(days: 1));
+      }
+    }
+
+    final colors = context.appColors;
+    final date = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 60)),
+      selectableDayPredicate: (date) {
+        if (allowedWeekdays.isEmpty) return true;
+        return allowedWeekdays.contains(date.weekday);
+      },
+      builder: (context, child) => Theme(
+        data: Theme.of(context).copyWith(
+          colorScheme: ColorScheme.light(
+            primary: colors.primary,
+            onPrimary: Colors.white,
+            surface: colors.surface,
+            onSurface: colors.text,
+          ),
+        ),
+        child: child!,
+      ),
+    );
+
+    if (date != null && mounted) {
+      setState(() {
+        _selectedDate = date;
+        _selectedTime = null;
+        _availableSlots = [];
+        _loadingSlots = true;
+      });
+      try {
+        final dateStr = DateFormat('yyyy-MM-dd').format(date);
+        final result = await widget.patientRepository.getAvailableSlots(
+          widget.doctor.id, dateStr,
+        );
+        if (mounted) {
+          setState(() {
+            _loadingSlots = false;
+            _availableSlots = result.isSuccess ? result.data! : [];
+          });
+        }
+      } catch (_) {
+        if (mounted) setState(() => _loadingSlots = false);
+      }
+    }
+  }
+
+  Future<void> _loadPreview() async {
+    if (_selectedDate == null || _selectedTime == null) return;
+    setState(() {
+      _loadingPreview = true;
+      _previewError = null;
+    });
+    final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate!);
+    final result = await widget.patientRepository.previewAppointment(
+      doctorId: widget.doctor.id,
+      date: dateStr,
+      time: _selectedTime!,
+    );
+    if (!mounted) return;
+    if (result.isSuccess) {
+      setState(() {
+        _preview = result.data;
+        _loadingPreview = false;
+        _phase = _BookingPhase.preview;
+      });
+    } else {
+      setState(() {
+        _loadingPreview = false;
+        _previewError = result.failure?.message ?? 'Failed to load preview';
+      });
+    }
+  }
+
+  Future<void> _confirmBooking() async {
+    final preview = _preview;
+    if (preview == null || _selectedDate == null || _selectedTime == null) return;
+
+    setState(() {
+      _phase = _BookingPhase.booking;
+      _bookingError = null;
+    });
+
+    final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate!);
+    final result = await widget.patientRepository.bookAppointment(
+      doctorId: widget.doctor.id,
+      date: dateStr,
+      time: _selectedTime!,
+      notes: _notesController.text,
+    );
+
+    if (!mounted) return;
+
+    if (result.isSuccess) {
+      final message = (result.data!['message'] as String?) ?? 'Booked successfully';
+      // Invoke the callback — DoctorDetailScreen will close the sheet and show success
+      widget.onBookingSuccess(message);
+    } else {
+      setState(() {
+        _phase = _BookingPhase.preview;
+        _bookingError = result.failure?.message ?? 'Failed to book appointment';
+      });
+    }
   }
 
   @override
@@ -356,501 +521,315 @@ class _BookingBottomSheetState extends State<_BookingBottomSheet> {
         left: AppDimensions.paddingM,
         right: AppDimensions.paddingM,
         top: AppDimensions.paddingM,
-        bottom: MediaQuery.of(sheetContext(context)).viewInsets.bottom + AppDimensions.paddingM,
+        bottom: MediaQuery.of(context).viewInsets.bottom + AppDimensions.paddingM,
       ),
-      child: BlocConsumer<AppointmentBloc, AppointmentState>(
-        listener: (context, state) {
-          if (state is AppointmentPreviewSuccess) {
-            _showPreviewDialog(context, state.preview, pageContext: widget.pageContext);
-          } else if (state is AppointmentFailure) {
-            AppDialogs.showError(
-              context: context,
-              title: l10n.error,
-              message: state.errorMessage,
-            );
-          }
-        },
-        builder: (context, state) {
-          return SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Drag handle
+            Center(
+              child: Container(
+                width: 40, height: 5,
+                decoration: BoxDecoration(
+                  color: colors.border,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            if (_phase == _BookingPhase.selectSlot) ...[
+              _buildSelectSlotPhase(context, l10n, colors),
+            ] else if (_phase == _BookingPhase.preview) ...[
+              _buildPreviewPhase(context, l10n, colors),
+            ] else ...[
+              _buildLoadingPhase(context, l10n, colors),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Phase 1: Select date & slot ──────────────────────────────────────────
+  Widget _buildSelectSlotPhase(BuildContext context, AppLocalizations l10n, dynamic colors) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.bookAppointment,
+          style: context.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold, color: colors.text,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          '${widget.doctor.name} (${widget.doctor.specialization}) — Fee: \$${widget.doctor.consultationFee.toStringAsFixed(2)}',
+          style: context.textTheme.bodyMedium?.copyWith(
+            color: colors.primary, fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: AppDimensions.paddingM),
+
+        // Date picker
+        Text(l10n.selectDate,
+            style: context.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: colors.text)),
+        const SizedBox(height: 8),
+        GestureDetector(
+          onTap: _pickDate,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: colors.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: colors.border),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: colors.border,
-                      borderRadius: BorderRadius.circular(10),
+                Text(
+                  _selectedDate == null
+                      ? l10n.selectDate
+                      : DateFormat('dd MMM yyyy').format(_selectedDate!),
+                  style: TextStyle(
+                    color: _selectedDate == null ? colors.textSecondary : colors.text,
+                  ),
+                ),
+                Icon(Icons.calendar_today_rounded, color: colors.primary, size: 20),
+              ],
+            ),
+          ),
+        ),
+
+        const SizedBox(height: AppDimensions.paddingM),
+
+        // Time slots
+        Text(l10n.selectTimeSlot,
+            style: context.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: colors.text)),
+        const SizedBox(height: 8),
+        if (_selectedDate == null)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Center(
+              child: Text(l10n.selectDate, style: TextStyle(color: colors.textSecondary)),
+            ),
+          )
+        else if (_loadingSlots)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(child: AppLoadingIndicator()),
+          )
+        else if (_availableSlots.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Center(
+              child: Text(l10n.noDataFound,
+                  style: TextStyle(color: colors.error, fontWeight: FontWeight.w600)),
+            ),
+          )
+        else
+          Wrap(
+            spacing: 8, runSpacing: 8,
+            children: _availableSlots.map((slot) {
+              final isSelected = _selectedTime == slot;
+              return ChoiceChip(
+                label: Text(
+                  DateFormatters.formatTime(slot),
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : colors.text,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                selected: isSelected,
+                selectedColor: colors.primary,
+                backgroundColor: colors.surface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(color: isSelected ? colors.primary : colors.border),
+                ),
+                onSelected: (selected) {
+                  setState(() => _selectedTime = selected ? slot : null);
+                },
+              );
+            }).toList(),
+          ),
+
+        const SizedBox(height: AppDimensions.paddingM),
+
+        // Notes
+        AppTextField(
+          labelText: l10n.notesLabel,
+          controller: _notesController,
+          hintText: 'Optional notes for the doctor',
+        ),
+
+        if (_previewError != null) ...[
+          const SizedBox(height: 12),
+          Text(_previewError!,
+              style: TextStyle(color: colors.error, fontSize: 13)),
+        ],
+
+        const SizedBox(height: AppDimensions.paddingL),
+
+        AppButton(
+          text: l10n.confirm,
+          isLoading: _loadingPreview,
+          onPressed: _selectedDate != null && _selectedTime != null && !_loadingPreview
+              ? _loadPreview
+              : null,
+        ),
+      ],
+    );
+  }
+
+  // ── Phase 2: Show preview / payment summary ──────────────────────────────
+  Widget _buildPreviewPhase(BuildContext context, AppLocalizations l10n, dynamic colors) {
+    final preview = _preview!;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            IconButton(
+              icon: Icon(Icons.arrow_back_ios_new, color: colors.text, size: 18),
+              onPressed: () => setState(() => _phase = _BookingPhase.selectSlot),
+            ),
+            Text(
+              l10n.bookingSummary,
+              style: context.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold, color: colors.text,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+
+        // Detail rows
+        _buildDetailRow(context, 'Doctor', preview.bookingSummary.doctorName, colors),
+        _buildDetailRow(context, 'Date',
+            DateFormatters.formatDateString(preview.bookingSummary.appointmentDate), colors),
+        _buildDetailRow(context, 'Time',
+            DateFormatters.formatTime(preview.bookingSummary.appointmentTime), colors),
+
+        const Divider(height: 24),
+
+        Text(l10n.paymentDetails,
+            style: TextStyle(color: colors.text, fontWeight: FontWeight.bold, fontSize: 16)),
+        const SizedBox(height: 12),
+
+        _buildPaymentRow(context, 'Consultation Fee',
+            '\$${preview.bookingSummary.consultationFee.toStringAsFixed(2)}', colors),
+        _buildPaymentRow(context, l10n.depositRequired,
+            '\$${preview.paymentSummary.depositRequired.toStringAsFixed(2)}', colors,
+            isHighlighted: true),
+        _buildPaymentRow(context, l10n.walletBalance,
+            '\$${preview.paymentSummary.walletBalance.toStringAsFixed(2)}', colors),
+        if (preview.paymentSummary.balanceAfter != null)
+          _buildPaymentRow(context, l10n.balanceAfter,
+              '\$${preview.paymentSummary.balanceAfter!.toStringAsFixed(2)}', colors,
+              isGreen: true),
+        _buildPaymentRow(context, 'Remaining at Clinic',
+            '\$${preview.paymentSummary.remainingAtVisit.toStringAsFixed(2)}', colors),
+
+        // Insufficient balance warning
+        if (!preview.paymentSummary.hasSufficient) ...[
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: colors.error.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: colors.error.withValues(alpha: 0.3)),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.warning_amber_rounded, color: colors.error),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    l10n.insufficientBalance,
+                    style: TextStyle(
+                      color: colors.error, fontSize: 13, fontWeight: FontWeight.bold,
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  l10n.bookAppointment,
-                  style: context.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colors.text,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${widget.doctor.name} (${widget.doctor.specialization}) — Fee: \$${widget.doctor.consultationFee.toStringAsFixed(2)}',
-                  style: context.textTheme.bodyMedium?.copyWith(
-                    color: colors.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: AppDimensions.paddingM),
-
-                // Date Selection
-                Text(
-                  l10n.selectDate,
-                  style: context.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colors.text,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                GestureDetector(
-                  onTap: () => _pickDate(context),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    decoration: BoxDecoration(
-                      color: colors.surface,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: colors.border),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          _selectedDate == null
-                              ? l10n.selectDate
-                              : DateFormat('yyyy-MM-dd').format(_selectedDate!),
-                          style: TextStyle(
-                            color: _selectedDate == null ? colors.textSecondary : colors.text,
-                          ),
-                        ),
-                        Icon(Icons.calendar_today_rounded, color: colors.primary, size: 20),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: AppDimensions.paddingM),
-
-                // Time Slots Selector
-                Text(
-                  l10n.selectTimeSlot,
-                  style: context.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colors.text,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                if (_selectedDate == null)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    child: Center(
-                      child: Text(
-                        l10n.selectDate,
-                        style: TextStyle(color: colors.textSecondary),
-                      ),
-                    ),
-                  )
-                else
-                  _buildSlotsSection(context, state),
-
-                const SizedBox(height: AppDimensions.paddingM),
-
-                // Notes Field
-                AppTextField(
-                  labelText: l10n.notesLabel,
-                  controller: _notesController,
-                  hintText: 'Optional notes for the doctor',
-                ),
-
-                const SizedBox(height: AppDimensions.paddingL),
-
-                // Submit Button
-                AppButton(
-                  text: l10n.confirm,
-                  isLoading: state is AppointmentLoading,
-                  onPressed: _selectedDate != null && _selectedTime != null
-                      ? () {
-                          final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate!);
-                          context.read<AppointmentBloc>().add(
-                                PreviewAppointmentEvent(
-                                  doctorId: widget.doctor.id,
-                                  date: dateStr,
-                                  time: _selectedTime!,
-                                ),
-                              );
-                        }
-                      : null,
                 ),
               ],
             ),
-          );
-        },
+          ),
+        ],
+
+        if (_bookingError != null) ...[
+          const SizedBox(height: 12),
+          Text(_bookingError!, style: TextStyle(color: colors.error, fontSize: 13)),
+        ],
+
+        const SizedBox(height: 24),
+
+        // Action buttons
+        if (preview.paymentSummary.hasSufficient)
+          AppButton(
+            text: l10n.confirm,
+            onPressed: _confirmBooking,
+          )
+        else
+          AppButton(
+            text: 'Top Up Wallet',
+            onPressed: () {
+              Navigator.of(context).pop();
+              GoRouter.of(context).go('/patient/wallet');
+            },
+          ),
+
+        const SizedBox(height: 8),
+
+        AppButton(
+          text: l10n.cancel,
+          isOutline: true,
+          onPressed: () => setState(() => _phase = _BookingPhase.selectSlot),
+        ),
+      ],
+    );
+  }
+
+  // ── Phase 3: Full-screen booking in progress ─────────────────────────────
+  Widget _buildLoadingPhase(BuildContext context, AppLocalizations l10n, dynamic colors) {
+    return SizedBox(
+      height: 200,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const AppLoadingIndicator(),
+            const SizedBox(height: 20),
+            Text('Booking your appointment...',
+                style: TextStyle(color: colors.textSecondary)),
+          ],
+        ),
       ),
     );
   }
 
-  BuildContext sheetContext(BuildContext context) => context;
-
-  int _dayNameToWeekday(String dayName) {
-    switch (dayName.toLowerCase().trim()) {
-      case 'monday':
-        return DateTime.monday;
-      case 'tuesday':
-        return DateTime.tuesday;
-      case 'wednesday':
-        return DateTime.wednesday;
-      case 'thursday':
-        return DateTime.thursday;
-      case 'friday':
-        return DateTime.friday;
-      case 'saturday':
-        return DateTime.saturday;
-      case 'sunday':
-        return DateTime.sunday;
-      default:
-        return 0;
-    }
-  }
-
-  void _pickDate(BuildContext context) async {
-    final now = DateTime.now();
-    final appointmentBloc = context.read<AppointmentBloc>();
-
-    final allowedWeekdays = widget.schedules
-        .map((s) => _dayNameToWeekday(s.dayOfWeek))
-        .where((w) => w > 0)
-        .toSet();
-
-    DateTime initialDate = now;
-    if (allowedWeekdays.isNotEmpty) {
-      while (!allowedWeekdays.contains(initialDate.weekday)) {
-        initialDate = initialDate.add(const Duration(days: 1));
-      }
-    }
-
-    final date = await showDatePicker(
-      context: context,
-      initialDate: initialDate,
-      firstDate: now,
-      lastDate: now.add(const Duration(days: 60)),
-      selectableDayPredicate: (date) {
-        if (allowedWeekdays.isEmpty) return true;
-        return allowedWeekdays.contains(date.weekday);
-      },
-      builder: (context, child) {
-        final colors = context.appColors;
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: colors.primary,
-              onPrimary: Colors.white,
-              surface: colors.surface,
-              onSurface: colors.text,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (date != null) {
-      setState(() {
-        _selectedDate = date;
-        _selectedTime = null;
-      });
-      final dateStr = DateFormat('yyyy-MM-dd').format(date);
-      appointmentBloc.add(
-        FetchAvailableSlotsEvent(doctorId: widget.doctor.id, date: dateStr),
-      );
-    }
-  }
-
-  Widget _buildSlotsSection(BuildContext context, AppointmentState state) {
-    final colors = context.appColors;
-    final l10n = AppLocalizations.of(context);
-
-    if (state is AppointmentLoading && _selectedTime == null) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: AppLoadingIndicator(),
-        ),
-      );
-    }
-
-    if (state is AvailableSlotsLoadSuccess) {
-      final slots = state.slots;
-      if (slots.isEmpty) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          child: Center(
-            child: Text(
-              l10n.noDataFound,
-              style: TextStyle(color: colors.error, fontWeight: FontWeight.w600),
-            ),
-          ),
-        );
-      }
-
-      return Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: slots.map((slot) {
-          final isSelected = _selectedTime == slot;
-          return ChoiceChip(
-            label: Text(
-              DateFormatters.formatTime(slot),
-              style: TextStyle(
-                color: isSelected ? Colors.white : colors.text,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            selected: isSelected,
-            selectedColor: colors.primary,
-            backgroundColor: colors.surface,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-              side: BorderSide(color: isSelected ? colors.primary : colors.border),
-            ),
-            onSelected: (selected) {
-              setState(() {
-                _selectedTime = selected ? slot : null;
-              });
-            },
-          );
-        }).toList(),
-      );
-    }
-
-    return const SizedBox.shrink();
-  }
-
-  void _showPreviewDialog(
-    BuildContext sheetContext,
-    AppointmentPreviewModel preview, {
-    required BuildContext pageContext,
-  }) {
-    final appointmentBloc = sheetContext.read<AppointmentBloc>();
-    final colors = sheetContext.appColors;
-    final l10n = AppLocalizations.of(sheetContext);
-
-    showDialog(
-      context: sheetContext,
-      barrierDismissible: false,
-      builder: (dialogContext) {
-        return BlocProvider.value(
-          value: appointmentBloc,
-          child: BlocConsumer<AppointmentBloc, AppointmentState>(
-            listener: (blocContext, state) {
-              if (state is AppointmentBookSuccess) {
-                if (dialogContext.mounted) {
-                  Navigator.of(dialogContext).pop();
-                }
-                if (sheetContext.mounted) {
-                  Navigator.of(sheetContext).pop();
-                }
-                if (pageContext.mounted) {
-                  AppDialogs.showSuccess(
-                    context: pageContext,
-                    title: l10n.success,
-                    message: state.message,
-                    onPressed: () {
-                      if (pageContext.mounted) {
-                        pageContext.go('/patient/appointments');
-                      }
-                    },
-                  );
-                }
-              } else if (state is AppointmentFailure) {
-                AppDialogs.showError(
-                  context: dialogContext.mounted ? dialogContext : sheetContext,
-                  title: l10n.error,
-                  message: state.errorMessage,
-                );
-              }
-            },
-            builder: (context, state) {
-              return AlertDialog(
-                backgroundColor: colors.surface,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                title: Text(
-                  l10n.bookingSummary,
-                  style: TextStyle(color: colors.text, fontWeight: FontWeight.bold),
-                ),
-                content: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Booking details list
-                      _buildDetailRow(context, 'Doctor', preview.bookingSummary.doctorName),
-                      _buildDetailRow(
-                        context,
-                        'Date',
-                        preview.bookingSummary.appointmentDate,
-                      ),
-                      _buildDetailRow(
-                        context,
-                        'Time',
-                        DateFormatters.formatTime(preview.bookingSummary.appointmentTime),
-                      ),
-                      const Divider(height: 24),
-                      Text(
-                        l10n.paymentDetails,
-                        style: TextStyle(
-                          color: colors.text,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      _buildPaymentRow(
-                        context,
-                        'Consultation Fee',
-                        '\$${preview.bookingSummary.consultationFee.toStringAsFixed(2)}',
-                      ),
-                      _buildPaymentRow(
-                        context,
-                        l10n.depositRequired,
-                        '\$${preview.paymentSummary.depositRequired.toStringAsFixed(2)}',
-                        isHighlighted: true,
-                      ),
-                      _buildPaymentRow(
-                        context,
-                        l10n.walletBalance,
-                        '\$${preview.paymentSummary.walletBalance.toStringAsFixed(2)}',
-                      ),
-                      if (preview.paymentSummary.balanceAfter != null)
-                        _buildPaymentRow(
-                          context,
-                          l10n.balanceAfter,
-                          '\$${preview.paymentSummary.balanceAfter!.toStringAsFixed(2)}',
-                          isGreen: true,
-                        ),
-                      _buildPaymentRow(
-                        context,
-                        'Remaining at Clinic',
-                        '\$${preview.paymentSummary.remainingAtVisit.toStringAsFixed(2)}',
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Insufficient Balance Warning Card
-                      if (!preview.paymentSummary.hasSufficient)
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: colors.error.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: colors.error.withValues(alpha: 0.3)),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(Icons.warning_amber_rounded, color: colors.error),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  l10n.insufficientBalance,
-                                  style: TextStyle(
-                                    color: colors.error,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: state is AppointmentActionInProgress
-                        ? null
-                        : () => Navigator.of(dialogContext).pop(),
-                    child: Text(
-                      l10n.cancel,
-                      style: TextStyle(color: colors.textSecondary),
-                    ),
-                  ),
-                  if (preview.paymentSummary.hasSufficient)
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colors.primary,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                      onPressed: state is AppointmentActionInProgress
-                          ? null
-                          : () {
-                              final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate!);
-                              context.read<AppointmentBloc>().add(
-                                    BookAppointmentEvent(
-                                      doctorId: widget.doctor.id,
-                                      date: dateStr,
-                                      time: _selectedTime!,
-                                      notes: _notesController.text,
-                                    ),
-                                  );
-                            },
-                      child: state is AppointmentActionInProgress
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                              ),
-                            )
-                          : Text(l10n.confirm, style: const TextStyle(color: Colors.white)),
-                    )
-                  else
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: colors.secondary,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                      ),
-                      onPressed: () {
-                        Navigator.of(dialogContext).pop();
-                        Navigator.of(context).pop();
-                        context.go('/patient/wallet');
-                      },
-                      child: const Text('Top Up Wallet', style: TextStyle(color: Colors.white)),
-                    ),
-                ],
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildDetailRow(BuildContext context, String label, String value) {
-    final colors = context.appColors;
+  Widget _buildDetailRow(BuildContext context, String label, String value, dynamic colors) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label, style: TextStyle(color: colors.textSecondary, fontSize: 13)),
-          Text(value, style: TextStyle(color: colors.text, fontWeight: FontWeight.bold, fontSize: 13)),
+          Text(value,
+              style: TextStyle(
+                  color: colors.text, fontWeight: FontWeight.bold, fontSize: 13)),
         ],
       ),
     );
   }
 
-  Widget _buildPaymentRow(BuildContext context, String label, String value,
+  Widget _buildPaymentRow(BuildContext context, String label, String value, dynamic colors,
       {bool isHighlighted = false, bool isGreen = false}) {
-    final colors = context.appColors;
     Color valueColor = colors.text;
     if (isHighlighted) valueColor = colors.primary;
     if (isGreen) valueColor = colors.success;
@@ -868,14 +847,9 @@ class _BookingBottomSheetState extends State<_BookingBottomSheet> {
               fontWeight: isHighlighted ? FontWeight.bold : FontWeight.normal,
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              color: valueColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-            ),
-          ),
+          Text(value,
+              style: TextStyle(
+                  color: valueColor, fontWeight: FontWeight.bold, fontSize: 13)),
         ],
       ),
     );

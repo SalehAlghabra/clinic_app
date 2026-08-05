@@ -30,6 +30,7 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   List<AppointmentModel> _cachedAppointments = [];
+  bool _cancelling = false;
 
   @override
   void initState() {
@@ -80,25 +81,7 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen>
           ],
         ),
       ),
-      body: BlocConsumer<AppointmentBloc, AppointmentState>(
-        listener: (context, state) {
-          if (state is AppointmentCancelSuccess) {
-            AppDialogs.showSuccess(
-              context: context,
-              title: l10n.success,
-              message: '${state.message}\n${state.refundStatus}',
-              onPressed: () {
-                _loadAppointments();
-              },
-            );
-          } else if (state is AppointmentFailure) {
-            AppDialogs.showError(
-              context: context,
-              title: l10n.error,
-              message: state.errorMessage,
-            );
-          }
-        },
+      body: BlocBuilder<AppointmentBloc, AppointmentState>(
         builder: (context, state) {
           if (state is AppointmentsLoadSuccess) {
             _cachedAppointments = state.appointments;
@@ -134,12 +117,11 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen>
                   _buildAppointmentsList(context, past, isUpcoming: false),
                 ],
               ),
-              if (state is AppointmentActionInProgress)
+              // Show cancellation overlay only
+              if (_cancelling)
                 Container(
                   color: Colors.black.withValues(alpha: 0.3),
-                  child: const Center(
-                    child: AppLoadingIndicator(),
-                  ),
+                  child: const Center(child: AppLoadingIndicator()),
                 ),
             ],
           );
@@ -199,7 +181,6 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen>
     final colors = context.appColors;
     final l10n = AppLocalizations.of(context);
 
-    // Cancel possibility
     final canCancel = isUpcoming &&
         (appointment.status == 'pending' || appointment.status == 'confirmed');
 
@@ -333,13 +314,19 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen>
     );
   }
 
+  /// Cancel dialog — the actual API call is done directly here with async/await.
+  /// No BlocConsumer bridges across navigation pops.
   void _showCancelDialog(BuildContext context, int id) {
     final l10n = AppLocalizations.of(context);
-    final appointmentBloc = context.read<AppointmentBloc>();
     final reasonController = TextEditingController();
+
+    // Obtain PatientRepository directly from the AppointmentBloc
+    final bloc = context.read<AppointmentBloc>();
+    final repo = bloc.patientRepository;
 
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -372,11 +359,43 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen>
                 backgroundColor: dialogContext.appColors.error,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              onPressed: () {
+              onPressed: () async {
+                // Close the cancel dialog first
                 Navigator.of(dialogContext).pop();
-                appointmentBloc.add(
-                  CancelAppointmentEvent(id: id, reason: reasonController.text),
-                );
+
+                // Show cancellation loading overlay via local state
+                if (mounted) setState(() => _cancelling = true);
+
+                // Perform the API call directly — no Bloc event bridging
+                final result = await repo.cancelAppointment(id, reason: reasonController.text);
+
+                if (!mounted) return;
+
+                setState(() => _cancelling = false);
+
+                if (result.isSuccess) {
+                  final resData = result.data!;
+                  final message = resData['message'] as String? ?? 'Cancelled successfully';
+                  final refundStatus = resData['refund_status'] as String? ?? '';
+                  final displayMessage = refundStatus.isNotEmpty
+                      ? '$message\n$refundStatus'
+                      : message;
+
+                  if (!mounted) return;
+                  await AppDialogs.showSuccess(
+                    context: context,
+                    title: l10n.success,
+                    message: displayMessage,
+                    onPressed: _loadAppointments,
+                  );
+                } else {
+                  if (!mounted) return;
+                  await AppDialogs.showError(
+                    context: context,
+                    title: l10n.error,
+                    message: result.failure?.message ?? 'Failed to cancel appointment',
+                  );
+                }
               },
               child: const Text('Confirm Cancel', style: TextStyle(color: Colors.white)),
             ),

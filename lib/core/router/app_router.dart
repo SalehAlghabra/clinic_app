@@ -133,16 +133,12 @@ class AppRouter {
           ],
         ),
 
-        // Doctor details (Not in Shell so it pushes over the bottom navigation bar)
         GoRoute(
           path: '/patient/doctors/:id',
           builder: (context, state) {
             final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
-            return MultiBlocProvider(
-              providers: [
-                BlocProvider(create: (_) => DoctorDetailBloc(repository: patientRepository)),
-                BlocProvider(create: (_) => AppointmentBloc(patientRepository)),
-              ],
+            return BlocProvider(
+              create: (_) => DoctorDetailBloc(repository: patientRepository),
               child: DoctorDetailScreen(doctorId: id),
             );
           },

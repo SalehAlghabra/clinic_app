@@ -6,6 +6,8 @@ import 'appointment_state.dart';
 class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
   final PatientRepository _patientRepository;
 
+  PatientRepository get patientRepository => _patientRepository;
+
   AppointmentBloc(this._patientRepository) : super(const AppointmentInitial()) {
     on<FetchAppointmentsEvent>(_onFetchAppointments);
     on<FetchAvailableSlotsEvent>(_onFetchAvailableSlots);
