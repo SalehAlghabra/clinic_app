@@ -149,6 +149,7 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
 
   void _showBookingBottomSheet(BuildContext context, DoctorModel doctor, List<ScheduleModel> schedules) {
     final patientRepo = context.read<DoctorDetailBloc>().repository;
+    final pageContext = context;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -160,6 +161,7 @@ class _DoctorDetailScreenState extends State<DoctorDetailScreen> {
             doctor: doctor,
             patientRepository: patientRepo,
             schedules: schedules,
+            pageContext: pageContext,
           ),
         );
       },
@@ -316,11 +318,13 @@ class _BookingBottomSheet extends StatefulWidget {
   final DoctorModel doctor;
   final PatientRepository patientRepository;
   final List<ScheduleModel> schedules;
+  final BuildContext pageContext;
 
   const _BookingBottomSheet({
     required this.doctor,
     required this.patientRepository,
     required this.schedules,
+    required this.pageContext,
   });
 
   @override
@@ -357,7 +361,7 @@ class _BookingBottomSheetState extends State<_BookingBottomSheet> {
       child: BlocConsumer<AppointmentBloc, AppointmentState>(
         listener: (context, state) {
           if (state is AppointmentPreviewSuccess) {
-            _showPreviewDialog(context, state.preview);
+            _showPreviewDialog(context, state.preview, pageContext: widget.pageContext);
           } else if (state is AppointmentFailure) {
             AppDialogs.showError(
               context: context,
@@ -630,15 +634,17 @@ class _BookingBottomSheetState extends State<_BookingBottomSheet> {
     return const SizedBox.shrink();
   }
 
-  void _showPreviewDialog(BuildContext context, AppointmentPreviewModel preview) {
-    final appointmentBloc = context.read<AppointmentBloc>();
-    final mainContext = context;
-    final parentContext = context;
-    final colors = context.appColors;
-    final l10n = AppLocalizations.of(context);
+  void _showPreviewDialog(
+    BuildContext sheetContext,
+    AppointmentPreviewModel preview, {
+    required BuildContext pageContext,
+  }) {
+    final appointmentBloc = sheetContext.read<AppointmentBloc>();
+    final colors = sheetContext.appColors;
+    final l10n = AppLocalizations.of(sheetContext);
 
     showDialog(
-      context: context,
+      context: sheetContext,
       barrierDismissible: false,
       builder: (dialogContext) {
         return BlocProvider.value(
@@ -649,26 +655,24 @@ class _BookingBottomSheetState extends State<_BookingBottomSheet> {
                 if (dialogContext.mounted) {
                   Navigator.of(dialogContext).pop();
                 }
-                if (mainContext.mounted) {
-                  Navigator.of(mainContext).pop();
+                if (sheetContext.mounted) {
+                  Navigator.of(sheetContext).pop();
                 }
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (parentContext.mounted) {
-                    AppDialogs.showSuccess(
-                      context: parentContext,
-                      title: l10n.success,
-                      message: state.message,
-                      onPressed: () {
-                        if (parentContext.mounted) {
-                          parentContext.go('/patient/appointments');
-                        }
-                      },
-                    );
-                  }
-                });
+                if (pageContext.mounted) {
+                  AppDialogs.showSuccess(
+                    context: pageContext,
+                    title: l10n.success,
+                    message: state.message,
+                    onPressed: () {
+                      if (pageContext.mounted) {
+                        pageContext.go('/patient/appointments');
+                      }
+                    },
+                  );
+                }
               } else if (state is AppointmentFailure) {
                 AppDialogs.showError(
-                  context: dialogContext.mounted ? dialogContext : mainContext,
+                  context: dialogContext.mounted ? dialogContext : sheetContext,
                   title: l10n.error,
                   message: state.errorMessage,
                 );
