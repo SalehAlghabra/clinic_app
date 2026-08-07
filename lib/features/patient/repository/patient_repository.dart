@@ -147,4 +147,16 @@ class PatientRepository {
       return PatientResult.failure(const NetworkFailure());
     }
   }
+
+  /// Pay remaining balance for a completed visit
+  Future<PatientResult<Map<String, dynamic>>> payRemainingBalance(int id) async {
+    try {
+      final res = await _apiService.payRemainingBalance(id);
+      return PatientResult.success(res);
+    } on ApiException catch (e) {
+      return PatientResult.failure(ServerFailure(e.message));
+    } catch (_) {
+      return PatientResult.failure(const NetworkFailure());
+    }
+  }
 }

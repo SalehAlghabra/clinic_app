@@ -438,9 +438,16 @@ class _BookingBottomSheetState extends State<_BookingBottomSheet> {
           widget.doctor.id, dateStr,
         );
         if (mounted) {
+          final now = DateTime.now();
+          final nowTimeStr = DateFormat('H:i').format(now);
+          final isToday = date.year == now.year && date.month == now.month && date.day == now.day;
+          final rawSlots = result.isSuccess ? result.data! : <String>[];
+
           setState(() {
             _loadingSlots = false;
-            _availableSlots = result.isSuccess ? result.data! : [];
+            _availableSlots = isToday
+                ? rawSlots.where((s) => s.compareTo(nowTimeStr) > 0).toList()
+                : rawSlots;
           });
         }
       } catch (_) {

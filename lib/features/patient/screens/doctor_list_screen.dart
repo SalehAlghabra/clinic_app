@@ -178,12 +178,20 @@ class _DoctorListScreenState extends State<DoctorListScreen> {
               decoration: BoxDecoration(
                 color: colors.primary.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(12),
+                image: doctor.profilePictureUrl != null && doctor.profilePictureUrl!.isNotEmpty
+                    ? DecorationImage(
+                        image: NetworkImage(doctor.profilePictureUrl!),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
               ),
-              child: Icon(
-                Icons.person_rounded,
-                color: colors.primary,
-                size: 32,
-              ),
+              child: (doctor.profilePictureUrl == null || doctor.profilePictureUrl!.isEmpty)
+                  ? Icon(
+                      Icons.person_rounded,
+                      color: colors.primary,
+                      size: 32,
+                    )
+                  : null,
             ),
             const SizedBox(width: AppDimensions.paddingM),
 

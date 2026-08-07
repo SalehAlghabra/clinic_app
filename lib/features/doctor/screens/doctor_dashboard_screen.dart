@@ -369,10 +369,15 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
         contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         leading: CircleAvatar(
           backgroundColor: colors.primary.withValues(alpha: 0.1),
-          child: Text(
-            app.patientName.isNotEmpty ? app.patientName[0].toUpperCase() : 'P',
-            style: TextStyle(color: colors.primary, fontWeight: FontWeight.bold),
-          ),
+          backgroundImage: app.patientProfilePictureUrl != null && app.patientProfilePictureUrl!.isNotEmpty
+              ? NetworkImage(app.patientProfilePictureUrl!)
+              : null,
+          child: (app.patientProfilePictureUrl == null || app.patientProfilePictureUrl!.isEmpty)
+              ? Text(
+                  app.patientName.isNotEmpty ? app.patientName[0].toUpperCase() : 'P',
+                  style: TextStyle(color: colors.primary, fontWeight: FontWeight.bold),
+                )
+              : null,
         ),
         title: Text(
           app.patientName,

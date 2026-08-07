@@ -16,6 +16,9 @@ import '../bloc/appointment_bloc.dart';
 import '../bloc/appointment_event.dart';
 import '../bloc/appointment_state.dart';
 import '../models/appointment_model.dart';
+import '../repository/patient_repository.dart';
+import '../../auth/bloc/auth_bloc.dart';
+import '../../auth/bloc/auth_event.dart';
 
 import '../../../shared/widgets/app_top_actions.dart';
 
@@ -191,26 +194,49 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: colors.primary.withValues(alpha: 0.12),
+                    shape: BoxShape.circle,
+                    image: appointment.doctorProfilePictureUrl != null && appointment.doctorProfilePictureUrl!.isNotEmpty
+                        ? DecorationImage(
+                            image: NetworkImage(appointment.doctorProfilePictureUrl!),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                  ),
+                  child: (appointment.doctorProfilePictureUrl == null || appointment.doctorProfilePictureUrl!.isEmpty)
+                      ? Icon(Icons.person_rounded, color: colors.primary, size: 24)
+                      : null,
+                ),
+                const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    appointment.doctorName,
-                    style: context.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colors.text,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        appointment.doctorName,
+                        style: context.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colors.text,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        appointment.specialization,
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: colors.textSecondary,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                const SizedBox(width: 8),
                 _buildStatusBadge(context, appointment.status),
               ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              appointment.specialization,
-              style: context.textTheme.bodySmall?.copyWith(
-                color: colors.textSecondary,
-              ),
             ),
             const Divider(height: 24),
             _buildInfoRow(
@@ -230,6 +256,38 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen>
                 context,
                 Icons.notes_rounded,
                 appointment.notes!,
+              ),
+            ],
+            if (appointment.additionalCost > 0) ...[
+              const SizedBox(height: 8),
+              _buildInfoRow(
+                context,
+                Icons.account_balance_wallet_outlined,
+                'Additional Fee: \$${appointment.additionalCost.toStringAsFixed(2)} (${appointment.isPaid ? "Paid ✅" : "Unpaid ⚠️"})',
+              ),
+              if (appointment.additionalNote != null && appointment.additionalNote!.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                _buildInfoRow(
+                  context,
+                  Icons.description_outlined,
+                  appointment.additionalNote!,
+                ),
+              ],
+            ],
+            if (appointment.status == 'completed' && appointment.additionalCost > 0 && !appointment.isPaid) ...[
+              const Divider(height: 24),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  icon: const Icon(Icons.payment_rounded, size: 18),
+                  label: Text('Pay Remaining Balance (\$${appointment.additionalCost.toStringAsFixed(2)})'),
+                  onPressed: () => _showPayRemainingDialog(context, appointment),
+                ),
               ),
             ],
             if (canCancel) ...[
@@ -400,6 +458,101 @@ class _PatientAppointmentsScreenState extends State<PatientAppointmentsScreen>
               child: const Text('Confirm Cancel', style: TextStyle(color: Colors.white)),
             ),
           ],
+        );
+      },
+    );
+  }
+
+  void _showPayRemainingDialog(BuildContext context, AppointmentModel appt) {
+    final repo = RepositoryProvider.of<PatientRepository>(context);
+    bool isPaying = false;
+
+    showDialog(
+      context: context,
+      builder: (dialogCtx) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            final colors = context.appColors;
+            final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+
+            return AlertDialog(
+              backgroundColor: colors.surface,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: Text(
+                isArabic ? 'دفع المبلغ المتبقي' : 'Pay Remaining Balance',
+                style: TextStyle(color: colors.text, fontWeight: FontWeight.bold),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isArabic
+                        ? 'هل تريد دفع المبلغ المتبقي للموعد قدره \$${appt.additionalCost.toStringAsFixed(2)} من محفظتك؟'
+                        : 'Do you want to pay the remaining balance of \$${appt.additionalCost.toStringAsFixed(2)} for visit #${appt.id} from your wallet?',
+                    style: TextStyle(color: colors.textSecondary),
+                  ),
+                  if (appt.additionalNote != null && appt.additionalNote!.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      'Note: ${appt.additionalNote}',
+                      style: TextStyle(color: colors.textSecondary, fontSize: 13, fontStyle: FontStyle.italic),
+                    ),
+                  ],
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogCtx),
+                  child: Text(isArabic ? 'إلغاء' : 'Cancel', style: TextStyle(color: colors.textSecondary)),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  onPressed: isPaying
+                      ? null
+                      : () async {
+                          setDialogState(() => isPaying = true);
+                          final res = await repo.payRemainingBalance(appt.id);
+                          if (dialogCtx.mounted) {
+                            Navigator.pop(dialogCtx);
+                            if (res.isSuccess) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      isArabic
+                                          ? 'تم دفع المبلغ المتبقي بنجاح! 💳'
+                                          : 'Remaining balance paid successfully! 💳',
+                                    ),
+                                    backgroundColor: colors.success,
+                                  ),
+                                );
+                                context.read<AuthBloc>().add(const AuthCheckRequested());
+                                _loadAppointments();
+                              }
+                            } else {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(res.failure?.message ?? 'Payment failed'),
+                                    backgroundColor: colors.error,
+                                  ),
+                                );
+                              }
+                            }
+                          }
+                        },
+                  child: isPaying
+                      ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      : Text(isArabic ? 'تأكيد الدفع' : 'Confirm Payment'),
+                ),
+              ],
+            );
+          },
         );
       },
     );

@@ -9,6 +9,7 @@ import '../../../shared/extensions/context_extensions.dart';
 import '../../../shared/widgets/app_button.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/dialogs/app_dialogs.dart';
+import '../../../shared/dialogs/server_settings_dialog.dart';
 import '../../auth/bloc/auth_bloc.dart';
 import '../../auth/bloc/auth_event.dart';
 import '../../auth/bloc/auth_state.dart';
@@ -315,55 +316,58 @@ class DoctorSettingsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Doctor Profile Header card
-                AppCard(
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: colors.primary.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                          image: user?.profilePictureUrl != null
-                              ? DecorationImage(
-                                  image: NetworkImage(user!.profilePictureUrl!),
-                                  fit: BoxFit.cover,
-                                )
+                // Doctor Profile Header card (Long-press to open Developer Server IP Settings)
+                GestureDetector(
+                  onLongPress: () => showServerSettingsDialog(context),
+                  child: AppCard(
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: colors.primary.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                            image: user?.profilePictureUrl != null
+                                ? DecorationImage(
+                                    image: NetworkImage(user!.profilePictureUrl!),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
+                          ),
+                          child: user?.profilePictureUrl == null
+                              ? Icon(Icons.medical_services_rounded, color: colors.primary, size: 32)
                               : null,
                         ),
-                        child: user?.profilePictureUrl == null
-                            ? Icon(Icons.medical_services_rounded, color: colors.primary, size: 32)
-                            : null,
-                      ),
-                      const SizedBox(width: AppDimensions.paddingM),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              doctorName,
-                              style: context.textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: colors.text,
+                        const SizedBox(width: AppDimensions.paddingM),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                doctorName,
+                                style: context.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: colors.text,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              doctorEmail,
-                              style: context.textTheme.bodyMedium?.copyWith(
-                                color: colors.textSecondary,
+                              const SizedBox(height: 4),
+                              Text(
+                                doctorEmail,
+                                style: context.textTheme.bodyMedium?.copyWith(
+                                  color: colors.textSecondary,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      if (user != null)
-                        IconButton(
-                          icon: Icon(Icons.edit_outlined, color: colors.primary),
-                          onPressed: () => _showEditProfileDialog(context, user),
-                        ),
-                    ],
+                        if (user != null)
+                          IconButton(
+                            icon: Icon(Icons.edit_outlined, color: colors.primary),
+                            onPressed: () => _showEditProfileDialog(context, user),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: AppDimensions.paddingL),

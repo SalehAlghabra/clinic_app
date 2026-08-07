@@ -295,33 +295,52 @@ class _DoctorAppointmentsScreenState extends State<DoctorAppointmentsScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: colors.primary.withValues(alpha: 0.12),
+                  backgroundImage: app.patientProfilePictureUrl != null && app.patientProfilePictureUrl!.isNotEmpty
+                      ? NetworkImage(app.patientProfilePictureUrl!)
+                      : null,
+                  child: (app.patientProfilePictureUrl == null || app.patientProfilePictureUrl!.isEmpty)
+                      ? Text(
+                          app.patientName.isNotEmpty ? app.patientName[0].toUpperCase() : 'P',
+                          style: TextStyle(color: colors.primary, fontWeight: FontWeight.bold),
+                        )
+                      : null,
+                ),
+                const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    app.patientName,
-                    style: context.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colors.text,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        app.patientName,
+                        style: context.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colors.text,
+                        ),
+                      ),
+                      if (app.patientPhone.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Icon(Icons.phone_outlined, size: 12, color: colors.textSecondary),
+                            const SizedBox(width: 4),
+                            Text(
+                              app.patientPhone,
+                              style: context.textTheme.bodySmall?.copyWith(color: colors.textSecondary),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
                   ),
                 ),
+                const SizedBox(width: 8),
                 _buildStatusBadge(context, app.status),
               ],
             ),
-            if (app.patientPhone.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Icon(Icons.phone_outlined, size: 14, color: colors.textSecondary),
-                  const SizedBox(width: 6),
-                  Text(
-                    app.patientPhone,
-                    style: context.textTheme.bodySmall?.copyWith(color: colors.textSecondary),
-                  ),
-                ],
-              ),
-            ],
             const Divider(height: 24),
             _buildInfoRow(
               context,

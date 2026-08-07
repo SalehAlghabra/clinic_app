@@ -85,4 +85,10 @@ class PatientApiService {
     );
     return response.data as Map<String, dynamic>;
   }
+
+  /// POST /api/appointments/{id}/pay-remaining
+  Future<Map<String, dynamic>> payRemainingBalance(int id) async {
+    final response = await _apiClient.post('/api/appointments/$id/pay-remaining');
+    return response.data as Map<String, dynamic>;
+  }
 }

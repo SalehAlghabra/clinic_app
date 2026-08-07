@@ -21,6 +21,8 @@ class AppointmentModel extends Equatable {
   final String? notes;
   final String? doctorPhone;
   final String? patientPhone;
+  final String? doctorProfilePictureUrl;
+  final bool isPaid;
 
   const AppointmentModel({
     required this.id,
@@ -36,14 +38,19 @@ class AppointmentModel extends Equatable {
     this.notes,
     this.doctorPhone,
     this.patientPhone,
+    this.doctorProfilePictureUrl,
+    this.isPaid = false,
   });
 
   factory AppointmentModel.fromJson(Map<String, dynamic> json) {
     // Doctor object or user object in nested JSON
     String docName = json['doctor_name'] as String? ?? '';
+    String? docPic = json['doctor_profile_picture_url'] as String?;
+
     if (docName.isEmpty && json['doctor'] != null) {
       if (json['doctor']['user'] != null) {
         docName = json['doctor']['user']['name'] as String? ?? '';
+        docPic ??= json['doctor']['user']['profile_picture_url'] as String?;
       } else if (json['doctor']['name'] != null) {
         docName = json['doctor']['name'] as String? ?? '';
       }
@@ -73,6 +80,8 @@ class AppointmentModel extends Equatable {
       notes: json['notes'] as String?,
       doctorPhone: json['doctor_phone'] as String?,
       patientPhone: json['patient_phone'] as String?,
+      doctorProfilePictureUrl: docPic,
+      isPaid: json['is_paid'] as bool? ?? false,
     );
   }
 

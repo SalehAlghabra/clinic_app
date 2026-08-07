@@ -18,6 +18,7 @@ class DoctorAppointmentModel extends Equatable {
   final String appointmentTime;
   final String status;
   final String? notes;
+  final String? patientProfilePictureUrl;
 
   const DoctorAppointmentModel({
     required this.id,
@@ -30,14 +31,18 @@ class DoctorAppointmentModel extends Equatable {
     required this.appointmentTime,
     required this.status,
     this.notes,
+    this.patientProfilePictureUrl,
   });
 
   factory DoctorAppointmentModel.fromJson(Map<String, dynamic> json) {
     String patName = json['patient_name'] as String? ?? '';
     String patPhone = json['patient_phone'] as String? ?? '';
+    String? patPic = json['patient_profile_picture_url'] as String?;
+
     if (json['patient'] != null) {
       if (patName.isEmpty) patName = json['patient']['name'] as String? ?? '';
       if (patPhone.isEmpty) patPhone = json['patient']['phone'] as String? ?? '';
+      patPic ??= json['patient']['profile_picture_url'] as String?;
     }
 
     return DoctorAppointmentModel(
@@ -51,6 +56,7 @@ class DoctorAppointmentModel extends Equatable {
       appointmentTime: json['appointment_time'] as String? ?? '',
       status: json['status'] as String? ?? 'pending',
       notes: json['notes'] as String?,
+      patientProfilePictureUrl: patPic,
     );
   }
 
