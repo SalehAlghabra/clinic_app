@@ -50,27 +50,27 @@ class _SplashScreenState extends State<SplashScreen> {
             children: [
               // Animated logo icon
               Container(
-                width: 100,
-                height: 100,
+                width: 105,
+                height: 105,
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [primary, primary.withValues(alpha: 0.7)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
-                      color: primary.withValues(alpha: 0.35),
+                      color: primary.withValues(alpha: 0.25),
                       blurRadius: 24,
                       offset: const Offset(0, 8),
                     ),
                   ],
+                  border: Border.all(
+                    color: primary.withValues(alpha: 0.2),
+                    width: 1.5,
+                  ),
                 ),
-                child: const Icon(
-                  Icons.local_hospital_rounded,
-                  color: Colors.white,
-                  size: 54,
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  fit: BoxFit.contain,
                 ),
               ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack),
 

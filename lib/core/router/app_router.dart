@@ -40,6 +40,8 @@ import '../../features/invoices/repository/invoices_repository.dart';
 import '../../features/invoices/screens/invoices_list_screen.dart';
 import '../../features/invoices/screens/invoice_details_screen.dart';
 import '../../features/invoices/models/invoice_model.dart';
+import '../../features/notifications/data/repository/notification_repository.dart';
+import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../api/api_client.dart';
 import '../services/storage_service.dart';
 
@@ -90,6 +92,12 @@ class AppRouter {
             final email = state.extra as String? ?? '';
             return OtpVerificationScreen(email: email);
           },
+        ),
+        GoRoute(
+          path: '/notifications',
+          builder: (context, state) => NotificationsScreen(
+            repository: NotificationRepository(apiClient),
+          ),
         ),
 
         // Patient Main Navigation Shell

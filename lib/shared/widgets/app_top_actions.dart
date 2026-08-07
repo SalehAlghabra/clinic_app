@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../shared/extensions/context_extensions.dart';
 import '../../features/settings/bloc/locale_cubit.dart';
 import '../../features/settings/bloc/theme_cubit.dart';
@@ -7,7 +8,7 @@ import '../../features/settings/bloc/theme_state.dart';
 
 class AppTopActions extends StatelessWidget {
   const AppTopActions({super.key});
-
+  
   static const List<Map<String, dynamic>> _themeColors = [
     {'name': 'Ocean Blue', 'color': Color(0xFF0077B6)},
     {'name': 'Teal Green', 'color': Color(0xFF0D9488)},
@@ -110,6 +111,13 @@ class AppTopActions extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        // Notification Bell Icon
+        IconButton(
+          onPressed: () => context.push('/notifications'),
+          icon: Icon(Icons.notifications_none_rounded, color: colors.primary, size: 22),
+          tooltip: 'Notifications',
+        ),
+
         // Primary Theme Color Selector
         IconButton(
           onPressed: () => _showColorPicker(context),

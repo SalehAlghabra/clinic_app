@@ -227,9 +227,9 @@ class AuthRepository {
     }
   }
 
-  Future<AuthResult<void>> updateFcmToken(String fcmToken) async {
+  Future<AuthResult<void>> updateFcmToken(String fcmToken, {String? locale}) async {
     try {
-      await _apiService.updateFcmToken(fcmToken);
+      await _apiService.updateFcmToken(fcmToken, locale: locale);
       return const AuthResult.success(null);
     } catch (_) {
       return const AuthResult.failure(ServerFailure('Failed to update FCM token'));

@@ -119,9 +119,20 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen> {
           final confirmedCount = appointments.where((e) => e.status == 'confirmed').length;
           final completedCount = appointments.where((e) => e.status == 'completed').length;
 
-          // Today's appointments
-          final todayStr = DateFormat('yyyy-MM-dd').format(DateTime.now());
-          final todayAppointments = appointments.where((e) => e.appointmentDate == todayStr).toList();
+          // Today's appointments (with flexible date parsing)
+          final now = DateTime.now();
+          final todayStr = DateFormat('yyyy-MM-dd').format(now);
+          final todayAppointments = appointments.where((e) {
+            final apptDateStr = e.appointmentDate.trim();
+            if (apptDateStr.isEmpty) return false;
+            if (apptDateStr.startsWith(todayStr)) return true;
+            try {
+              final parsed = DateTime.parse(apptDateStr).toLocal();
+              return parsed.year == now.year && parsed.month == now.month && parsed.day == now.day;
+            } catch (_) {
+              return false;
+            }
+          }).toList();
 
           return RefreshIndicator(
             onRefresh: () async => _loadData(),

@@ -34,12 +34,17 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   }
 
   void _startResendTimer() {
+    if (!mounted) return;
     setState(() {
       _secondsRemaining = 60;
       _canResend = false;
     });
     _resendTimer?.cancel();
     _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
       if (_secondsRemaining <= 1) {
         timer.cancel();
         setState(() => _canResend = true);
@@ -51,8 +56,8 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
   @override
   void dispose() {
-    _otpController.dispose();
     _resendTimer?.cancel();
+    _otpController.dispose();
     super.dispose();
   }
 
@@ -77,7 +82,9 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
 
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
+        if (!mounted) return;
         if (state is AuthAuthenticated) {
+          _resendTimer?.cancel();
           final role = state.user.role;
           if (role == 'patient') {
             context.go('/patient/dashboard');

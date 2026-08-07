@@ -516,27 +516,27 @@ class _LoginScreenState extends State<LoginScreen> {
                     onLongPress: _showServerSettingsDialog,
                     child: Center(
                       child: Container(
-                        width: 80,
-                        height: 80,
+                        width: 90,
+                        height: 90,
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [colors.primary, colors.secondary],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
+                          color: colors.surface,
                           borderRadius: BorderRadius.circular(22),
                           boxShadow: [
                             BoxShadow(
-                              color: colors.primary.withValues(alpha: 0.3),
+                              color: colors.primary.withValues(alpha: 0.15),
                               blurRadius: 20,
                               offset: const Offset(0, 8),
                             ),
                           ],
+                          border: Border.all(
+                            color: colors.primary.withValues(alpha: 0.2),
+                            width: 1.5,
+                          ),
                         ),
-                        child: const Icon(
-                          Icons.local_hospital_rounded,
-                          color: Colors.white,
-                          size: 42,
+                        child: Image.asset(
+                          'assets/images/logo.png',
+                          fit: BoxFit.contain,
                         ),
                       ),
                     ),

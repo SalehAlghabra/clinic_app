@@ -191,6 +191,8 @@ class PatientSettingsScreen extends StatelessWidget {
                   onPressed: isSubmitting
                       ? null
                       : () async {
+                          final nameVal = nameController.text.trim();
+                          final phoneVal = phoneController.text.trim();
                           final pass = passwordController.text.trim();
                           final confirmPass = confirmPasswordController.text.trim();
                           final currPass = currentPasswordController.text.trim();
@@ -224,8 +226,8 @@ class PatientSettingsScreen extends StatelessWidget {
                           try {
                             final authRepo = RepositoryProvider.of<AuthRepository>(context);
                             final res = await authRepo.updateProfile(
-                              name: nameController.text.trim(),
-                              phone: phoneController.text.trim(),
+                              name: nameVal,
+                              phone: phoneVal,
                               currentPassword: currPass.isNotEmpty ? currPass : null,
                               password: pass.isNotEmpty ? pass : null,
                               fileBytes: selectedBytes,

@@ -136,10 +136,13 @@ class AuthApiService {
     return response.data as Map<String, dynamic>;
   }
 
-  Future<void> updateFcmToken(String fcmToken) async {
+  Future<void> updateFcmToken(String fcmToken, {String? locale}) async {
     await _apiClient.post(
       ApiEndpoints.fcmToken,
-      data: {'fcm_token': fcmToken},
+      data: {
+        'fcm_token': fcmToken,
+        'locale': locale,
+      },
     );
   }
 }
